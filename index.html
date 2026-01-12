@@ -665,10 +665,12 @@ function agendarVerificacaoDiaria(){
 
 agendarVerificacaoDiaria();
 const salvo = load('perfil');
-if(salvo){}
-  overlay.style.display='none';
-  capa.style.display='block';
-  nomeCapa.textContent=`Salve, ${salvo.nome}`;    
+
+if (salvo && salvo.nome) {
+  overlay.style.display = 'none';
+  capa.style.display = 'block';
+  nomeCapa.textContent = `Salve, ${salvo.nome}`;
+}
 </script>
 </body>
 </html>
