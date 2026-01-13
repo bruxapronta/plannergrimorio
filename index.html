@@ -646,6 +646,30 @@
       margin-bottom: 12px;
     }
 
+    /* MODAL DE CONFIGURAÇÃO DE NOTIFICAÇÕES */
+    #modalNotificacoes {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    #modalNotificacoes > div {
+      background: var(--color-bone-white);
+      padding: 24px;
+      border-radius: var(--border-radius-lg);
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-deep);
+    }
+
     /* MEDIA QUERIES - RESPONSIVIDADE */
     @media (min-width: 768px) {
       main {
@@ -738,7 +762,6 @@
     }
 
     /* AJUSTES DE CONTRASTE WCAG */
-    /* Garantindo contraste mínimo 4.5:1 */
     .oraculo-text {
       color: var(--color-text-primary);
       background: white;
@@ -784,7 +807,6 @@
     h2 { margin-bottom: 1.5rem; }
     h3 { margin-bottom: 1rem; }
     h4 { margin-bottom: 0.75rem; }
-
   </style>
 </head>
 <body>
@@ -1052,10 +1074,10 @@
 </main>
 
 <script>
-// ===== VARIÁVEIS GLOBAIS PARA INSTALAÇÃO =====
+// ===== VARIÁVEIS GLOBAIS =====
 let deferredPrompt = null;
 
-// ===== ELEMENTOS DO FLUXO NOVO =====
+// ===== ELEMENTOS =====
 const installOverlay = document.getElementById('installOverlay');
 const formOverlay = document.getElementById('formOverlay');
 const btnInstalarPWA = document.getElementById('btnInstalarPWA');
@@ -1066,18 +1088,41 @@ const btnConfigNotificacoes = document.getElementById('btnConfigNotificacoes');
 const modalNotificacoes = document.getElementById('modalNotificacoes');
 const btnFecharNotificacoes = document.getElementById('btnFecharNotificacoes');
 const btnSalvarConfigNotificacoes = document.getElementById('btnSalvarConfigNotificacoes');
+const capa = document.getElementById('capa');
+const planner = document.getElementById('planner');
+const prospera = document.getElementById('prospera');
+const grid = document.getElementById('grid');
+const mesTitulo = document.getElementById('mesTitulo');
+const perfilEl = document.getElementById('perfil');
+const nomeCapa = document.getElementById('nomeCapa');
+const modal = document.getElementById('modal');
+const oraculo = document.getElementById('oraculo');
+const notasSalvas = document.getElementById('notasSalvas');
+const sentimentosSalvos = document.getElementById('sentimentosSalvos');
+
+let mesAtual = new Date().getMonth();
+let anoAtual = 2026;
+let diaAtual = null;
+
+// ===== FUNÇÕES DE ARMAZENAMENTO =====
+function save(k, v) {
+  localStorage.setItem(k, JSON.stringify(v));
+}
+
+function load(k) {
+  const v = localStorage.getItem(k);
+  return v ? JSON.parse(v) : null;
+}
 
 // ===== FLUXO DE INSTALAÇÃO =====
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   
-  // Mostra botão na capa
   if (btnInstalarAgora) {
     btnInstalarAgora.style.display = 'block';
   }
   
-  // Mostra tela de instalação se for primeira visita
   const hasVisited = localStorage.getItem('hasVisited');
   if (!hasVisited) {
     installOverlay.style.display = 'flex';
@@ -1151,25 +1196,12 @@ btnSalvarConfigNotificacoes.addEventListener('click', () => {
   };
   
   save('configNotificacoes', config);
-  
-  // Agendar notificações com novas configurações
   agendarNotificacoes();
-  
   modalNotificacoes.style.display = 'none';
   alert('Configurações de notificações salvas!');
 });
 
-// ===== FUNÇÕES DE ARMAZENAMENTO =====
-function save(k, v) {
-  localStorage.setItem(k, JSON.stringify(v));
-}
-
-function load(k) {
-  const v = localStorage.getItem(k);
-  return v ? JSON.parse(v) : null;
-}
-
-// ===== FORMULÁRIO (MODIFICADO COM DATA DE NASCIMENTO) =====
+// ===== FORMULÁRIO =====
 document.getElementById('salvar').onclick = () => {
   const nome = document.getElementById('nome').value.trim();
   const signo = document.getElementById('signo').value;
@@ -1202,7 +1234,6 @@ document.getElementById('salvar').onclick = () => {
   capa.style.display = 'block';
   localStorage.setItem('formPreenchido', 'true');
   
-  // Inicializar configurações padrão de notificações
   const configNotificacoes = load('configNotificacoes');
   if (!configNotificacoes) {
     save('configNotificacoes', {
@@ -1215,7 +1246,6 @@ document.getElementById('salvar').onclick = () => {
   }
 };
 
-// Botão para alterar dados
 btnAlterarNome.addEventListener('click', () => {
   const perfilAtual = load('perfil') || {};
   document.getElementById('nome').value = perfilAtual.nome || '';
@@ -1243,20 +1273,24 @@ window.addEventListener('load', () => {
     }
   }
   
-  // Service Worker
+  // Registrar Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('🌙 Service Worker registrado'))
-      .catch(err => console.error('Erro no Service Worker:', err));
+      .then(registration => {
+        console.log('Service Worker registrado:', registration.scope);
+      })
+      .catch(err => {
+        console.error('Erro no Service Worker:', err);
+      });
   }
   
-  // Agendar notificações ao carregar
-  agendarNotificacoes();
+  // Agendar notificações após carregar
+  setTimeout(() => {
+    agendarNotificacoes();
+  }, 2000);
 });
 
 // ===== FUNÇÕES DE NOTIFICAÇÃO =====
-
-// Solicitar permissão para notificações
 function solicitarPermissaoNotificacao() {
   if (!('Notification' in window)) {
     console.log('Este navegador não suporta notificações.');
@@ -1267,17 +1301,25 @@ function solicitarPermissaoNotificacao() {
     Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
         console.log('Permissão para notificações concedida.');
+        setTimeout(() => agendarNotificacoes(), 1000);
       }
     });
   }
 }
 
-// Função para agendar notificações
 function agendarNotificacoes() {
-  const config = load('configNotificacoes');
-  if (!config || config.ativas === 'nao') return;
+  console.log('Agendando notificações...');
   
-  if (Notification.permission !== 'granted') return;
+  const config = load('configNotificacoes');
+  if (!config || config.ativas === 'nao') {
+    console.log('Notificações desativadas.');
+    return;
+  }
+  
+  if (Notification.permission !== 'granted') {
+    console.log('Permissão não concedida.');
+    return;
+  }
   
   // Agendar notificação diária
   agendarNotificacaoDiaria(config);
@@ -1287,36 +1329,22 @@ function agendarNotificacoes() {
     agendarNotificacoesSabas(config);
   }
   
-  // Verificar e agendar notificações de notas
+  // Agendar notificações de notas
   agendarNotificacoesNotas();
 }
 
-// Agendar notificação diária
 function agendarNotificacaoDiaria(config) {
-  const horaNotificacao = config.horaDiaria.split(':');
-  const hora = parseInt(horaNotificacao[0]);
-  const minuto = parseInt(horaNotificacao[1]);
+  console.log('Agendando notificação diária...');
   
+  // Para teste: 30 segundos no futuro
   const agora = new Date();
-  const dataNotificacao = new Date();
-  
-  dataNotificacao.setHours(hora, minuto, 0, 0);
-  
-  // Se já passou do horário hoje, agenda para amanhã
-  if (agora > dataNotificacao) {
-    dataNotificacao.setDate(dataNotificacao.getDate() + 1);
-  }
-  
-  const tempoParaNotificacao = dataNotificacao - agora;
+  const testeData = new Date(agora.getTime() + 30000);
   
   setTimeout(() => {
     enviarNotificacaoDiaria();
-    // Agendar para o próximo dia
-    setInterval(enviarNotificacaoDiaria, 24 * 60 * 60 * 1000);
-  }, tempoParaNotificacao);
+  }, testeData - agora);
 }
 
-// Enviar notificação diária
 function enviarNotificacaoDiaria() {
   if (Notification.permission !== 'granted') return;
   
@@ -1324,75 +1352,81 @@ function enviarNotificacaoDiaria() {
   const notas = load('notas') || {};
   const temNotas = Array.isArray(notas[hoje]) && notas[hoje].length > 0;
   
-  let corpo = 'Lembre-se de registrar seus pensamentos e sentimentos hoje.';
+  let corpo = 'Lembre-se de registrar seus pensamentos e sentimentos hoje. ✨';
   
   if (temNotas) {
-    corpo = 'Você tem notas registradas para hoje. Reveja-as para reflexão.';
+    corpo = 'Você tem notas registradas para hoje. Reveja-as para reflexão. 📖';
   }
   
-  navigator.serviceWorker.ready.then(reg => {
-    reg.showNotification('🌙 Lembrete Diário do Grimório', {
-      body: corpo,
-      icon: 'icon-192.png',
-      tag: 'lembrete-diario'
+  const sabaHoje = sabas2026[hoje];
+  if (sabaHoje) {
+    corpo += `\n\n🔥 Hoje é ${sabaHoje.nome}: ${sabaHoje.significado}`;
+  }
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification('🌙 Lembrete Diário do Grimório', {
+        body: corpo,
+        icon: 'icon-192.png',
+        tag: 'lembrete-diario-' + Date.now()
+      });
+    }).catch(err => {
+      console.error('Erro:', err);
+      new Notification('🌙 Lembrete Diário do Grimório', {
+        body: corpo,
+        icon: 'icon-192.png'
+      });
     });
-  });
+  } else {
+    new Notification('🌙 Lembrete Diário do Grimório', {
+      body: corpo,
+      icon: 'icon-192.png'
+    });
+  }
 }
 
-// Agendar notificações de Sabás
 function agendarNotificacoesSabas(config) {
-  const antecedencia = parseInt(config.antecedenciaSabas);
-  const horaSabas = config.horaSabas.split(':');
-  const hora = parseInt(horaSabas[0]);
-  const minuto = parseInt(horaSabas[1]);
+  console.log('Agendando notificações de Sabás...');
   
-  const hoje = new Date().toISOString().split('T')[0];
+  const antecedencia = parseInt(config.antecedenciaSabas);
   
   Object.keys(sabas2026).forEach(dataSabá => {
-    const dataSabáObj = new Date(dataSabá);
-    const dataNotificacao = new Date(dataSabáObj);
+    const sabá = sabas2026[dataSabá];
     
-    // Subtrair dias de antecedência
-    dataNotificacao.setDate(dataNotificacao.getDate() - antecedencia);
-    
-    // Definir hora da notificação
-    dataNotificacao.setHours(hora, minuto, 0, 0);
-    
+    // Para teste: 45 segundos no futuro
     const agora = new Date();
-    
-    // Se a data de notificação já passou, não agendar
-    if (dataNotificacao < agora) return;
-    
-    const tempoParaNotificacao = dataNotificacao - agora;
+    const testeData = new Date(agora.getTime() + 45000);
     
     setTimeout(() => {
-      const sabá = sabas2026[dataSabá];
       enviarNotificacaoSabá(sabá, antecedencia);
-    }, tempoParaNotificacao);
+    }, testeData - agora);
   });
 }
 
-// Enviar notificação de Sabá
 function enviarNotificacaoSabá(sabá, antecedencia) {
   if (Notification.permission !== 'granted') return;
   
-  let mensagem = '';
+  let mensagem = `Em ${antecedencia} dia(s) será ${sabá.nome}. ${sabá.significado}`;
   if (antecedencia === 0) {
     mensagem = `Hoje é ${sabá.nome}! ${sabá.significado}`;
-  } else {
-    mensagem = `Em ${antecedencia} dia(s) será ${sabá.nome}. ${sabá.significado}`;
   }
   
-  navigator.serviceWorker.ready.then(reg => {
-    reg.showNotification(`🔥 ${sabá.nome}`, {
-      body: mensagem,
-      icon: 'icon-192.png',
-      tag: `saba-${sabá.nome}`
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(`🔥 ${sabá.nome}`, {
+        body: mensagem,
+        icon: 'icon-192.png',
+        tag: `saba-${sabá.nome}`
+      });
     });
-  });
+  } else {
+    new Notification(`🔥 ${sabá.nome}`, {
+      body: mensagem,
+      icon: 'icon-192.png'
+    });
+  }
 }
 
-// Agendar notificações para notas
 function agendarNotificacoesNotas() {
   const notasComNotificacao = load('notasComNotificacao') || {};
   
@@ -1402,55 +1436,94 @@ function agendarNotificacoesNotas() {
     notificacoes.forEach((notificacao, index) => {
       const { horaNota, antecedencia, texto } = notificacao;
       
-      const [horaStr, minutoStr] = horaNota.split(':');
-      const hora = parseInt(horaStr);
-      const minuto = parseInt(minutoStr);
-      
-      const dataNota = new Date(dataISO);
-      dataNota.setHours(hora, minuto, 0, 0);
-      
-      // Subtrair antecedência (em minutos)
-      const dataNotificacao = new Date(dataNota.getTime() - (antecedencia * 60 * 1000));
-      
+      // Para teste: 60 segundos no futuro
       const agora = new Date();
-      
-      // Se já passou, não agendar
-      if (dataNotificacao < agora) return;
-      
-      const tempoParaNotificacao = dataNotificacao - agora;
+      const testeData = new Date(agora.getTime() + 60000);
       
       setTimeout(() => {
         enviarNotificacaoNota(texto, horaNota);
         
-        // Remover notificação após disparar
         notasComNotificacao[dataISO].splice(index, 1);
         if (notasComNotificacao[dataISO].length === 0) {
           delete notasComNotificacao[dataISO];
         }
         save('notasComNotificacao', notasComNotificacao);
-      }, tempoParaNotificacao);
+      }, testeData - agora);
     });
   });
 }
 
-// Enviar notificação de nota
 function enviarNotificacaoNota(textoNota, horaNota) {
   if (Notification.permission !== 'granted') return;
   
   const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
   
-  navigator.serviceWorker.ready.then(reg => {
-    reg.showNotification(`📝 Lembrete de Nota - ${horaNota}`, {
-      body: preview,
-      icon: 'icon-192.png',
-      tag: `nota-${Date.now()}`
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(`📝 Lembrete de Nota - ${horaNota}`, {
+        body: preview,
+        icon: 'icon-192.png',
+        tag: `nota-${Date.now()}`
+      });
     });
-  });
+  } else {
+    new Notification(`📝 Lembrete de Nota - ${horaNota}`, {
+      body: preview,
+      icon: 'icon-192.png'
+    });
+  }
+}
+
+// ===== TESTE DE NOTIFICAÇÕES =====
+function adicionarBotaoTeste() {
+  setTimeout(() => {
+    const capaDiv = document.getElementById('capa');
+    if (capaDiv && !document.getElementById('btnTesteNotificacao')) {
+      const btnTeste = document.createElement('button');
+      btnTeste.id = 'btnTesteNotificacao';
+      btnTeste.className = 'secondary';
+      btnTeste.innerHTML = '🔔 Testar Notificação';
+      btnTeste.style.marginTop = '10px';
+      btnTeste.style.marginLeft = '10px';
+      
+      btnTeste.addEventListener('click', () => {
+        if (Notification.permission === 'granted') {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification('🔔 Teste de Notificação', {
+                body: 'Esta é uma notificação de teste do Grimório!',
+                icon: 'icon-192.png',
+                tag: 'teste'
+              });
+              alert('✅ Notificação de teste enviada!');
+            });
+          } else {
+            new Notification('🔔 Teste de Notificação', {
+              body: 'Esta é uma notificação de teste do Grimório!',
+              icon: 'icon-192.png'
+            });
+            alert('✅ Notificação de teste enviada!');
+          }
+        } else if (Notification.permission === 'default') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              alert('✅ Permissão concedida! Clique novamente para testar.');
+            }
+          });
+        } else {
+          alert('❌ Permissão para notificações foi negada.');
+        }
+      });
+      
+      const btnAlterarNome = document.getElementById('btnAlterarNome');
+      if (btnAlterarNome && btnAlterarNome.parentNode) {
+        btnAlterarNome.parentNode.appendChild(btnTeste);
+      }
+    }
+  }, 1000);
 }
 
 // ===== DADOS DAS PLANILHAS =====
-
-// DADOS DA RODA DO ANO 2026 - SUL (conforme planilha)
 const sabas2026 = {
   '2026-02-01': {
     nome: 'Lughnasadh',
@@ -1510,7 +1583,6 @@ const sabas2026 = {
   }
 };
 
-// DADOS DA LUNAÇÃO ASTROLÓGICA (conforme planilha)
 const energiasLunares = {
   'Lua Nova': {
     energiaPrincipal: 'Introspecção, recomeço, potencial latente',
@@ -1534,7 +1606,6 @@ const energiasLunares = {
   }
 };
 
-// ENERGIA DA FASE NO SIGNO (conforme planilha)
 const energiaSignoLunar = {
   'Áries': {
     'Lua Nova': 'Momento de máxima coragem para iniciar projetos pessoais e retomar o protagonismo.',
@@ -1610,7 +1681,6 @@ const energiaSignoLunar = {
   }
 };
 
-// NUMEROLOGIA - ENERGIA DOS NÚMEROS
 const energiaNumerologia = {
   1: { potencial: 'Início, liderança, independência', risco: 'Egoísmo, impulsividade' },
   2: { potencial: 'Cooperação, diplomacia, sensibilidade', risco: 'Indecisão, dependência emocional' },
@@ -1623,7 +1693,6 @@ const energiaNumerologia = {
   9: { potencial: 'Compaixão, completude, humanitarismo', risco: 'Mártir, apego ao passado' }
 };
 
-// CICLO MENSTRUAL + FASE LUNAR
 const cicloMenstrualFaseLunar = {
   'Lua Nova': {
     'menstruacao': 'Energia de recolhimento profundo. Momento ideal para descansar e ouvir seu corpo.',
@@ -1651,7 +1720,6 @@ const cicloMenstrualFaseLunar = {
   }
 };
 
-// ===== DADOS LUNAIRES 2026 (mantidos do código original) =====
 const lunacoes2026 = {
   '2026-01-03': { fase: 'Lua Cheia', signo: 'Câncer', icone: '🌕' },
   '2026-01-10': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' },
@@ -1721,8 +1789,6 @@ const luaForaDeCurso = {
 };
 
 // ===== FUNÇÕES AUXILIARES =====
-
-// Função para calcular número da numerologia (dia + mês + ano atual)
 function calcularNumeroEnergia(dataISO) {
   const perfil = load('perfil') || {};
   const dataNascimento = perfil.dataNascimento;
@@ -1730,18 +1796,13 @@ function calcularNumeroEnergia(dataISO) {
   if (!dataNascimento) return null;
   
   try {
-    // Extrai dia e mês da data de nascimento
     const partes = dataNascimento.split('-');
     const dia = parseInt(partes[2]);
     const mes = parseInt(partes[1]);
-    
-    // Ano atual é 2026 (conforme código)
     const anoAtual = 2026;
     
-    // Soma: dia + mês + ano atual
     let soma = dia + mes + anoAtual;
     
-    // Reduz para um único dígito
     while (soma > 9) {
       soma = soma.toString().split('').reduce((acc, num) => acc + parseInt(num), 0);
     }
@@ -1753,7 +1814,6 @@ function calcularNumeroEnergia(dataISO) {
   }
 }
 
-// Função para determinar fase do ciclo menstrual
 function determinarFaseCiclo(dataISO) {
   const perfil = load('perfil') || {};
   const ciclo = perfil.ciclo;
@@ -1764,17 +1824,15 @@ function determinarFaseCiclo(dataISO) {
     const dataCiclo = new Date(ciclo);
     const dataAtual = new Date(dataISO);
     
-    // Calcula diferença em dias
     const diffTime = dataAtual - dataCiclo;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    // Determina fase baseada em ciclo de 28 dias
     const cicloDia = diffDays % 28;
     
     if (cicloDia >= 0 && cicloDia <= 7) return 'menstruacao';
     if (cicloDia >= 8 && cicloDia <= 14) return 'pre_ovulacao';
     if (cicloDia >= 15 && cicloDia <= 21) return 'ovulacao';
-    return 'pre_menstrual'; // dias 22-27
+    return 'pre_menstrual';
     
   } catch (e) {
     console.error('Erro ao determinar fase do ciclo:', e);
@@ -1782,7 +1840,6 @@ function determinarFaseCiclo(dataISO) {
   }
 }
 
-// ===== FUNÇÃO AVALIAR DIA (COMPLETAMENTE ATUALIZADA) =====
 function avaliarDia(dataISO) {
   const perfil = load('perfil') || {};
   const lua = lunacoes2026[dataISO];
@@ -1790,13 +1847,11 @@ function avaliarDia(dataISO) {
   
   let oraculoHTML = '';
   
-  // 1. SE FOR SABÁ
   if (saba) {
     oraculoHTML += `<strong>🔥 Hoje é dia do Sabá ${saba.nome} (${saba.tipo}).</strong><br>`;
     oraculoHTML += `Dia de celebrar ${saba.estacaoElemento.toLowerCase()}.<br><br>`;
   }
   
-  // 2. LUA EM SIGNO (sempre mostrar)
   if (lua) {
     const energiaFase = energiasLunares[lua.fase] || {};
     const energiaSigno = energiaSignoLunar[lua.signo] || {};
@@ -1809,10 +1864,8 @@ function avaliarDia(dataISO) {
     oraculoHTML += `Continuidade do ciclo lunar em andamento.<br><br>`;
   }
   
-  // 3. ENERGIA DO DIA (numerologia + ciclo menstrual)
   oraculoHTML += `<strong>⚡ Energia do dia:</strong><br>`;
   
-  // Calcula energia da numerologia
   const numeroEnergia = calcularNumeroEnergia(dataISO);
   if (numeroEnergia && energiaNumerologia[numeroEnergia]) {
     const energiaNum = energiaNumerologia[numeroEnergia];
@@ -1820,25 +1873,21 @@ function avaliarDia(dataISO) {
     oraculoHTML += `Atenção para ${energiaNum.risco.toLowerCase()}.<br>`;
   }
   
-  // Adiciona diagnóstico do ciclo menstrual + fase lunar
   const faseCiclo = determinarFaseCiclo(dataISO);
   if (lua && faseCiclo && cicloMenstrualFaseLunar[lua.fase] && cicloMenstrualFaseLunar[lua.fase][faseCiclo]) {
     oraculoHTML += `Você poderá se sentir ${cicloMenstrualFaseLunar[lua.fase][faseCiclo].toLowerCase()}<br><br>`;
   } else if (lua && !perfil.ciclo) {
-    // Se não informou ciclo, dá diagnóstico baseado apenas na fase lunar
     const energiaFase = energiasLunares[lua.fase] || {};
     oraculoHTML += `Dia para focar em ${energiaFase.acoesPositivas ? energiaFase.acoesPositivas.split(',')[0] : 'harmonia interna'}.<br><br>`;
   } else {
     oraculoHTML += `Atenção às suas necessidades internas hoje.<br><br>`;
   }
   
-  // 4. RITUAL SUGERIDO
   oraculoHTML += `<strong>✨ Ritual sugerido:</strong><br>`;
   if (saba) {
     oraculoHTML += `Dia de ${saba.rituais.split(',')[0]} e `;
   }
   
-  // Adiciona ritual baseado na fase lunar (do código original)
   if (lua) {
     if (lua.fase === 'Lua Cheia') {
       oraculoHTML += 'ritual de gratidão, escrita consciente e celebração simbólica.';
@@ -1858,19 +1907,7 @@ function avaliarDia(dataISO) {
   return oraculoHTML;
 }
 
-// ===== FUNÇÕES DO PLANNER (MANTIDAS) =====
-const capa = document.getElementById('capa');
-const planner = document.getElementById('planner');
-const prospera = document.getElementById('prospera');
-const grid = document.getElementById('grid');
-const mesTitulo = document.getElementById('mesTitulo');
-const perfilEl = document.getElementById('perfil');
-const nomeCapa = document.getElementById('nomeCapa');
-
-let mesAtual = new Date().getMonth();
-let anoAtual = 2026;
-let diaAtual = null;
-
+// ===== FUNÇÕES DO PLANNER =====
 function criarPlanner() {
   grid.innerHTML = '';
   const total = new Date(anoAtual, mesAtual + 1, 0).getDate();
@@ -1898,11 +1935,9 @@ function criarPlanner() {
 
     el.innerHTML = `<strong>${d}</strong>` + (icones ? `<div class="iconesTopo">${icones}</div>` : '');
 
-    // Mostra estrela se houver notas OU sentimentos
     if ((Array.isArray(notas[dataISO]) && notas[dataISO].length) || sentimentos[dataISO]) {
       el.innerHTML += `<span class="estrela">✶</span>`;
       
-      // Mostra preview da última nota ou sentimento
       const p = document.createElement('div');
       p.className = 'preview';
       
@@ -1920,19 +1955,16 @@ function criarPlanner() {
   }
 }
 
-// ===== FUNÇÃO ABRIR MODAL (ATUALIZADA COM NOTIFICAÇÕES) =====
+// ===== FUNÇÃO ABRIR MODAL =====
 function abrirModal(dataISO, dia) {
   diaAtual = dataISO;
-  modalTitulo.textContent = `Dia ${dia}`;
+  document.getElementById('modalTitulo').textContent = `Dia ${dia}`;
   
-  // Usa a NOVA função avaliarDia
   oraculo.innerHTML = avaliarDia(dataISO);
   
-  // Limpa containers
   notasSalvas.innerHTML = '';
   sentimentosSalvos.innerHTML = '';
   
-  // Carrega notas
   const notas = load('notas') || {};
   if (Array.isArray(notas[dataISO])) {
     notas[dataISO].forEach((n, index) => {
@@ -1946,7 +1978,6 @@ function abrirModal(dataISO, dia) {
       notasSalvas.appendChild(div);
     });
     
-    // Adiciona eventos aos botões de apagar notas
     document.querySelectorAll('.btn-apagar-nota').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -1956,7 +1987,6 @@ function abrirModal(dataISO, dia) {
     });
   }
   
-  // Carrega sentimentos
   const sentimentos = load('sentimentos') || {};
   if (sentimentos[dataISO]) {
     const div = document.createElement('div');
@@ -1968,14 +1998,12 @@ function abrirModal(dataISO, dia) {
     `;
     sentimentosSalvos.appendChild(div);
     
-    // Adiciona evento ao botão de apagar sentimentos
     document.querySelector('.btn-apagar-sentimento').addEventListener('click', function(e) {
       e.stopPropagation();
       apagarSentimento();
     });
   }
   
-  // Preenche campo de sentimentos se já existir
   const sentimentosField = document.getElementById('sentimentos');
   if (sentimentos[dataISO]) {
     sentimentosField.value = sentimentos[dataISO];
@@ -1983,11 +2011,9 @@ function abrirModal(dataISO, dia) {
     sentimentosField.value = '';
   }
   
-  // Limpa outros campos
   document.getElementById('notaHora').value = '';
   document.getElementById('notaTexto').value = '';
   
-  // Configurar controle de notificações
   const notificarNotaSelect = document.getElementById('notificarNota');
   const configNotificacaoDiv = document.getElementById('configNotificacao');
   
@@ -2005,9 +2031,6 @@ function abrirModal(dataISO, dia) {
   modal.style.display = 'flex';
 }
 
-// ===== NOVAS FUNÇÕES PARA APAGAR =====
-
-// Função para apagar uma nota específica
 function apagarNota(index) {
   if (!confirm('Tem certeza que deseja apagar esta nota?')) {
     return;
@@ -2016,28 +2039,18 @@ function apagarNota(index) {
   const notas = load('notas') || {};
   
   if (Array.isArray(notas[diaAtual]) && notas[diaAtual][index]) {
-    // Remove a nota no índice especificado
     notas[diaAtual].splice(index, 1);
     
-    // Se não houver mais notas para este dia, remove o array
     if (notas[diaAtual].length === 0) {
       delete notas[diaAtual];
     }
     
-    // Salva as notas atualizadas
     save('notas', notas);
-    
-    // Atualiza o modal
     abrirModal(diaAtual, diaAtual.split('-')[2]);
-    
-    // Atualiza o calendário
     criarPlanner();
-    
-    console.log('Nota apagada com sucesso!');
   }
 }
 
-// Função para apagar sentimentos do dia
 function apagarSentimento() {
   if (!confirm('Tem certeza que deseja apagar suas impressões e sentimentos deste dia?')) {
     return;
@@ -2046,23 +2059,13 @@ function apagarSentimento() {
   const sentimentos = load('sentimentos') || {};
   
   if (sentimentos[diaAtual]) {
-    // Remove os sentimentos do dia
     delete sentimentos[diaAtual];
-    
-    // Salva os sentimentos atualizados
     save('sentimentos', sentimentos);
-    
-    // Atualiza o modal
     abrirModal(diaAtual, diaAtual.split('-')[2]);
-    
-    // Atualiza o calendário
     criarPlanner();
-    
-    console.log('Sentimentos apagados com sucesso!');
   }
 }
 
-// ===== FUNÇÃO SALVAR NOTA (ATUALIZADA COM NOTIFICAÇÕES) =====
 function salvarNota() {
   const notaTexto = document.getElementById('notaTexto').value.trim();
   const sentimentosTexto = document.getElementById('sentimentos').value.trim();
@@ -2070,27 +2073,23 @@ function salvarNota() {
   const notificarNota = document.getElementById('notificarNota').value;
   const tempoAntecedencia = parseInt(document.getElementById('tempoAntecedencia').value);
   
-  // Salva nota se houver conteúdo
   if (notaTexto) {
     const notas = load('notas') || {};
     if (!Array.isArray(notas[diaAtual])) notas[diaAtual] = [];
     notas[diaAtual].push({ hora: notaHora, texto: notaTexto });
     save('notas', notas);
     
-    // Agendar notificação se solicitado
     if (notificarNota === 'sim' && notaHora) {
       agendarNotificacaoNota(diaAtual, notaHora, tempoAntecedencia, notaTexto);
     }
   }
   
-  // Salva sentimentos se houver conteúdo
   if (sentimentosTexto) {
     const sentimentos = load('sentimentos') || {};
     sentimentos[diaAtual] = sentimentosTexto;
     save('sentimentos', sentimentos);
   }
   
-  // Se não houver nenhum conteúdo, não faz nada
   if (!notaTexto && !sentimentosTexto) {
     alert('Por favor, escreva uma nota ou seus sentimentos!');
     return;
@@ -2100,7 +2099,6 @@ function salvarNota() {
   criarPlanner();
 }
 
-// Agendar notificação para uma nota específica
 function agendarNotificacaoNota(dataISO, horaNota, antecedenciaMinutos, textoNota) {
   const notasComNotificacao = load('notasComNotificacao') || {};
   
@@ -2115,57 +2113,6 @@ function agendarNotificacaoNota(dataISO, horaNota, antecedenciaMinutos, textoNot
   });
   
   save('notasComNotificacao', notasComNotificacao);
-  
-  // Agendar a notificação
-  const [horaStr, minutoStr] = horaNota.split(':');
-  const hora = parseInt(horaStr);
-  const minuto = parseInt(minutoStr);
-  
-  const dataNota = new Date(dataISO);
-  dataNota.setHours(hora, minuto, 0, 0);
-  
-  // Subtrair antecedência (em minutos)
-  const dataNotificacao = new Date(dataNota.getTime() - (antecedenciaMinutos * 60 * 1000));
-  
-  const agora = new Date();
-  
-  // Se já passou, não agendar
-  if (dataNotificacao < agora) {
-    console.log('Data da notificação já passou, não agendando.');
-    return;
-  }
-  
-  const tempoParaNotificacao = dataNotificacao - agora;
-  
-  setTimeout(() => {
-    if (Notification.permission === 'granted') {
-      const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
-      
-      navigator.serviceWorker.ready.then(reg => {
-        reg.showNotification(`📝 Lembrete de Nota - ${horaNota}`, {
-          body: preview,
-          icon: 'icon-192.png',
-          tag: `nota-${Date.now()}`
-        });
-      });
-    }
-    
-    // Remover notificação após disparar
-    const notasComNotificacaoAtualizadas = load('notasComNotificacao') || {};
-    if (Array.isArray(notasComNotificacaoAtualizadas[dataISO])) {
-      const index = notasComNotificacaoAtualizadas[dataISO].findIndex(n => 
-        n.horaNota === horaNota && n.texto === textoNota
-      );
-      
-      if (index !== -1) {
-        notasComNotificacaoAtualizadas[dataISO].splice(index, 1);
-        if (notasComNotificacaoAtualizadas[dataISO].length === 0) {
-          delete notasComNotificacaoAtualizadas[dataISO];
-        }
-        save('notasComNotificacao', notasComNotificacaoAtualizadas);
-      }
-    }
-  }, tempoParaNotificacao);
 }
 
 function fecharModal() {
@@ -2175,7 +2122,7 @@ function fecharModal() {
   document.getElementById('sentimentos').value = '';
 }
 
-// ===== FUNÇÕES DO LIVRO DA BRUXA PRÓSPERA (MANTIDAS) =====
+// ===== FUNÇÕES DO LIVRO DA BRUXA PRÓSPERA =====
 function recalcular() {
   const categorias = ['sustento', 'florescimento', 'centelha', 'abundancia'];
   let somaTotal = 0;
@@ -2227,13 +2174,7 @@ function addLinha(id, tipo) {
   tbody.appendChild(tr);
 }
 
-// Adiciona linhas iniciais
-addLinha('sustento');
-addLinha('abundancia', 'ganho');
-addLinha('florescimento');
-addLinha('centelha');
-
-// ===== NAVEGAÇÃO (MANTIDA) =====
+// ===== NAVEGAÇÃO =====
 document.getElementById('irPlanner').onclick = () => {
   capa.style.display = 'none';
   planner.style.display = 'block';
@@ -2275,19 +2216,20 @@ document.getElementById('mesProximo').onclick = () => {
   criarPlanner();
 };
 
-// ===== EVENTOS DO MODAL (MANTIDOS) =====
+// ===== EVENTOS DO MODAL =====
 document.getElementById('btnFechar').onclick = fecharModal;
 document.getElementById('btnSalvarNota').onclick = salvarNota;
 
-// Service Worker para PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('🌙 Grimório instalado como PWA'))
-      .catch(err => console.error('Erro no Service Worker', err));
-  });
-}
+// ===== INICIALIZAÇÃO =====
+addLinha('sustento');
+addLinha('abundancia', 'ganho');
+addLinha('florescimento');
+addLinha('centelha');
 
+// Adicionar botão de teste após carregar
+window.addEventListener('load', () => {
+  setTimeout(adicionarBotaoTeste, 1500);
+});
 </script>
 </body>
 </html>
