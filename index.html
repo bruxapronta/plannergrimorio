@@ -5,72 +5,251 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Planner Ritualístico — Grimório Completo</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Fontes otimizadas para leitura -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Great+Vibes&family=Cinzel:wght@400;600&family=UnifrakturCook:700&display=swap');
-
+    /* VARIÁVEIS DE CORES - PALETA ACESSÍVEL 2026 */
+    :root {
+      /* Cores neutras orgânicas - PAPEL COMO PADRÃO DEFINITIVO */
+      --color-cloud-dancer: #e8dfca; /* Papel reciclado como cor definitiva */
+      --color-bone-white: #f9f6ef;   /* Tom de pergaminho suave */
+      --color-parchment: #f5f1e8;    /* Pergaminho claro */
+      
+      /* Cores de texto */
+      --color-obsidian: #1a1a1a;     /* Quase preto, melhor que #000 */
+      --color-deep-teal: #0d2b2e;    /* Verde muito escuro */
+      --color-text-primary: #121212; /* Cinza escuro para melhor legibilidade */
+      --color-text-secondary: #424242;
+      
+      /* Cores de destaque - Tendências 2026 */
+      --color-digital-lavender: #b5a8ff; /* Cor do ano 2026 */
+      --color-transformative-teal: #2a7a7a; /* Verde-azulado transformativo */
+      --color-mystic-purple: #7e57c2;     /* Roxo místico */
+      --color-sunset-amber: #ff8a50;      /* Âmbar do pôr do sol */
+      
+      /* Tipografia */
+      --font-heading: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mystic: 'Cormorant Garamond', serif;
+      
+      /* Espaçamento */
+      --line-height-body: 1.6;
+      --line-height-heading: 1.3;
+      --letter-spacing-wide: 0.02em;
+      --letter-spacing-tight: -0.01em;
+      
+      /* Bordas */
+      --border-radius-sm: 8px;
+      --border-radius-md: 12px;
+      --border-radius-lg: 20px;
+      
+      /* Sombras suaves */
+      --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --shadow-deep: 0 12px 36px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* ESTILOS GERAIS DO CORPO - FUNDO EM PAPEL DEFINITIVO */
     body {
-      font-family: 'Cinzel', serif;
-      background: radial-gradient(circle at top, #6b003f, #3a0023, #1a0010);
+      font-family: var(--font-body);
+      background: var(--color-cloud-dancer); /* Cor de papel reciclado como padrão */
       margin: 0;
       padding: 0;
-      color: #f3e6c8;
+      color: var(--color-text-primary);
       min-height: 100vh;
+      line-height: var(--line-height-body);
+      letter-spacing: var(--letter-spacing-wide);
     }
 
     body::before {
       content: '☾ ✶ ⚝ ☿ ♀ ♂ ⚗ 🜃 🜁 🜂 🜄';
       position: fixed;
       inset: 0;
-      opacity: 0.06;
+      opacity: 0.03;
       font-size: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
       pointer-events: none;
+      font-family: var(--font-mystic);
+      color: var(--color-text-secondary);
     }
 
-    /* RESPONSIVIDADE - Container principal */
-    #container {
-      background: #2a0018;
-      padding: 24px;
-      border-radius: 18px;
+    /* TELA DE INSTALAÇÃO */
+    #installOverlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, var(--color-transformative-teal), var(--color-deep-teal));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    #installContainer {
+      background: var(--color-bone-white);
+      padding: 32px;
+      border-radius: var(--border-radius-lg);
       width: 90%;
-      max-width: 380px;
-      border: 2px solid #d4af37;
+      max-width: 420px;
+      border: 1px solid rgba(0,0,0,0.1);
+      text-align: center;
+      box-sizing: border-box;
+      box-shadow: var(--shadow-deep);
+    }
+
+    /* TELA DE FORMULÁRIO */
+    #formOverlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #e7dff0, #cbb7d8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    #formContainer {
+      background: var(--color-bone-white);
+      padding: 28px;
+      border-radius: var(--border-radius-lg);
+      width: 90%;
+      max-width: 400px;
+      border: 1px solid rgba(0,0,0,0.1);
       margin: 20px auto;
       box-sizing: border-box;
+      box-shadow: var(--shadow-deep);
     }
 
+    /* TIPOGRAFIA - TÍTULOS */
+    h1, h2, h3, h4 {
+      font-family: var(--font-heading);
+      color: var(--color-deep-teal);
+      font-weight: 600;
+      line-height: var(--line-height-heading);
+      letter-spacing: var(--letter-spacing-tight);
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin: 20px 0;
+      color: var(--color-transformative-teal);
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h4 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* TIPOGRAFIA - CORPO */
+    .texto, p, label, input, select, textarea, button {
+      font-family: var(--font-body);
+      font-size: 1rem; /* 16px base */
+      line-height: var(--line-height-body);
+      color: var(--color-text-primary);
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    /* BOTÕES - ACESSÍVEIS */
+    button {
+      margin-top: 12px;
+      background: var(--color-transformative-teal);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: var(--letter-spacing-wide);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover, button:focus {
+      background: var(--color-digital-lavender);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+      outline: 2px solid var(--color-digital-lavender);
+      outline-offset: 2px;
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.secondary {
+      background: transparent;
+      border: 2px solid var(--color-transformative-teal);
+      color: var(--color-transformative-teal);
+    }
+
+    button.secondary:hover {
+      background: var(--color-transformative-teal);
+      color: white;
+    }
+
+    /* INPUTS E FORMULÁRIOS */
+    input, select, textarea {
+      width: 100%;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      padding: 12px 16px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: var(--border-radius-sm);
+      background: white;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--color-digital-lavender);
+      border-color: transparent;
+      box-shadow: 0 0 0 3px rgba(181, 168, 255, 0.1);
+    }
+
+    /* RESTANTE DO CSS ORIGINAL (ADAPTADO) */
     #capa, #planner, #prospera {
       display: none;
-      padding: 20px;
+      padding: 24px;
       box-sizing: border-box;
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
-    }
-
-    h2, h3 {
-      color: #d4af37;
-      font-family: 'UnifrakturCook', 'Great Vibes', cursive;
-      font-size: 32px;
-    }
-
-    button {
-      margin-top: 10px;
-      background: linear-gradient(135deg, #3a001f, #6b0040);
-      color: #f5e6b8;
-      border: 1px solid #d4af37;
-      padding: 8px 18px;
-      border-radius: 22px;
-      cursor: pointer;
-      font-family: 'Cinzel', serif;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      margin-bottom: 8px;
-      box-sizing: border-box;
+      background: var(--color-bone-white);
+      border-radius: var(--border-radius-lg);
+      margin-top: 20px;
+      box-shadow: var(--shadow-soft);
     }
 
     .grid {
@@ -80,134 +259,131 @@
     }
 
     .dia {
-      background: #fdfaf6;
+      background: white;
       min-height: 120px;
-      border-radius: 12px;
-      padding: 6px;
+      border-radius: var(--border-radius-md);
+      padding: 12px;
       cursor: pointer;
       position: relative;
-      color: #c2187a;
-      font-size: 14px;
+      color: var(--color-mystic-purple);
+      font-size: 1rem;
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .dia:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-soft);
+      border-color: var(--color-digital-lavender);
     }
 
     .dias-semana div {
       text-align: center;
-      font-weight: bold;
-      padding: 8px 0;
+      font-weight: 600;
+      padding: 12px 0;
+      color: var(--color-transformative-teal);
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
     }
 
     .preview {
-      font-size: 11px;
-      margin-top: 6px;
+      font-size: 0.875rem;
+      margin-top: 8px;
       font-style: italic;
       word-break: break-word;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
     }
 
     .estrela {
       position: absolute;
-      bottom: 6px;
-      right: 8px;
-      font-size: 14px;
+      bottom: 12px;
+      right: 12px;
+      font-size: 1rem;
+      color: var(--color-sunset-amber);
     }
 
     .iconesTopo {
       position: absolute;
-      top: 6px;
-      right: 8px;
+      top: 12px;
+      right: 12px;
       display: flex;
       gap: 4px;
-      font-size: 12px;
+      font-size: 0.875rem;
     }
 
     .top-nav {
       display: flex;
-      gap: 8px;
+      gap: 12px;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
 
     .legenda {
-      font-size: 12px;
-      margin: 8px 0;
+      font-size: 0.875rem;
+      margin: 16px 0;
       display: flex;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
       justify-content: center;
+      color: var(--color-text-secondary);
     }
 
     /* MAIN RESPONSIVO */
     main {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 24px;
+      gap: 32px;
       max-width: 1200px;
-      margin: 20px auto;
-      padding: 0 16px;
+      margin: 24px auto;
+      padding: 0 20px;
       box-sizing: border-box;
     }
 
     section {
-      background: #2a0018;
-      padding: 20px;
-      border-radius: 22px;
-      box-shadow: 0 0 40px rgba(0,0,0,.6), inset 0 0 30px rgba(212,175,55,.12);
-      border: 2px solid #d4af37;
+      background: var(--color-bone-white);
+      padding: 24px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(0,0,0,0.05);
       width: 100%;
       box-sizing: border-box;
     }
 
-    h1, h2, h3 {
-      color: #d4af37;
-      font-family: 'UnifrakturCook', 'Great Vibes', cursive;
-    }
-
-    h1 {
-      font-size: 36px;
-      text-align: center;
-      margin: 10px 0;
-    }
-
-    h2 {
-      font-size: 28px;
-      margin-top: 0;
-    }
-
-    h3 {
-      font-size: 20px;
-    }
-
     .texto {
-      color: #6b2f8a;
-      font-size: 14.5px;
-      line-height: 1.7;
+      color: var(--color-text-secondary);
+      font-size: 1.0625rem; /* 17px para melhor leitura */
+      line-height: var(--line-height-body);
       text-align: justify;
+      margin-bottom: 1.5rem;
     }
 
     .livro label {
       display: block;
-      margin-top: 14px;
-      font-size: 13px;
+      margin-top: 20px;
+      font-size: 0.9375rem;
     }
 
     .livro input {
       width: 100%;
       box-sizing: border-box;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #d4af37;
-      background: #f8f1e8;
-      font-family: 'Cinzel', serif;
+      padding: 12px 16px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid rgba(0,0,0,0.1);
+      background: white;
+      font-family: var(--font-body);
     }
 
     .caixa {
       box-sizing: border-box;
-      background: #f4e8f6;
-      color: #3a0023;
-      padding: 15px;
-      border-radius: 16px;
-      margin-top: 18px;
+      background: white;
+      color: var(--color-text-primary);
+      padding: 20px;
+      border-radius: var(--border-radius-md);
+      margin-top: 24px;
       overflow-x: auto;
+      border: 1px solid rgba(0,0,0,0.05);
     }
 
     .lateral {
@@ -216,28 +392,34 @@
     }
 
     .lunar {
-      background: #1f0012;
-      border: 2px dashed #d4af37;
-      padding: 20px;
-      border-radius: 18px;
-      font-size: 14px;
+      background: var(--color-bone-white);
+      border: 2px dashed var(--color-transformative-teal);
+      padding: 24px;
+      border-radius: var(--border-radius-md);
+      font-size: 0.9375rem;
     }
 
     .lunar strong {
-      color: #d4af37;
+      color: var(--color-transformative-teal);
     }
 
     .tabela {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      margin-top: 16px;
       min-width: 300px;
     }
 
     .tabela th, .tabela td {
-      border-bottom: 1px solid #d4af37;
-      padding: 6px;
-      font-size: 13px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding: 12px;
+      font-size: 0.9375rem;
+    }
+
+    .tabela th {
+      color: var(--color-transformative-teal);
+      font-weight: 600;
+      text-align: left;
     }
 
     .tabela input {
@@ -245,34 +427,34 @@
       box-sizing: border-box;
       border: none;
       background: transparent;
-      font-family: 'Cinzel', serif;
-      font-size: 13px;
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
     }
 
     .total-secao {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #6b003f;
+      margin-top: 16px;
+      font-size: 0.9375rem;
+      color: var(--color-transformative-teal);
       font-weight: 600;
     }
 
     .saldo {
-      margin-top: 20px;
-      padding: 14px;
-      background: #f0dff0;
-      border-radius: 14px;
-      color: #3a0023;
+      margin-top: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--color-digital-lavender), var(--color-mystic-purple));
+      border-radius: var(--border-radius-md);
+      color: white;
       font-weight: 600;
     }
 
     .grafico {
-      margin-top: 20px;
-      background: #1f0012;
-      border: 1px solid #d4af37;
-      border-radius: 16px;
-      padding: 14px;
-      color: #d4af37;
-      font-size: 13px;
+      margin-top: 24px;
+      background: var(--color-bone-white);
+      border: 1px solid var(--color-transformative-teal);
+      border-radius: var(--border-radius-md);
+      padding: 20px;
+      color: var(--color-transformative-teal);
+      font-size: 0.9375rem;
     }
 
     /* MODAL RESPONSIVO */
@@ -280,56 +462,173 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.6);
+      background: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
       padding: 20px;
-      z-index: 1000;
+      z-index: 2000;
     }
 
     #modal > div {
-      background: #fdfaf4;
-      padding: 20px;
-      border-radius: 12px;
+      background: var(--color-bone-white);
+      padding: 24px;
+      border-radius: var(--border-radius-lg);
       width: 100%;
-      max-width: 380px;
+      max-width: 500px;
       box-sizing: border-box;
       margin: 0 auto;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-deep);
     }
 
-    /* OVERLAY RESPONSIVO */
-    #overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #e7dff0, #cbb7d8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .sentimentos-section {
+      margin: 20px 0;
       padding: 20px;
-      z-index: 1000;
+      background: white;
+      border-radius: var(--border-radius-md);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .sentimentos-section label {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--color-transformative-teal);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    #sentimentos {
+      width: 100%;
+      min-height: 100px;
+      padding: 16px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid rgba(0,0,0,0.1);
+      background: white;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      resize: vertical;
+      box-sizing: border-box;
+      line-height: var(--line-height-body);
+    }
+
+    .nota-item {
+      margin: 12px 0;
+      padding: 16px;
+      background: white;
+      border-radius: var(--border-radius-md);
+      border-left: 4px solid var(--color-transformative-teal);
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .nota-hora {
+      font-size: 0.8125rem;
+      color: var(--color-transformative-teal);
+      font-weight: 600;
+      margin-right: 40px;
+    }
+
+    .nota-texto {
+      font-size: 0.9375rem;
+      color: var(--color-text-primary);
+      margin-top: 8px;
+      margin-right: 40px;
+      line-height: var(--line-height-body);
+    }
+
+    .btn-apagar-nota {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      padding: 6px 8px;
+      border-radius: var(--border-radius-sm);
+      transition: all 0.3s ease;
+    }
+
+    .btn-apagar-nota:hover {
+      background: rgba(255, 138, 80, 0.1);
+      transform: scale(1.1);
+      color: var(--color-sunset-amber);
+    }
+
+    .sentimento-item {
+      margin: 12px 0;
+      padding: 16px;
+      background: white;
+      border-radius: var(--border-radius-md);
+      border-left: 4px solid var(--color-mystic-purple);
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .btn-apagar-sentimento {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      padding: 6px 8px;
+      border-radius: var(--border-radius-sm);
+      transition: all 0.3s ease;
+    }
+
+    .btn-apagar-sentimento:hover {
+      background: rgba(126, 87, 194, 0.1);
+      transform: scale(1.1);
+      color: var(--color-mystic-purple);
+    }
+
+    .oraculo-section {
+      margin-bottom: 24px;
+      padding: 20px;
+      background: white;
+      border-radius: var(--border-radius-md);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .oraculo-title {
+      color: var(--color-transformative-teal);
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+      font-family: var(--font-heading);
+    }
+
+    .oraculo-text {
+      color: var(--color-text-primary);
+      font-size: 1rem;
+      line-height: var(--line-height-body);
     }
 
     /* Botão instalar */
-    #btnInstalar {
+    #btnInstalarAgora {
       position: fixed;
-      top: 10px;
-      right: 10px;
+      top: 20px;
+      right: 20px;
       z-index: 1000;
       display: none;
+      background: var(--color-digital-lavender);
     }
 
-    /* MEDIA QUERIES PARA DIFERENTES TELAS */
-
-    /* Tablets (768px pra cima) */
+    /* MEDIA QUERIES - RESPONSIVIDADE */
     @media (min-width: 768px) {
       main {
         grid-template-columns: 1.5fr 1fr;
-        margin: 30px auto;
+        margin: 32px auto;
       }
       
       .lateral {
         position: sticky;
-        top: 24px;
+        top: 32px;
       }
       
       .grid {
@@ -338,51 +637,39 @@
       
       .dia {
         min-height: 140px;
-        padding: 8px;
-        font-size: 16px;
+        padding: 16px;
+        font-size: 1.1rem;
       }
       
       h1 {
-        font-size: 44px;
+        font-size: 3rem;
       }
       
       h2 {
-        font-size: 30px;
+        font-size: 2.25rem;
       }
       
       h3 {
-        font-size: 22px;
+        font-size: 1.75rem;
+      }
+      
+      /* Aumenta o tamanho da fonte para tablets */
+      body {
+        font-size: 1.0625rem;
       }
     }
 
-    /* Desktop grande (992px pra cima) */
-    @media (min-width: 992px) {
-      main {
-        grid-template-columns: 2.2fr 1fr;
-        margin: 40px auto;
-      }
-      
-      .caixa {
-        padding: 18px;
-      }
-      
-      section {
-        padding: 28px;
-      }
-    }
-
-    /* Telas muito pequenas (480px pra baixo) */
     @media (max-width: 480px) {
       body::before {
         font-size: 80px;
       }
       
       h1 {
-        font-size: 28px;
+        font-size: 2rem;
       }
       
       h2, h3 {
-        font-size: 24px;
+        font-size: 1.5rem;
       }
       
       .grid {
@@ -391,144 +678,153 @@
       
       .dia {
         min-height: 100px;
-        padding: 4px;
-        font-size: 12px;
+        padding: 8px;
+        font-size: 0.9375rem;
       }
       
-      .dias-semana div {
-        font-size: 12px;
-        padding: 6px 0;
+      #modal > div {
+        padding: 20px;
       }
       
-      .legenda {
-        font-size: 10px;
-        gap: 8px;
-      }
-      
-      .top-nav button {
-        padding: 6px 12px;
-        font-size: 14px;
-      }
-      
-      .iconesTopo {
-        font-size: 10px;
-        gap: 2px;
-      }
-      
-      .preview {
-        font-size: 9px;
-      }
-      
-      .estrela {
-        font-size: 12px;
-        bottom: 4px;
-        right: 4px;
-      }
-      
-      #container {
+      .oraculo-section {
         padding: 16px;
       }
       
-      #capa, #planner, #prospera {
-        padding: 15px;
+      .nota-item, .sentimento-item {
+        padding: 12px;
       }
       
-      .tabela th, .tabela td {
-        padding: 4px;
-        font-size: 11px;
+      .btn-apagar-nota, .btn-apagar-sentimento {
+        top: 8px;
+        right: 8px;
+        font-size: 0.8125rem;
       }
       
-      .texto {
-        font-size: 13px;
+      /* Aumenta o tamanho da fonte para mobile */
+      body {
+        font-size: 1rem; /* 16px mínimo para acessibilidade */
+      }
+      
+      input, select, textarea, button {
+        font-size: 1rem; /* Garante tamanho mínimo */
       }
     }
 
-    /* Telas pequenas (600px pra baixo) - ajuste do calendário */
-    @media (max-width: 600px) {
-      .grid {
-        grid-template-columns: repeat(7, 1fr);
-      }
-      
-      .dia {
-        min-height: 80px;
-      }
-      
-      .iconesTopo {
-        flex-direction: column;
-        gap: 1px;
-      }
+    /* AJUSTES DE CONTRASTE WCAG */
+    /* Garantindo contraste mínimo 4.5:1 */
+    .oraculo-text {
+      color: var(--color-text-primary);
+      background: white;
     }
+    
+    .nota-texto {
+      color: var(--color-text-primary);
+    }
+    
+    /* Foco visível para acessibilidade */
+    *:focus {
+      outline: 2px solid var(--color-digital-lavender);
+      outline-offset: 2px;
+    }
+    
+    /* Melhorando o contraste dos botões */
+    button {
+      color: white;
+      background-color: var(--color-transformative-teal);
+    }
+    
+    button:hover {
+      background-color: var(--color-digital-lavender);
+    }
+    
+    /* Contraste nos links */
+    a {
+      color: var(--color-transformative-teal);
+      text-decoration: underline;
+    }
+    
+    a:hover {
+      color: var(--color-digital-lavender);
+    }
+    
+    /* Espaçamento entre parágrafos */
+    p {
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Hierarquia clara de cabeçalhos */
+    h1 { margin-bottom: 2rem; }
+    h2 { margin-bottom: 1.5rem; }
+    h3 { margin-bottom: 1rem; }
+    h4 { margin-bottom: 0.75rem; }
 
-    /* Orientação paisagem em celulares */
-    @media (max-height: 500px) and (orientation: landscape) {
-      #overlay {
-        align-items: flex-start;
-        padding-top: 20px;
-        overflow-y: auto;
-      }
-      
-      #container {
-        margin-top: 20px;
-        margin-bottom: 20px;
-      }
-      
-      .dia {
-        min-height: 60px;
-      }
-    }
-
-    /* Impressão */
-    @media print {
-      body::before {
-        display: none;
-      }
-      
-      button, #btnInstalar, .top-nav {
-        display: none !important;
-      }
-      
-      #capa, #planner, #prospera {
-        display: block !important;
-        box-shadow: none;
-        border: 1px solid #000;
-      }
-      
-      .dia {
-        border: 1px solid #ccc;
-        color: #000;
-      }
-    }
   </style>
 </head>
 <body>
 
-<!-- FORMULÁRIO -->
-<div id="overlay">
-  <div id="container">
-    <h3>Identificação da Bruxa</h3>
-    <label>Nome</label><input id="nome">
-    <label>Signo</label><select id="signo"><option>Áries</option><option>Touro</option><option>Gêmeos</option><option>Câncer</option><option>Leão</option><option>Virgem</option><option>Libra</option><option>Escorpião</option><option>Sagitário</option><option>Capricórnio</option><option>Aquário</option><option>Peixes</option></select>
-    <label>Ano pessoal</label><select id="anoPessoal"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
-    <label>Ciclo menstrual</label><input id="ciclo" type="date">
-    <button id="salvar">Entrar</button>
+<!-- TELA DE INSTALAÇÃO -->
+<div id="installOverlay">
+  <div id="installContainer">
+    <h2>✨ Instalar Grimório Ritualístico ✨</h2>
+    <p>Instale o aplicativo para uma experiência completa, com notificações lunares e acesso offline.</p>
+    <button id="btnInstalarPWA">📲 Instalar Agora</button>
+    <button id="btnPularInstalacao" class="secondary">🌐 Usar na Web</button>
+    <p style="font-size:0.875rem;margin-top:20px;opacity:0.8;">
+      Você pode instalar depois a qualquer momento através do menu do navegador.
+    </p>
   </div>
 </div>
 
-<!-- CAPA -->
-<button id="btnInstalar" style="display:none">
-  📲 Instalar Grimório
+<!-- TELA DE FORMULÁRIO -->
+<div id="formOverlay">
+  <div id="formContainer">
+    <h3>Identificação da Bruxa</h3>
+    <label>Seu nome mágico</label>
+    <input id="nome" placeholder="Digite seu nome ou apelido" autocomplete="off">
+    <label>Signo</label>
+    <select id="signo">
+      <option value="">Selecione seu signo</option>
+      <option>Áries</option><option>Touro</option><option>Gêmeos</option>
+      <option>Câncer</option><option>Leão</option><option>Virgem</option>
+      <option>Libra</option><option>Escorpião</option><option>Sagitário</option>
+      <option>Capricórnio</option><option>Aquário</option><option>Peixes</option>
+    </select>
+    <label>Ano pessoal (opcional)</label>
+    <select id="anoPessoal">
+      <option value="">Selecione seu ano pessoal</option>
+      <option>1</option><option>2</option><option>3</option><option>4</option>
+      <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
+    </select>
+    <label>Data de nascimento (para numerologia)</label>
+    <input id="dataNascimento" type="date">
+    <label>Próximo ciclo menstrual (opcional)</label>
+    <input id="ciclo" type="date">
+    <button id="salvar">✨ Entrar no Grimório</button>
+    <p style="font-size:0.875rem;margin-top:15px;opacity:0.8;">
+      Seus dados são armazenados apenas no seu dispositivo.
+    </p>
+  </div>
+</div>
+
+<!-- Botão para instalar depois -->
+<button id="btnInstalarAgora" style="display:none">
+  📲 Instalar
 </button>
 
+<!-- CAPA -->
 <div id="capa">
   <h2>Bem-vinda ao Grimório</h2>
   <p id="nomeCapa"></p>
-  <button id="irPlanner">Planner Mensal</button>
-  <button id="irProspera">Livro da Bruxa Próspera</button>
+  <button id="irPlanner">📅 Planner Mensal</button>
+  <button id="irProspera">💰 Livro da Bruxa Próspera</button>
+  <div style="margin-top:30px;">
+    <button id="btnAlterarNome" class="secondary">✏️ Alterar meus dados</button>
+  </div>
 </div>
 
 <!-- PLANNER -->
 <div id="planner">
-  <div class="top-nav"><button id="voltarCapa">⟵ Capa</button></div>
+  <div class="top-nav"><button id="voltarCapa" class="secondary">⟵ Capa</button></div>
   <h2 id="perfil"></h2>
   <div class="legenda">
     <span>🌑🌒🌕🌘 Lunação</span>
@@ -536,7 +832,7 @@
     <span>⏳ Lua fora de curso</span>
   </div>
   <div id="mesTitulo"></div>
-  <div style="display:flex;justify-content:space-between;margin:10px 0">
+  <div style="display:flex;justify-content:space-between;margin:16px 0">
     <button id="mesAnterior">◀</button>
     <button id="mesProximo">▶</button>
   </div>
@@ -544,22 +840,46 @@
   <div class="grid" id="grid"></div>
 </div>
 
-<!-- MODAL -->
-<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center">
-  <div style="background:#fdfaf4;padding:20px;border-radius:12px;width:380px">
-    <h3 id="modalTitulo"></h3>
-    <div id="oraculo" style="color:#c2187a;font-style:italic"></div>
+<!-- MODAL ATUALIZADO -->
+<div id="modal" style="display:none">
+  <div>
+    <h3 id="modalTitulo" style="color:var(--color-transformative-teal);margin-bottom:20px;"></h3>
+    
+    <!-- ORÁCULO -->
+    <div class="oraculo-section">
+      <div class="oraculo-title">🌙 Oráculo do Dia</div>
+      <div id="oraculo" class="oraculo-text"></div>
+    </div>
+    
+    <!-- SEÇÃO DE NOTAS SALVAS -->
     <div id="notasSalvas"></div>
-    <input type="time" id="notaHora" />
-    <textarea id="notaTexto" style="height:80px"></textarea>
-    <button id="btnSalvarNota">Salvar nota</button>
-    <button id="btnFechar">Fechar</button>
+    
+    <!-- SEÇÃO DE SENTIMENTOS SALVOS -->
+    <div id="sentimentosSalvos" style="margin-top:20px;"></div>
+    
+    <!-- FORMULÁRIO PARA NOVA NOTA -->
+    <div style="margin-top:24px;padding-top:20px;border-top:2px dashed var(--color-transformative-teal);">
+      <h4 style="color:var(--color-transformative-teal);margin-bottom:16px;">➕ Nova Nota</h4>
+      <input type="time" id="notaHora" style="margin-bottom:16px;" />
+      <textarea id="notaTexto" placeholder="Escreva sua nota aqui..." style="height:100px;width:100%;box-sizing:border-box;margin-bottom:20px;"></textarea>
+      
+      <!-- CAMPO: IMPRESSÕES E SENTIMENTOS -->
+      <div class="sentimentos-section">
+        <label for="sentimentos">💖 Impressões e Sentimentos</label>
+        <textarea id="sentimentos" placeholder="Como você está se sentindo? Quais foram suas impressões deste dia? Escreva livremente..."></textarea>
+      </div>
+      
+      <div style="display:flex;gap:12px;margin-top:20px;">
+        <button id="btnSalvarNota">💾 Salvar Nota</button>
+        <button id="btnFechar" class="secondary">✖ Fechar</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- BRUXA PRÓSPERA -->
 <div id="prospera">
-  <div class="top-nav"><button id="voltarCapa2">⟵ Capa</button></div>
+  <div class="top-nav"><button id="voltarCapa2" class="secondary">⟵ Capa</button></div>
  <h1>📖 Livro da Bruxa Próspera</h1>
 
 <main>
@@ -588,7 +908,7 @@
       </table>
       <button onclick="addLinha('sustento')">+ adicionar gasto</button>
     </div>
-
+<br> </br>
     <h3>B) Florescimento</h3><div class="texto">Gastos que ampliam prazer, aprendizado, descanso, cultura e bem-estar.</div>
     <div class="caixa">
       <table class="tabela">
@@ -597,7 +917,7 @@
       </table>
       <button onclick="addLinha('florescimento')">+ adicionar gasto</button>
     </div>
-
+<br> </br>
     <h3>C) Centelha Energética</h3><div class="texto">Gastos inesperados ou emergenciais que exigem energia imediata.</div>
     <div class="caixa">
       <table class="tabela">
@@ -639,36 +959,814 @@
 </main>
 
 <script>
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-    
-function recalcular(){
-  const categorias=['sustento','florescimento','centelha','abundancia'];
-  let somaTotal=0;
+// ===== VARIÁVEIS GLOBAIS PARA INSTALAÇÃO =====
+let deferredPrompt = null;
 
-  categorias.forEach(cat=>{
-    let soma=0;
-    document.querySelectorAll(`#${cat} input[type="number"]`).forEach(i=>{
-      soma+=Number(i.value)||0;
-    });
-    if(document.getElementById(`total-${cat}`)){
-      document.getElementById(`total-${cat}`).textContent=soma.toFixed(2);
-    }
-    somaTotal+=soma;
-  });
+// ===== ELEMENTOS DO FLUXO NOVO =====
+const installOverlay = document.getElementById('installOverlay');
+const formOverlay = document.getElementById('formOverlay');
+const btnInstalarPWA = document.getElementById('btnInstalarPWA');
+const btnPularInstalacao = document.getElementById('btnPularInstalacao');
+const btnInstalarAgora = document.getElementById('btnInstalarAgora');
+const btnAlterarNome = document.getElementById('btnAlterarNome');
 
-  const totalAbundancia = Number(document.getElementById('total-abundancia').textContent)||0;
-  document.getElementById('saldo').textContent=(totalAbundancia - somaTotal).toFixed(2);
+// ===== FLUXO DE INSTALAÇÃO =====
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Mostra botão na capa
+  if (btnInstalarAgora) {
+    btnInstalarAgora.style.display = 'block';
+  }
+  
+  // Mostra tela de instalação se for primeira visita
+  const hasVisited = localStorage.getItem('hasVisited');
+  if (!hasVisited) {
+    installOverlay.style.display = 'flex';
+    formOverlay.style.display = 'none';
+  }
+});
+
+btnInstalarPWA.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  const choiceResult = await deferredPrompt.userChoice;
+  
+  if (choiceResult.outcome === 'accepted') {
+    console.log('Usuário aceitou instalar o PWA');
+  }
+  
+  deferredPrompt = null;
+  installOverlay.style.display = 'none';
+  formOverlay.style.display = 'flex';
+  localStorage.setItem('hasVisited', 'true');
+});
+
+btnPularInstalacao.addEventListener('click', () => {
+  installOverlay.style.display = 'none';
+  formOverlay.style.display = 'flex';
+  localStorage.setItem('hasVisited', 'true');
+});
+
+btnInstalarAgora.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  const choiceResult = await deferredPrompt.userChoice;
+  
+  if (choiceResult.outcome === 'accepted') {
+    btnInstalarAgora.style.display = 'none';
+  }
+});
+
+// ===== FUNÇÕES DE ARMAZENAMENTO =====
+function save(k, v) {
+  localStorage.setItem(k, JSON.stringify(v));
 }
 
-function addLinha(id,tipo){
+function load(k) {
+  const v = localStorage.getItem(k);
+  return v ? JSON.parse(v) : null;
+}
+
+// ===== FORMULÁRIO (MODIFICADO COM DATA DE NASCIMENTO) =====
+document.getElementById('salvar').onclick = () => {
+  const nome = document.getElementById('nome').value.trim();
+  const signo = document.getElementById('signo').value;
+  const ano = document.getElementById('anoPessoal').value;
+  const dataNascimento = document.getElementById('dataNascimento').value;
+  const ciclo = document.getElementById('ciclo').value;
+
+  if (!nome) {
+    alert('Por favor, digite seu nome mágico!');
+    return;
+  }
+
+  if (!signo) {
+    alert('Por favor, selecione seu signo!');
+    return;
+  }
+
+  const perfil = {
+    nome: nome,
+    signo: signo,
+    ano: ano || '',
+    dataNascimento: dataNascimento || '',
+    ciclo: ciclo || ''
+  };
+
+  save('perfil', perfil);
+  solicitarNotificacao();
+  nomeCapa.textContent = `Salve, ${perfil.nome}`;
+  formOverlay.style.display = 'none';
+  capa.style.display = 'block';
+  localStorage.setItem('formPreenchido', 'true');
+};
+
+// Botão para alterar dados
+btnAlterarNome.addEventListener('click', () => {
+  const perfilAtual = load('perfil') || {};
+  document.getElementById('nome').value = perfilAtual.nome || '';
+  document.getElementById('signo').value = perfilAtual.signo || '';
+  document.getElementById('anoPessoal').value = perfilAtual.ano || '';
+  document.getElementById('dataNascimento').value = perfilAtual.dataNascimento || '';
+  document.getElementById('ciclo').value = perfilAtual.ciclo || '';
+  capa.style.display = 'none';
+  formOverlay.style.display = 'flex';
+});
+
+// ===== VERIFICAÇÃO INICIAL =====
+window.addEventListener('load', () => {
+  const perfilSalvo = load('perfil');
+  
+  if (perfilSalvo && perfilSalvo.nome) {
+    formOverlay.style.display = 'none';
+    capa.style.display = 'block';
+    nomeCapa.textContent = `Salve, ${perfilSalvo.nome} ✨`;
+  } else {
+    const hasVisited = localStorage.getItem('hasVisited');
+    if (!hasVisited && deferredPrompt) {
+      installOverlay.style.display = 'flex';
+      formOverlay.style.display = 'none';
+    }
+  }
+  
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('🌙 Service Worker registrado'))
+      .catch(err => console.error('Erro no Service Worker:', err));
+  }
+});
+
+// ===== DADOS DAS PLANILHAS =====
+
+// DADOS DA RODA DO ANO 2026 - SUL (conforme planilha)
+const sabas2026 = {
+  '2026-02-01': {
+    nome: 'Lughnasadh',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Verão/Fogo',
+    significado: 'Primeira colheita',
+    rituais: 'Assar pães caseiros e bolos de grãos, expressar gratidão pela fartura, agradecer pelos frutos já colhidos, ritual de colheita e prosperidade'
+  },
+  '2026-03-20': {
+    nome: 'Mabon',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Outono/Água',
+    significado: 'Equilíbrio e colheita completa',
+    rituais: 'Oferendas de maçãs e frutas da estação, compartilhamento de banquetes, agradecimento pela colheita, preparação para o recolhimento do inverno, rituais de equilíbrio e gratidão'
+  },
+  '2026-05-01': {
+    nome: 'Samhain',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Outono/Terra',
+    significado: 'Ano Novo Pagão, Festival dos Mortos',
+    rituais: 'Honrar ancestrais e entes queridos falecidos, limpeza de altares e espaços sagrados, queima de pedidos ou banimentos, conexão com o mundo espiritual, divinação e introspecção'
+  },
+  '2026-06-21': {
+    nome: 'Yule',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Inverno/Fogo',
+    significado: 'Solstício de Inverno, Renascimento',
+    rituais: 'Acendimento da "tora de Yule" ou velas, decoração de árvores com símbolos de vida eterna, rituais para atrair a luz de volta, celebração do renascimento do sol, troca de presentes simbólicos'
+  },
+  '2026-08-01': {
+    nome: 'Imbolc',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Inverno/Água',
+    significado: 'Purificação e proteção',
+    rituais: 'Acender muitas velas (fogo da inspiração), dedicação à deusa Brígida, limpezas energéticas na casa, rituais de purificação e proteção, preparação para o retorno da luz'
+  },
+  '2026-09-22': {
+    nome: 'Ostara',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Primavera/Ar',
+    significado: 'Equinócio de Primavera, Fertilidade',
+    rituais: 'Plantio de sementes físicas ou projetos, decoração de ovos (símbolo de potencial), rituais de fertilidade e renovação, celebração do despertar da vida, equilíbrio entre luz e escuridão'
+  },
+  '2026-10-31': {
+    nome: 'Beltane',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Primavera/Fogo',
+    significado: 'União, paixão e fertilidade máxima',
+    rituais: 'Dançar ao redor do "mastro de maio" (Maypole), acender fogueiras de proteção, celebrar o amor e a beleza da natureza, rituais de união e fertilidade, coroas de flores e decorações naturais'
+  },
+  '2026-12-21': {
+    nome: 'Litha',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Verão/Fogo',
+    significado: 'Solstício de Verão, Poder Solar',
+    rituais: 'Rituais ao ar livre para absorver energia solar, colheita de ervas mágicas no auge do poder, celebração da vitalidade com música e dança, fogueiras e celebrações comunitárias, honrar o ápice da luz'
+  }
+};
+
+// DADOS DA LUNAÇÃO ASTROLÓGICA (conforme planilha)
+const energiasLunares = {
+  'Lua Nova': {
+    energiaPrincipal: 'Introspecção, recomeço, potencial latente',
+    acoesPositivas: 'Plantar novas intenções e iniciar projetos, fazer planos e definir metas, meditar e se conectar consigo mesmo, rituais de manifestação',
+    evitar: 'Ações impulsivas sem planejamento, tomar decisões importantes sem reflexão, forçar resultados imediatos'
+  },
+  'Lua Crescente': {
+    energiaPrincipal: 'Crescimento, movimento, construção',
+    acoesPositivas: 'Desenvolver projetos iniciados na Lua Nova, fazer reuniões e networking, começar hábitos novos, investir em relacionamentos, estudar e aprender',
+    evitar: 'Abandonar compromissos no meio do caminho, dispersar energia em muitas direções, desistir diante de obstáculos'
+  },
+  'Lua Cheia': {
+    energiaPrincipal: 'Iluminação, culminação, revelação',
+    acoesPositivas: 'Colher resultados e celebrar conquistas, ter clareza sobre situações, expressar emoções de forma saudável, finalizar projetos, rituais de gratidão',
+    evitar: 'Decisões impulsivas baseadas em emoções intensas, confrontos desnecessários, ignorar o que está sendo revelado'
+  },
+  'Lua Minguante': {
+    energiaPrincipal: 'Desapego, encerramento, limpeza',
+    acoesPositivas: 'Liberar o que não serve mais, encerrar ciclos e relações tóxicas, fazer limpeza física e energética, descansar e se recolher, práticas de desapego',
+    evitar: 'Iniciar novos projetos ou relacionamentos, forçar ação quando o corpo pede descanso, ignorar sinais de que algo precisa terminar'
+  }
+};
+
+// ENERGIA DA FASE NO SIGNO (conforme planilha)
+const energiaSignoLunar = {
+  'Áries': {
+    'Lua Nova': 'Momento de máxima coragem para iniciar projetos pessoais e retomar o protagonismo.',
+    'Lua Crescente': 'Impulso para agir rápido e superar obstáculos com determinação.',
+    'Lua Cheia': 'Auge da autoconfiança; os desejos individuais entram em conflito ou equilíbrio com as necessidades dos outros.',
+    'Lua Minguante': 'Necessidade de controlar a impaciência e revisar impulsos agressivos antes de encerrar o ciclo.'
+  },
+  'Touro': {
+    'Lua Nova': 'Plantio focado em estabilidade financeira, conforto e segurança material.',
+    'Lua Crescente': 'Período de nutrição e paciência; foco em fazer as ideias "ganharem corpo" e raízes.',
+    'Lua Cheia': 'Colheita de resultados concretos; momento de valorizar o prazer e o que foi construído.',
+    'Lua Minguante': 'Hora de praticar o desapego material e emocional para evitar acúmulos desnecessários.'
+  },
+  'Gêmeos': {
+    'Lua Nova': 'Início de novos estudos, contatos e circulação de ideias.',
+    'Lua Crescente': 'Fase de muita comunicação, trocas intelectuais e busca por informações.',
+    'Lua Cheia': 'Clareza mental e revelações; pensamentos que estavam nublados tornam-se objetivos.',
+    'Lua Minguante': 'Momento de silenciar a mente, filtrar o excesso de informação e concluir conversas pendentes.'
+  },
+  'Câncer': {
+    'Lua Nova': 'Foco total na renovação da vida íntima, lar e família.',
+    'Lua Crescente': 'Intensificação das emoções, proteção de quem se ama e fortalecimento de vínculos.',
+    'Lua Cheia': 'Transbordamento emocional e sensibilidade máxima; colheita ligada ao acolhimento.',
+    'Lua Minguante': 'Convite para olhar para dentro, perdoar o passado e buscar paz com a própria história.'
+  },
+  'Leão': {
+    'Lua Nova': 'Novos começos ligados à autoexpressão, criatividade e prazer.',
+    'Lua Crescente': 'Desenvolvimento do carisma e esforço para ser notado em projetos autorais.',
+    'Lua Cheia': 'Celebração da identidade; momento de brilho público e reconhecimento.',
+    'Lua Minguante': 'Reflexão sobre o excesso de ego e recolhimento para restaurar a energia vital.'
+  },
+  'Virgem': {
+    'Lua Nova': 'Planejamento de rotinas saudáveis e organização meticulosa de tarefas.',
+    'Lua Crescente': 'Trabalho detalhista e ajustes práticas para garantir que os planos funcionem.',
+    'Lua Cheia': 'Resultados visíveis na saúde e no trabalho; clareza sobre o que precisa de melhoria técnica.',
+    'Lua Minguante': 'Faxina física e mental; momento de eliminar métodos ou hábitos que não servem mais.'
+  },
+  'Libra': {
+    'Lua Nova': 'Intenções voltadas para parcerias, acordos e harmonia estética.',
+    'Lua Crescente': 'Esforço para equilibrar relações e mediação de conflitos em andamento.',
+    'Lua Cheia': 'Auge dos relacionamentos; situações sociais ou românticas chegam ao ponto crítico ou de ápice.',
+    'Lua Minguante': 'Avaliação da justiça nas trocas e finalização de compromissos que não têm reciprocidade.'
+  },
+  'Escorpião': {
+    'Lua Nova': 'Mergulho profundo em transformações internas e novos investimentos emocionais ou financeiros.',
+    'Lua Crescente': 'Fase de regeneração e persistência emocional intensa diante de crises.',
+    'Lua Cheia': 'Revelações de segredos ou emoções ocultas; momento de purgação e intensidade sexual.',
+    'Lua Minguante': 'Desapego de traumas e limpeza de energias tóxicas acumuladas.'
+  },
+  'Sagitário': {
+    'Lua Nova': 'Novos horizontes, viagens ou estudos superiores; busca por novos sentidos de vida.',
+    'Lua Crescente': 'Expansão de ideias e otimismo para seguir em frente com grandes planos.',
+    'Lua Cheia': 'Culminação de aventuras ou processos acadêmicos; celebração da liberdade conquistada.',
+    'Lua Minguante': 'Reflexão sobre a verdade e revisão de crenças antes de iniciar uma nova busca.'
+  },
+  'Capricórnio': {
+    'Lua Nova': 'Metas de longo prazo, carreira e construção de autoridade.',
+    'Lua Crescente': 'Disciplina rígida e superação de obstáculos estruturais para subir na vida.',
+    'Lua Cheia': 'Reconhecimento profissional e social; colheita do esforço e da perseverança.',
+    'Lua Minguante': 'Revisão de responsabilidades e encerramento de cargos ou projetos que já cumpriram seu tempo.'
+  },
+  'Aquário': {
+    'Lua Nova': 'Ideias inovadoras, projetos coletivos e foco em causas sociais ou tecnológicas.',
+    'Lua Crescente': 'Movimentação em grupos e colaboração para ver mudanças acontecerem.',
+    'Lua Cheia': 'Resultados de movimentos sociais ou amizades; clareza sobre o papel do indivíduo no coletivo.',
+    'Lua Minguante': 'Avaliação da própria liberdade e distanciamento de círculos sociais que limitam a autenticidade.'
+  },
+  'Peixes': {
+    'Lua Nova': 'Início de ciclos espirituais, artísticos ou de cura emocional profunda.',
+    'Lua Crescente': 'Sensibilidade aguçada e desenvolvimento da intuição para guiar as ações.',
+    'Lua Cheia': 'Auge da imaginação e conexão com o divino; sonhos que se tornam nítidos ou se realizam.',
+    'Lua Minguante': 'Entrega, dissolução de ilusões e preparação espiritual para o renascimento.'
+  }
+};
+
+// NUMEROLOGIA - ENERGIA DOS NÚMEROS
+const energiaNumerologia = {
+  1: { potencial: 'Início, liderança, independência', risco: 'Egoísmo, impulsividade' },
+  2: { potencial: 'Cooperação, diplomacia, sensibilidade', risco: 'Indecisão, dependência emocional' },
+  3: { potencial: 'Criatividade, expressão, alegria', risco: 'Superficialidade, dispersão' },
+  4: { potencial: 'Estabilidade, organização, trabalho', risco: 'Rigidez, resistência à mudança' },
+  5: { potencial: 'Liberdade, mudança, aventura', risco: 'Inconstância, irresponsabilidade' },
+  6: { potencial: 'Harmonia, responsabilidade, cuidado', risco: 'Perfeccionismo, controle excessivo' },
+  7: { potencial: 'Introspecção, sabedoria, espiritualidade', risco: 'Isolamento, ceticismo excessivo' },
+  8: { potencial: 'Poder, realização material, abundância', risco: 'Materialismo, ambição desmedida' },
+  9: { potencial: 'Compaixão, completude, humanitarismo', risco: 'Mártir, apego ao passado' }
+};
+
+// CICLO MENSTRUAL + FASE LUNAR
+const cicloMenstrualFaseLunar = {
+  'Lua Nova': {
+    'menstruacao': 'Energia de recolhimento profundo. Momento ideal para descansar e ouvir seu corpo.',
+    'pre_ovulacao': 'Sensação de renascimento e novas possibilidades. Energia criativa em ascensão.',
+    'ovulacao': 'Intuição aguçada e conexão com seus desejos mais profundos.',
+    'pre_menstrual': 'Reflexão sobre o que precisa ser liberado para o próximo ciclo.'
+  },
+  'Lua Crescente': {
+    'menstruacao': 'Força vital retornando gradualmente. Bom momento para planejamentos suaves.',
+    'pre_ovulacao': 'Energia construtiva em alta. Ideal para colocar planos em ação.',
+    'ovulacao': 'Poder de manifestação no auge. Momento fértil em todos os sentidos.',
+    'pre_menstrual': 'Consolidação de aprendizados do ciclo.'
+  },
+  'Lua Cheia': {
+    'menstruacao': 'Emoções intensas à flor da pele. Permita-se sentir sem julgamentos.',
+    'pre_ovulacao': 'Clareza sobre seus desejos e intenções.',
+    'ovulacao': 'Poder feminino em evidência. Celebre sua sensualidade e força.',
+    'pre_menstrual': 'Revelações emocionais podem surgir com mais intensidade.'
+  },
+  'Lua Minguante': {
+    'menstruacao': 'Liberação física e emocional. Deixe ir o que não serve mais.',
+    'pre_ovulacao': 'Preparação interna para novas fases.',
+    'ovulacao': 'Intuição profundamente conectada com ciclos maiores.',
+    'pre_menstrual': 'Processamento emocional necessário antes do novo início.'
+  }
+};
+
+// ===== DADOS LUNAIRES 2026 (mantidos do código original) =====
+const lunacoes2026 = {
+  '2026-01-03': { fase: 'Lua Cheia', signo: 'Câncer', icone: '🌕' },
+  '2026-01-10': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' },
+  '2026-01-18': { fase: 'Lua Nova', signo: 'Capricórnio', icone: '🌑' },
+  '2026-01-26': { fase: 'Lua Crescente', signo: 'Touro', icone: '🌒' },
+  '2026-02-01': { fase: 'Lua Cheia', signo: 'Leão', icone: '🌕' },
+  '2026-02-09': { fase: 'Lua Minguante', signo: 'Escorpião', icone: '🌘' },
+  '2026-02-17': { fase: 'Lua Nova', signo: 'Aquário', icone: '🌑' },
+  '2026-02-24': { fase: 'Lua Crescente', signo: 'Gêmeos', icone: '🌒' },
+  '2026-03-03': { fase: 'Lua Cheia', signo: 'Virgem', icone: '🌕' },
+  '2026-03-11': { fase: 'Lua Minguante', signo: 'Sagitário', icone: '🌘' },
+  '2026-03-18': { fase: 'Lua Nova', signo: 'Peixes', icone: '🌑' },
+  '2026-03-25': { fase: 'Lua Crescente', signo: 'Câncer', icone: '🌒' },
+  '2026-04-01': { fase: 'Lua Cheia', signo: 'Libra', icone: '🌕' },
+  '2026-04-10': { fase: 'Lua Minguante', signo: 'Capricórnio', icone: '🌘' },
+  '2026-04-17': { fase: 'Lua Nova', signo: 'Áries', icone: '🌑' },
+  '2026-04-23': { fase: 'Lua Crescente', signo: 'Leão', icone: '🌒' },
+  '2026-05-01': { fase: 'Lua Cheia', signo: 'Escorpião', icone: '🌕' },
+  '2026-05-09': { fase: 'Lua Minguante', signo: 'Aquário', icone: '🌘' },
+  '2026-05-16': { fase: 'Lua Nova', signo: 'Touro', icone: '🌑' },
+  '2026-05-23': { fase: 'Lua Crescente', signo: 'Virgem', icone: '🌒' },
+  '2026-05-31': { fase: 'Lua Cheia', signo: 'Sagitário', icone: '🌕' },
+  '2026-06-08': { fase: 'Lua Minguante', signo: 'Peixes', icone: '🌘' },
+  '2026-06-14': { fase: 'Lua Nova', signo: 'Gêmeos', icone: '🌑' },
+  '2026-06-21': { fase: 'Lua Crescente', signo: 'Virgem', icone: '🌒' },
+  '2026-06-29': { fase: 'Lua Cheia', signo: 'Capricórnio', icone: '🌕' },
+  '2026-07-07': { fase: 'Lua Minguante', signo: 'Áries', icone: '🌘' },
+  '2026-07-14': { fase: 'Lua Nova', signo: 'Câncer', icone: '🌑' },
+  '2026-07-21': { fase: 'Lua Crescente', signo: 'Escorpião', icone: '🌒' },
+  '2026-07-29': { fase: 'Lua Cheia', signo: 'Aquário', icone: '🌕' },
+  '2026-08-05': { fase: 'Lua Minguante', signo: 'Touro', icone: '🌘' },
+  '2026-08-12': { fase: 'Lua Nova', signo: 'Leão', icone: '🌑' },
+  '2026-08-19': { fase: 'Lua Crescente', signo: 'Escorpião', icone: '🌒' },
+  '2026-08-28': { fase: 'Lua Cheia', signo: 'Peixes', icone: '🌕' },
+  '2026-09-04': { fase: 'Lua Minguante', signo: 'Gêmeos', icone: '🌘' },
+  '2026-09-11': { fase: 'Lua Nova', signo: 'Virgem', icone: '🌑' },
+  '2026-09-18': { fase: 'Lua Crescente', signo: 'Sagitário', icone: '🌒' },
+  '2026-09-26': { fase: 'Lua Cheia', signo: 'Áries', icone: '🌕' },
+  '2026-10-03': { fase: 'Lua Minguante', signo: 'Câncer', icone: '🌘' },
+  '2026-10-10': { fase: 'Lua Nova', signo: 'Libra', icone: '🌑' },
+  '2026-10-18': { fase: 'Lua Crescente', signo: 'Aquário', icone: '🌒' },
+  '2026-10-26': { fase: 'Lua Cheia', signo: 'Touro', icone: '🌕' },
+  '2026-11-01': { fase: 'Lua Minguante', signo: 'Leão', icone: '🌘' },
+  '2026-11-09': { fase: 'Lua Nova', signo: 'Escorpião', icone: '🌑' },
+  '2026-11-17': { fase: 'Lua Crescente', signo: 'Peixes', icone: '🌒' },
+  '2026-11-24': { fase: 'Lua Cheia', signo: 'Gêmeos', icone: '🌕' },
+  '2026-12-01': { fase: 'Lua Minguante', signo: 'Virgem', icone: '🌘' },
+  '2026-12-08': { fase: 'Lua Nova', signo: 'Sagitário', icone: '🌑' },
+  '2026-12-17': { fase: 'Lua Crescente', signo: 'Peixes', icone: '🌒' },
+  '2026-12-23': { fase: 'Lua Cheia', signo: 'Gêmeos', icone: '🌕' },
+  '2026-12-30': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' }
+};
+
+const luaForaDeCurso = {
+  '2026-01-02': '09:23–10:09',
+  '2026-02-05': '14:10–15:02',
+  '2026-03-07': '22:40–23:30',
+  '2026-04-11': '06:15–07:01',
+  '2026-05-04': '18:50–19:44',
+  '2026-06-09': '03:12–04:00',
+  '2026-07-12': '11:30–12:18',
+  '2026-08-06': '20:05–21:00',
+  '2026-09-10': '08:44–09:33',
+  '2026-10-08': '16:10–17:02',
+  '2026-11-09': '01:22–02:10',
+  '2026-12-07': '13:40–14:28'
+};
+
+// ===== FUNÇÕES AUXILIARES =====
+
+// Função para calcular número da numerologia (dia + mês + ano atual)
+function calcularNumeroEnergia(dataISO) {
+  const perfil = load('perfil') || {};
+  const dataNascimento = perfil.dataNascimento;
+  
+  if (!dataNascimento) return null;
+  
+  try {
+    // Extrai dia e mês da data de nascimento
+    const partes = dataNascimento.split('-');
+    const dia = parseInt(partes[2]);
+    const mes = parseInt(partes[1]);
+    
+    // Ano atual é 2026 (conforme código)
+    const anoAtual = 2026;
+    
+    // Soma: dia + mês + ano atual
+    let soma = dia + mes + anoAtual;
+    
+    // Reduz para um único dígito
+    while (soma > 9) {
+      soma = soma.toString().split('').reduce((acc, num) => acc + parseInt(num), 0);
+    }
+    
+    return soma;
+  } catch (e) {
+    console.error('Erro ao calcular numerologia:', e);
+    return null;
+  }
+}
+
+// Função para determinar fase do ciclo menstrual
+function determinarFaseCiclo(dataISO) {
+  const perfil = load('perfil') || {};
+  const ciclo = perfil.ciclo;
+  
+  if (!ciclo) return null;
+  
+  try {
+    const dataCiclo = new Date(ciclo);
+    const dataAtual = new Date(dataISO);
+    
+    // Calcula diferença em dias
+    const diffTime = dataAtual - dataCiclo;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Determina fase baseada em ciclo de 28 dias
+    const cicloDia = diffDays % 28;
+    
+    if (cicloDia >= 0 && cicloDia <= 7) return 'menstruacao';
+    if (cicloDia >= 8 && cicloDia <= 14) return 'pre_ovulacao';
+    if (cicloDia >= 15 && cicloDia <= 21) return 'ovulacao';
+    return 'pre_menstrual'; // dias 22-27
+    
+  } catch (e) {
+    console.error('Erro ao determinar fase do ciclo:', e);
+    return null;
+  }
+}
+
+// ===== FUNÇÃO AVALIAR DIA (COMPLETAMENTE ATUALIZADA) =====
+function avaliarDia(dataISO) {
+  const perfil = load('perfil') || {};
+  const lua = lunacoes2026[dataISO];
+  const saba = sabas2026[dataISO];
+  
+  let oraculoHTML = '';
+  
+  // 1. SE FOR SABÁ
+  if (saba) {
+    oraculoHTML += `<strong>🔥 Hoje é dia do Sabá ${saba.nome} (${saba.tipo}).</strong><br>`;
+    oraculoHTML += `Dia de celebrar ${saba.estacaoElemento.toLowerCase()}.<br><br>`;
+  }
+  
+  // 2. LUA EM SIGNO (sempre mostrar)
+  if (lua) {
+    const energiaFase = energiasLunares[lua.fase] || {};
+    const energiaSigno = energiaSignoLunar[lua.signo] || {};
+    
+    oraculoHTML += `<strong>🌙 Lua em ${lua.signo}:</strong><br>`;
+    oraculoHTML += `Dia de ${energiaFase.energiaPrincipal || 'energia lunar'}. `;
+    oraculoHTML += `Momento para ${energiaSigno[lua.fase] || 'alinhar-se com a energia do signo'}.<br><br>`;
+  } else {
+    oraculoHTML += `<strong>🌙 Lua em trânsito:</strong><br>`;
+    oraculoHTML += `Continuidade do ciclo lunar em andamento.<br><br>`;
+  }
+  
+  // 3. ENERGIA DO DIA (numerologia + ciclo menstrual)
+  oraculoHTML += `<strong>⚡ Energia do dia:</strong><br>`;
+  
+  // Calcula energia da numerologia
+  const numeroEnergia = calcularNumeroEnergia(dataISO);
+  if (numeroEnergia && energiaNumerologia[numeroEnergia]) {
+    const energiaNum = energiaNumerologia[numeroEnergia];
+    oraculoHTML += `${energiaNum.potencial}. `;
+    oraculoHTML += `Atenção para ${energiaNum.risco.toLowerCase()}.<br>`;
+  }
+  
+  // Adiciona diagnóstico do ciclo menstrual + fase lunar
+  const faseCiclo = determinarFaseCiclo(dataISO);
+  if (lua && faseCiclo && cicloMenstrualFaseLunar[lua.fase] && cicloMenstrualFaseLunar[lua.fase][faseCiclo]) {
+    oraculoHTML += `Você poderá se sentir ${cicloMenstrualFaseLunar[lua.fase][faseCiclo].toLowerCase()}<br><br>`;
+  } else if (lua && !perfil.ciclo) {
+    // Se não informou ciclo, dá diagnóstico baseado apenas na fase lunar
+    const energiaFase = energiasLunares[lua.fase] || {};
+    oraculoHTML += `Dia para focar em ${energiaFase.acoesPositivas ? energiaFase.acoesPositivas.split(',')[0] : 'harmonia interna'}.<br><br>`;
+  } else {
+    oraculoHTML += `Atenção às suas necessidades internas hoje.<br><br>`;
+  }
+  
+  // 4. RITUAL SUGERIDO
+  oraculoHTML += `<strong>✨ Ritual sugerido:</strong><br>`;
+  if (saba) {
+    oraculoHTML += `Dia de ${saba.rituais.split(',')[0]} e `;
+  }
+  
+  // Adiciona ritual baseado na fase lunar (do código original)
+  if (lua) {
+    if (lua.fase === 'Lua Cheia') {
+      oraculoHTML += 'ritual de gratidão, escrita consciente e celebração simbólica.';
+    } else if (lua.fase === 'Lua Nova') {
+      oraculoHTML += 'plantio de intenções, silêncio ritual e visualização.';
+    } else if (lua.fase === 'Lua Crescente') {
+      oraculoHTML += 'ações progressivas, fortalecimento de hábitos e foco.';
+    } else if (lua.fase === 'Lua Minguante') {
+      oraculoHTML += 'limpeza energética, desapego e descanso consciente.';
+    } else {
+      oraculoHTML += 'prática simples de autocuidado e observação.';
+    }
+  } else {
+    oraculoHTML += 'prática simples de autocuidado e observação.';
+  }
+  
+  return oraculoHTML;
+}
+
+// ===== FUNÇÕES DO PLANNER (MANTIDAS) =====
+const capa = document.getElementById('capa');
+const planner = document.getElementById('planner');
+const prospera = document.getElementById('prospera');
+const grid = document.getElementById('grid');
+const mesTitulo = document.getElementById('mesTitulo');
+const perfilEl = document.getElementById('perfil');
+const nomeCapa = document.getElementById('nomeCapa');
+
+let mesAtual = new Date().getMonth();
+let anoAtual = 2026;
+let diaAtual = null;
+
+function criarPlanner() {
+  grid.innerHTML = '';
+  const total = new Date(anoAtual, mesAtual + 1, 0).getDate();
+  const inicio = new Date(anoAtual, mesAtual, 1).getDay();
+  mesTitulo.textContent = new Date(anoAtual, mesAtual).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+
+  for (let i = 0; i < inicio; i++) {
+    const v = document.createElement('div');
+    v.style.visibility = 'hidden';
+    grid.appendChild(v);
+  }
+
+  const notas = load('notas') || {};
+  const sentimentos = load('sentimentos') || {};
+
+  for (let d = 1; d <= total; d++) {
+    const dataISO = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const el = document.createElement('div');
+    el.className = 'dia';
+
+    let icones = '';
+    if (lunacoes2026[dataISO]) icones += lunacoes2026[dataISO].icone;
+    if (sabas2026[dataISO]) icones += '🔥';
+    if (luaForaDeCurso[dataISO]) icones += '⏳';
+
+    el.innerHTML = `<strong>${d}</strong>` + (icones ? `<div class="iconesTopo">${icones}</div>` : '');
+
+    // Mostra estrela se houver notas OU sentimentos
+    if ((Array.isArray(notas[dataISO]) && notas[dataISO].length) || sentimentos[dataISO]) {
+      el.innerHTML += `<span class="estrela">✶</span>`;
+      
+      // Mostra preview da última nota ou sentimento
+      const p = document.createElement('div');
+      p.className = 'preview';
+      
+      if (Array.isArray(notas[dataISO]) && notas[dataISO].length) {
+        p.textContent = notas[dataISO][notas[dataISO].length - 1].texto.substring(0, 40) + '...';
+      } else if (sentimentos[dataISO]) {
+        p.textContent = '💖 ' + sentimentos[dataISO].substring(0, 40) + '...';
+      }
+      
+      el.appendChild(p);
+    }
+
+    el.addEventListener('click', () => abrirModal(dataISO, d));
+    grid.appendChild(el);
+  }
+}
+
+// ===== FUNÇÃO ABRIR MODAL (ATUALIZADA COM BOTÕES DE APAGAR) =====
+function abrirModal(dataISO, dia) {
+  diaAtual = dataISO;
+  modalTitulo.textContent = `Dia ${dia}`;
+  
+  // Usa a NOVA função avaliarDia
+  oraculo.innerHTML = avaliarDia(dataISO);
+  
+  // Limpa containers
+  notasSalvas.innerHTML = '';
+  sentimentosSalvos.innerHTML = '';
+  
+  // Carrega notas
+  const notas = load('notas') || {};
+  if (Array.isArray(notas[dataISO])) {
+    notas[dataISO].forEach((n, index) => {
+      const div = document.createElement('div');
+      div.className = 'nota-item';
+      div.innerHTML = `
+        <div class="nota-hora">${n.hora || 'Sem horário'}</div>
+        <div class="nota-texto">${n.texto}</div>
+        <button class="btn-apagar-nota" data-index="${index}" title="Apagar esta nota">🗑️</button>
+      `;
+      notasSalvas.appendChild(div);
+    });
+    
+    // Adiciona eventos aos botões de apagar notas
+    document.querySelectorAll('.btn-apagar-nota').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const index = parseInt(this.getAttribute('data-index'));
+        apagarNota(index);
+      });
+    });
+  }
+  
+  // Carrega sentimentos
+  const sentimentos = load('sentimentos') || {};
+  if (sentimentos[dataISO]) {
+    const div = document.createElement('div');
+    div.className = 'sentimento-item';
+    div.innerHTML = `
+      <div style="color:var(--color-mystic-purple);font-weight:bold;font-size:0.875rem;">💖 Impressões e Sentimentos</div>
+      <div style="color:var(--color-text-primary);font-size:0.9375rem;margin-top:8px;">${sentimentos[dataISO]}</div>
+      <button class="btn-apagar-sentimento" title="Apagar sentimentos">🗑️</button>
+    `;
+    sentimentosSalvos.appendChild(div);
+    
+    // Adiciona evento ao botão de apagar sentimentos
+    document.querySelector('.btn-apagar-sentimento').addEventListener('click', function(e) {
+      e.stopPropagation();
+      apagarSentimento();
+    });
+  }
+  
+  // Preenche campo de sentimentos se já existir
+  const sentimentosField = document.getElementById('sentimentos');
+  if (sentimentos[dataISO]) {
+    sentimentosField.value = sentimentos[dataISO];
+  } else {
+    sentimentosField.value = '';
+  }
+  
+  // Limpa outros campos
+  document.getElementById('notaHora').value = '';
+  document.getElementById('notaTexto').value = '';
+  
+  modal.style.display = 'flex';
+}
+
+// ===== NOVAS FUNÇÕES PARA APAGAR =====
+
+// Função para apagar uma nota específica
+function apagarNota(index) {
+  if (!confirm('Tem certeza que deseja apagar esta nota?')) {
+    return;
+  }
+  
+  const notas = load('notas') || {};
+  
+  if (Array.isArray(notas[diaAtual]) && notas[diaAtual][index]) {
+    // Remove a nota no índice especificado
+    notas[diaAtual].splice(index, 1);
+    
+    // Se não houver mais notas para este dia, remove o array
+    if (notas[diaAtual].length === 0) {
+      delete notas[diaAtual];
+    }
+    
+    // Salva as notas atualizadas
+    save('notas', notas);
+    
+    // Atualiza o modal
+    abrirModal(diaAtual, diaAtual.split('-')[2]);
+    
+    // Atualiza o calendário
+    criarPlanner();
+    
+    console.log('Nota apagada com sucesso!');
+  }
+}
+
+// Função para apagar sentimentos do dia
+function apagarSentimento() {
+  if (!confirm('Tem certeza que deseja apagar suas impressões e sentimentos deste dia?')) {
+    return;
+  }
+  
+  const sentimentos = load('sentimentos') || {};
+  
+  if (sentimentos[diaAtual]) {
+    // Remove os sentimentos do dia
+    delete sentimentos[diaAtual];
+    
+    // Salva os sentimentos atualizados
+    save('sentimentos', sentimentos);
+    
+    // Atualiza o modal
+    abrirModal(diaAtual, diaAtual.split('-')[2]);
+    
+    // Atualiza o calendário
+    criarPlanner();
+    
+    console.log('Sentimentos apagados com sucesso!');
+  }
+}
+
+// ===== FUNÇÃO SALVAR NOTA (MANTIDA) =====
+function salvarNota() {
+  const notaTexto = document.getElementById('notaTexto').value.trim();
+  const sentimentosTexto = document.getElementById('sentimentos').value.trim();
+  const notaHora = document.getElementById('notaHora').value;
+  
+  // Salva nota se houver conteúdo
+  if (notaTexto) {
+    const notas = load('notas') || {};
+    if (!Array.isArray(notas[diaAtual])) notas[diaAtual] = [];
+    notas[diaAtual].push({ hora: notaHora, texto: notaTexto });
+    save('notas', notas);
+  }
+  
+  // Salva sentimentos se houver conteúdo
+  if (sentimentosTexto) {
+    const sentimentos = load('sentimentos') || {};
+    sentimentos[diaAtual] = sentimentosTexto;
+    save('sentimentos', sentimentos);
+  }
+  
+  // Se não houver nenhum conteúdo, não faz nada
+  if (!notaTexto && !sentimentosTexto) {
+    alert('Por favor, escreva uma nota ou seus sentimentos!');
+    return;
+  }
+  
+  fecharModal();
+  criarPlanner();
+}
+
+function fecharModal() {
+  modal.style.display = 'none';
+  document.getElementById('notaTexto').value = '';
+  document.getElementById('notaHora').value = '';
+  document.getElementById('sentimentos').value = '';
+}
+
+// ===== FUNÇÕES DO LIVRO DA BRUXA PRÓSPERA (MANTIDAS) =====
+function recalcular() {
+  const categorias = ['sustento', 'florescimento', 'centelha', 'abundancia'];
+  let somaTotal = 0;
+
+  categorias.forEach(cat => {
+    let soma = 0;
+    document.querySelectorAll(`#${cat} input[type="number"]`).forEach(i => {
+      soma += Number(i.value) || 0;
+    });
+    if (document.getElementById(`total-${cat}`)) {
+      document.getElementById(`total-${cat}`).textContent = soma.toFixed(2);
+    }
+    somaTotal += soma;
+  });
+
+  const totalAbundancia = Number(document.getElementById('total-abundancia').textContent) || 0;
+  document.getElementById('saldo').textContent = (totalAbundancia - somaTotal).toFixed(2);
+}
+
+function addLinha(id, tipo) {
   const tbody = document.getElementById(id);
-  if(!tbody) return;
+  if (!tbody) return;
 
   const tr = document.createElement('tr');
 
   const tdDesc = document.createElement('td');
   const inputDesc = document.createElement('input');
-  inputDesc.placeholder = tipo==='ganho' ? 'Descreva o ganho' : 'Descreva o gasto';
+  inputDesc.placeholder = tipo === 'ganho' ? 'Descreva o ganho' : 'Descreva o gasto';
   tdDesc.appendChild(inputDesc);
 
   const tdValor = document.createElement('td');
@@ -692,231 +1790,101 @@ function addLinha(id,tipo){
   tbody.appendChild(tr);
 }
 
-// testes mínimos automáticos
+// Adiciona linhas iniciais
 addLinha('sustento');
-addLinha('abundancia','ganho');
+addLinha('abundancia', 'ganho');
 addLinha('florescimento');
 addLinha('centelha');
-function load(k){const v=localStorage.getItem(k);return v?JSON.parse(v):null}
 
-const overlay=document.getElementById('overlay');
-const capa=document.getElementById('capa');
-const planner=document.getElementById('planner');
-const prospera=document.getElementById('prospera');
-const grid=document.getElementById('grid');
-const mesTitulo=document.getElementById('mesTitulo');
-const perfilEl=document.getElementById('perfil');
-
-let mesAtual=new Date().getMonth();
-let anoAtual=2026;
-let diaAtual=null;
-
-
-// ===== Dados lunares (2026 completo) =====
-const lunacoes2026={
-  '2026-01-03':{fase:'Lua Cheia', signo:'Câncer', icone:'🌕'},
-  '2026-01-10':{fase:'Lua Minguante', signo:'Libra', icone:'🌘'},
-  '2026-01-18':{fase:'Lua Nova', signo:'Capricórnio', icone:'🌑'},
-  '2026-01-26':{fase:'Lua Crescente', signo:'Touro', icone:'🌒'},
-  '2026-02-01':{fase:'Lua Cheia', signo:'Leão', icone:'🌕'},
-  '2026-02-09':{fase:'Lua Minguante', signo:'Escorpião', icone:'🌘'},
-  '2026-02-17':{fase:'Lua Nova', signo:'Aquário', icone:'🌑'},
-  '2026-02-24':{fase:'Lua Crescente', signo:'Gêmeos', icone:'🌒'},
-  '2026-03-03':{fase:'Lua Cheia', signo:'Virgem', icone:'🌕'},
-  '2026-03-11':{fase:'Lua Minguante', signo:'Sagitário', icone:'🌘'},
-  '2026-03-18':{fase:'Lua Nova', signo:'Peixes', icone:'🌑'},
-  '2026-03-25':{fase:'Lua Crescente', signo:'Câncer', icone:'🌒'},
-  '2026-04-01':{fase:'Lua Cheia', signo:'Libra', icone:'🌕'},
-  '2026-04-10':{fase:'Lua Minguante', signo:'Capricórnio', icone:'🌘'},
-  '2026-04-17':{fase:'Lua Nova', signo:'Áries', icone:'🌑'},
-  '2026-04-23':{fase:'Lua Crescente', signo:'Leão', icone:'🌒'},
-  '2026-05-01':{fase:'Lua Cheia', signo:'Escorpião', icone:'🌕'},
-  '2026-05-09':{fase:'Lua Minguante', signo:'Aquário', icone:'🌘'},
-  '2026-05-16':{fase:'Lua Nova', signo:'Touro', icone:'🌑'},
-  '2026-05-23':{fase:'Lua Crescente', signo:'Virgem', icone:'🌒'},
-  '2026-05-31':{fase:'Lua Cheia', signo:'Sagitário', icone:'🌕'},
-  '2026-06-08':{fase:'Lua Minguante', signo:'Peixes', icone:'🌘'},
-  '2026-06-14':{fase:'Lua Nova', signo:'Gêmeos', icone:'🌑'},
-  '2026-06-21':{fase:'Lua Crescente', signo:'Virgem', icone:'🌒'},
-  '2026-06-29':{fase:'Lua Cheia', signo:'Capricórnio', icone:'🌕'},
-  '2026-07-07':{fase:'Lua Minguante', signo:'Áries', icone:'🌘'},
-  '2026-07-14':{fase:'Lua Nova', signo:'Câncer', icone:'🌑'},
-  '2026-07-21':{fase:'Lua Crescente', signo:'Escorpião', icone:'🌒'},
-  '2026-07-29':{fase:'Lua Cheia', signo:'Aquário', icone:'🌕'},
-  '2026-08-05':{fase:'Lua Minguante', signo:'Touro', icone:'🌘'},
-  '2026-08-12':{fase:'Lua Nova', signo:'Leão', icone:'🌑'},
-  '2026-08-19':{fase:'Lua Crescente', signo:'Escorpião', icone:'🌒'},
-  '2026-08-28':{fase:'Lua Cheia', signo:'Peixes', icone:'🌕'},
-  '2026-09-04':{fase:'Lua Minguante', signo:'Gêmeos', icone:'🌘'},
-  '2026-09-11':{fase:'Lua Nova', signo:'Virgem', icone:'🌑'},
-  '2026-09-18':{fase:'Lua Crescente', signo:'Sagitário', icone:'🌒'},
-  '2026-09-26':{fase:'Lua Cheia', signo:'Áries', icone:'🌕'},
-  '2026-10-03':{fase:'Lua Minguante', signo:'Câncer', icone:'🌘'},
-  '2026-10-10':{fase:'Lua Nova', signo:'Libra', icone:'🌑'},
-  '2026-10-18':{fase:'Lua Crescente', signo:'Aquário', icone:'🌒'},
-  '2026-10-26':{fase:'Lua Cheia', signo:'Touro', icone:'🌕'},
-  '2026-11-01':{fase:'Lua Minguante', signo:'Leão', icone:'🌘'},
-  '2026-11-09':{fase:'Lua Nova', signo:'Escorpião', icone:'🌑'},
-  '2026-11-17':{fase:'Lua Crescente', signo:'Peixes', icone:'🌒'},
-  '2026-11-24':{fase:'Lua Cheia', signo:'Gêmeos', icone:'🌕'},
-  '2026-12-01':{fase:'Lua Minguante', signo:'Virgem', icone:'🌘'},
-  '2026-12-08':{fase:'Lua Nova', signo:'Sagitário', icone:'🌑'},
-  '2026-12-17':{fase:'Lua Crescente', signo:'Peixes', icone:'🌒'},
-  '2026-12-23':{fase:'Lua Cheia', signo:'Gêmeos', icone:'🌕'},
-  '2026-12-30':{fase:'Lua Minguante', signo:'Libra', icone:'🌘'}
-};
-const sabas={
-  '2026-02-01':{nome:'Lughnasadh',descricao:'Assar pães e bolos de grãos, expressar gratidão pela fartura, agradecer pelos frutos colhidos e realizar ritual de colheita e prosperidade.'},
-  '2026-03-20':{nome:'Mabon',descricao:'Oferendas de maçãs e frutas da estação, partilha de banquetes, agradecimento pela colheita e rituais de equilíbrio e gratidão.'},
-  '2026-05-01':{nome:'Samhain',descricao:'Honrar ancestrais, limpar altares, queimar pedidos ou banimentos, praticar divinação e introspecção profunda.'},
-  '2026-06-21':{nome:'Yule',descricao:'Acender a tora de Yule ou velas, decorar com símbolos de vida eterna, celebrar o renascimento do sol e trocar presentes simbólicos.'},
-  '2026-08-01':{nome:'Imbolc',descricao:'Acender velas em honra a Brígida, realizar limpezas energéticas, rituais de purificação, proteção e preparação para a luz.'},
-  '2026-09-22':{nome:'Ostara',descricao:'Plantio de sementes físicas ou simbólicas, decoração de ovos, rituais de fertilidade, renovação e equilíbrio.'},
-  '2026-10-31':{nome:'Beltane',descricao:'Dançar ao redor do mastro de maio, acender fogueiras de proteção, celebrar amor, prazer, união e fertilidade.'},
-  '2026-12-21':{nome:'Litha',descricao:'Rituais ao ar livre para absorver energia solar, colheita de ervas, fogueiras, música, dança e honra ao ápice da luz.'}
-};
-const luaForaDeCurso={
-  '2026-01-02':'09:23–10:09',
-  '2026-02-05':'14:10–15:02',
-  '2026-03-07':'22:40–23:30',
-  '2026-04-11':'06:15–07:01',
-  '2026-05-04':'18:50–19:44',
-  '2026-06-09':'03:12–04:00',
-  '2026-07-12':'11:30–12:18',
-  '2026-08-06':'20:05–21:00',
-  '2026-09-10':'08:44–09:33',
-  '2026-10-08':'16:10–17:02',
-  '2026-11-09':'01:22–02:10',
-  '2026-12-07':'13:40–14:28'
+// ===== NAVEGAÇÃO (MANTIDA) =====
+document.getElementById('irPlanner').onclick = () => {
+  capa.style.display = 'none';
+  planner.style.display = 'block';
+  const p = load('perfil');
+  if (p) perfilEl.textContent = `${p.nome} · ${p.signo}`;
+  criarPlanner();
 };
 
-function criarPlanner(){
-  grid.innerHTML='';
-  const total=new Date(anoAtual,mesAtual+1,0).getDate();
-  const inicio=new Date(anoAtual,mesAtual,1).getDay();
-  mesTitulo.textContent=new Date(anoAtual,mesAtual).toLocaleString('pt-BR',{month:'long',year:'numeric'});
+document.getElementById('irProspera').onclick = () => {
+  capa.style.display = 'none';
+  prospera.style.display = 'block';
+};
 
-  for(let i=0;i<inicio;i++){const v=document.createElement('div');v.style.visibility='hidden';grid.appendChild(v);}
-
-  const notas=load('notas')||{};
-
-  for(let d=1;d<=total;d++){
-    const dataISO=`${anoAtual}-${String(mesAtual+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const el=document.createElement('div');el.className='dia';
-
-    let icones='';
-    if(lunacoes2026[dataISO]) icones+=lunacoes2026[dataISO].icone;
-    if(sabas[dataISO]) icones+='🔥';
-    if(luaForaDeCurso[dataISO]) icones+='⏳';
-
-    el.innerHTML=`<strong>${d}</strong>`+(icones?`<div class="iconesTopo">${icones}</div>`:'');
-
-    if(Array.isArray(notas[dataISO]) && notas[dataISO].length){
-      el.innerHTML+=`<span class="estrela">✶</span>`;
-      const p=document.createElement('div');p.className='preview';p.textContent=notas[dataISO][notas[dataISO].length-1].texto;el.appendChild(p);
-    }
-
-    el.addEventListener('click',()=>abrirModal(dataISO,d));
-    grid.appendChild(el);
-  }
-}
-
-// ===== Oráculo diário =====
-function avaliarDia(dataISO){
-  const perfil=load('perfil')||{};
-  const lua=lunacoes2026[dataISO];
-
-  let linha1='';
-  if(lua){
-    linha1=`<strong>${lua.fase} em ${lua.signo}:</strong> ${significadoLua(lua.fase, lua.signo)}`;
-  } else {
-    linha1='<strong>Lua em trânsito:</strong> continuidade do ciclo lunar em andamento.';
-  }
-
-  const numero=perfil.ano||'';
-  const linha2=`<strong>Energia do dia:</strong> ${energiaDoDia(lua?.fase, numero, perfil.ciclo)}`;
-
-  const linha3=`<strong>Ritual sugerido:</strong> ${ritualDoDia(lua?.fase, lua?.signo, dataISO)}`;
-
-  return `${linha1}<br><br>${linha2}<br><br>${linha3}`;
-}
-
-function significadoLua(fase, signo){
-  return `${fase.toLowerCase()} filtrada pela energia de ${signo}, ativando temas simbólicos do signo.`;
-}
-
-function energiaDoDia(fase, numero, ciclo){
-  let base=fase||'fluxo contínuo';
-  let n=numero?` alinhado ao número pessoal ${numero}`:'';
-  let c=ciclo?' com influência corporal ativa':'';
-  return `movimento interno guiado pela ${base}${n}${c}.`;
-}
-
-function ritualDoDia(fase, signo, dataISO){
-  if(sabas[dataISO]){
-    return `celebração de ${sabas[dataISO].nome}: ${sabas[dataISO].descricao}`;
-  }
-  if(fase==='Lua Cheia') return 'ritual de gratidão, escrita consciente e celebração simbólica.';
-  if(fase==='Lua Nova') return 'plantio de intenções, silêncio ritual e visualização.';
-  if(fase==='Lua Crescente') return 'ações progressivas, fortalecimento de hábitos e foco.';
-  if(fase==='Lua Minguante') return 'limpeza energética, desapego e descanso consciente.';
-  return 'prática simples de autocuidado e observação.';
-}
-
-function abrirModal(dataISO,dia){
-  diaAtual=dataISO;
-  modalTitulo.textContent=`Dia ${dia}`;
-  oraculo.innerHTML=avaliarDia(dataISO);
-  notasSalvas.innerHTML='';
-  const notas=load('notas')||{};
-  if(Array.isArray(notas[dataISO])){
-    notas[dataISO].forEach(n=>{const p=document.createElement('p');p.textContent=`${n.hora||''} — ${n.texto}`;notasSalvas.appendChild(p);});
-  }
-  modal.style.display='flex';
-}
-
-function fecharModal(){modal.style.display='none';notaTexto.value='';notaHora.value='';}
-
-function salvarNota(){
-  if(!notaTexto.value.trim()) return;
-  const notas=load('notas')||{};
-  if(!Array.isArray(notas[diaAtual])) notas[diaAtual]=[];
-  notas[diaAtual].push({hora:notaHora.value,texto:notaTexto.value});
-  save('notas',notas);
-  fecharModal();criarPlanner();
-}
-
-salvar.onclick = () => {
-  const perfil = {
-    nome: nome.value,
-    signo: signo.value,
-    ano: anoPessoal.value,
-    ciclo: ciclo.value
-  };
-
-  save('perfil', perfil);
-  solicitarNotificacao(); // aqui está correto
-  nomeCapa.textContent = `Salve, ${perfil.nome}`;
-
-  overlay.style.display = 'none';
+document.getElementById('voltarCapa').onclick = () => {
+  planner.style.display = 'none';
   capa.style.display = 'block';
 };
 
+document.getElementById('voltarCapa2').onclick = () => {
+  prospera.style.display = 'none';
+  capa.style.display = 'block';
+};
 
+document.getElementById('mesAnterior').onclick = () => {
+  mesAtual--;
+  if (mesAtual < 0) {
+    mesAtual = 11;
+    anoAtual--;
+  }
+  criarPlanner();
+};
 
-irPlanner.onclick=()=>{capa.style.display='none';planner.style.display='block';const p=load('perfil');if(p)perfilEl.textContent=`${p.nome} · ${p.signo}`;criarPlanner();};
-irProspera.onclick=()=>{capa.style.display='none';prospera.style.display='block'};
-voltarCapa.onclick=()=>{planner.style.display='none';capa.style.display='block'};
-voltarCapa2.onclick=()=>{prospera.style.display='none';capa.style.display='block'};
+document.getElementById('mesProximo').onclick = () => {
+  mesAtual++;
+  if (mesAtual > 11) {
+    mesAtual = 0;
+    anoAtual++;
+  }
+  criarPlanner();
+};
 
-mesAnterior.onclick=()=>{mesAtual--;if(mesAtual<0){mesAtual=11;anoAtual--;}criarPlanner()};
-mesProximo.onclick=()=>{mesAtual++;if(mesAtual>11){mesAtual=0;anoAtual++;}criarPlanner()};
+// ===== EVENTOS DO MODAL (MANTIDOS) =====
+document.getElementById('btnFechar').onclick = fecharModal;
+document.getElementById('btnSalvarNota').onclick = salvarNota;
 
-btnFechar.onclick=fecharModal;
-btnSalvarNota.onclick=salvarNota;
+// ===== NOTIFICAÇÕES (MANTIDAS) =====
+function solicitarNotificacao() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
 
-              
-            // ===== Registro do PWA =====
+function verificarSabaHoje() {
+  if (Notification.permission !== 'granted') return;
+
+  const hoje = new Date().toISOString().split('T')[0];
+  const saba = sabas2026[hoje];
+  if (!saba) return;
+
+  navigator.serviceWorker.ready.then(reg => {
+    reg.showNotification(`🔥 Hoje é ${saba.nome}`, {
+      body: saba.descricao,
+      icon: 'icon-192.png',
+      tag: 'saba-hoje'
+    });
+  });
+}
+
+function agendarVerificacaoDiaria() {
+  const agora = new Date();
+  const proxima = new Date();
+
+  proxima.setHours(8, 0, 0, 0);
+  if (agora > proxima) proxima.setDate(proxima.getDate() + 1);
+
+  const delay = proxima - agora;
+
+  setTimeout(() => {
+    verificarSabaHoje();
+    setInterval(verificarSabaHoje, 24 * 60 * 60 * 1000);
+  }, delay);
+}
+
+// ===== INICIALIZAÇÃO =====
+agendarVerificacaoDiaria();
+
+// Service Worker para PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -925,76 +1893,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ===== Permissão de notificações =====
-function solicitarNotificacao() {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-}
-function salvarLembrete(lembrete){
-  const lista = load('lembretes') || [];
-  lista.push(lembrete);
-  save('lembretes', lista);
-}
-
-
-// ===== Botão "Instalar Grimório" =====
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = document.getElementById('btnInstalar');
-  if (btn) btn.style.display = 'block';
-});
-
-document.getElementById('btnInstalar')?.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
-
-function verificarSabaHoje(){
-  if(Notification.permission !== 'granted') return;
-
-  const hoje = new Date().toISOString().split('T')[0];
-  const saba = sabas[hoje];
-  if(!saba) return;
-
-  navigator.serviceWorker.ready.then(reg=>{
-    reg.showNotification(`🔥 Hoje é ${saba.nome}`,{
-      body: saba.descricao,
-      icon: 'icon-192.png',
-      tag: 'saba-hoje'
-    });
-  });
-}
-function agendarVerificacaoDiaria(){
-  const agora = new Date();
-  const proxima = new Date();
-
-  proxima.setHours(8,0,0,0);
-  if(agora > proxima) proxima.setDate(proxima.getDate()+1);
-
-  const delay = proxima - agora;
-
-  setTimeout(()=>{
-    verificarSabaHoje();
-    setInterval(verificarSabaHoje, 24*60*60*1000);
-  }, delay);
-}
-
-agendarVerificacaoDiaria();
-const salvo = load('perfil');
-
-if (salvo && salvo.nome) {
-  overlay.style.display = 'none';
-  capa.style.display = 'block';
-  nomeCapa.textContent = `Salve, ${salvo.nome}`;
-}
-    
 </script>
 </body>
 </html>
