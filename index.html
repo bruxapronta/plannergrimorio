@@ -2336,6 +2336,98 @@ addLinha('sustento');
 addLinha('abundancia', 'ganho');
 addLinha('florescimento');
 addLinha('centelha');
+  // ===== TESTE DIRETO DE NOTIFICAÇÃO =====
+console.log('=== INICIANDO TESTE DIRETO ===');
+
+// Espera 5 segundos e envia uma notificação FIXA
+setTimeout(() => {
+  console.log('Enviando notificação de teste em 5 segundos...');
+  
+  setTimeout(() => {
+    console.log('=== ENVIANDO NOTIFICAÇÃO DE TESTE ===');
+    
+    if (Notification.permission !== 'granted') {
+      console.log('❌ Permissão NÃO concedida:', Notification.permission);
+      return;
+    }
+    
+    console.log('✅ Permissão CONCEDIDA');
+    console.log('Tentando enviar notificação...');
+    
+    try {
+      // Tenta pelo Service Worker primeiro
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+          console.log('Service Worker pronto, enviando via SW...');
+          
+          registration.showNotification('🔮 TESTE GRIMÓRIO', {
+            body: 'Esta é uma notificação de TESTE via Service Worker',
+            icon: 'icon-192.png',
+            tag: 'teste-direct-' + Date.now(),
+            requireInteraction: true,
+            data: {
+              type: 'teste',
+              destino: 'planner',
+              data: new Date().toISOString().split('T')[0]
+            }
+          }).then(() => {
+            console.log('✅ Notificação ENVIADA via Service Worker');
+          }).catch(err => {
+            console.error('❌ Erro via Service Worker:', err);
+            // Fallback
+            enviarNotificacaoDireta();
+          });
+        }).catch(err => {
+          console.error('Service Worker não pronto:', err);
+          enviarNotificacaoDireta();
+        });
+      } else {
+        console.log('Service Worker não disponível, enviando direto...');
+        enviarNotificacaoDireta();
+      }
+    } catch (error) {
+      console.error('❌ ERRO GRAVE:', error);
+    }
+    
+    function enviarNotificacaoDireta() {
+      try {
+        const notif = new Notification('🔮 TESTE GRIMÓRIO', {
+          body: 'Esta é uma notificação de TESTE direta',
+          icon: 'icon-192.png',
+          tag: 'teste-direct-' + Date.now()
+        });
+        console.log('✅ Notificação ENVIADA diretamente');
+        
+        notif.onclick = () => {
+          console.log('Notificação clicada!');
+        };
+        
+      } catch (error) {
+        console.error('❌ Falha na notificação direta:', error);
+      }
+    }
+    
+  }, 5000); // 5 segundos
+  
+}, 1000);
+
+// ===== VERIFICAÇÕES EXTRAS =====
+console.log('=== VERIFICAÇÕES ===');
+console.log('1. Permissão:', Notification.permission);
+console.log('2. Service Worker:', 'serviceWorker' in navigator);
+console.log('3. Online:', navigator.onLine);
+console.log('4. User Agent:', navigator.userAgent);
+console.log('5. Platform:', navigator.platform);
+
+// Verifica se o Service Worker está registrado
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    console.log('Service Workers registrados:', registrations.length);
+    registrations.forEach((reg, i) => {
+      console.log(`SW ${i}:`, reg.scope);
+    });
+  });
+}
 </script>
 </body>
 </html>
