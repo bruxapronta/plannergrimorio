@@ -1076,7 +1076,6 @@
 <script>
 // ===== VARIÁVEIS GLOBAIS =====
 let deferredPrompt = null;
-let notificacoesAgendadas = [];
 
 // ===== ELEMENTOS =====
 const installOverlay = document.getElementById('installOverlay');
@@ -1279,14 +1278,6 @@ window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
         console.log('Service Worker registrado:', registration.scope);
-        
-        // Configurar listener para cliques em notificações
-        navigator.serviceWorker.addEventListener('message', event => {
-          if (event.data && event.data.action === 'notificationClick') {
-            const data = event.data.data;
-            handleNotificationClick(data);
-          }
-        });
       })
       .catch(err => {
         console.error('Erro no Service Worker:', err);
@@ -1319,9 +1310,6 @@ function solicitarPermissaoNotificacao() {
 function agendarNotificacoes() {
   console.log('Agendando notificações...');
   
-  // Cancelar notificações anteriores
-  cancelarTodasNotificacoes();
-  
   const config = load('configNotificacoes');
   if (!config || config.ativas === 'nao') {
     console.log('Notificações desativadas.');
@@ -1333,19 +1321,18 @@ function agendarNotificacoes() {
     return;
   }
   
-  // Agendar notificações de ALERTAS (eventos fixos) APENAS PARA HOJE
-  agendarAlertasParaHoje(config);
+  // Cancelar todas as notificações anteriores
+  cancelarTodasNotificacoes();
+  
+  // Agendar notificações de ALERTAS (eventos fixos)
+  agendarAlertasFixos(config);
   
   // Agendar notificações de LEMBRETES (notas da usuária)
   agendarLembretesNotas();
 }
 
 function cancelarTodasNotificacoes() {
-  // Limpar timeouts anteriores
-  notificacoesAgendadas.forEach(timeoutId => clearTimeout(timeoutId));
-  notificacoesAgendadas = [];
-  
-  // Limpar notificações do Service Worker
+  // Esta função limpa notificações antigas ao recarregar as configurações
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(registration => {
       registration.getNotifications().then(notifications => {
@@ -1357,81 +1344,78 @@ function cancelarTodasNotificacoes() {
   }
 }
 
-function agendarAlertasParaHoje(config) {
-  console.log('Agendando ALERTAS para HOJE...');
-  const hoje = new Date().toISOString().split('T')[0];
+function agendarAlertasFixos(config) {
+  console.log('Agendando ALERTAS fixos...');
   
-  // Verificar fases lunares HOJE
-  if (lunacoes2026[hoje]) {
-    const lua = lunacoes2026[hoje];
-    const horario = luaForaDeCurso[hoje] ? ` (Horário: ${luaForaDeCurso[hoje].split('–')[0]})` : '';
+  // Agendar notificações para fases lunares
+  Object.keys(lunacoes2026).forEach(dataISO => {
+    const lua = lunacoes2026[dataISO];
+    const horario = luaForaDeCurso[dataISO] ? ` (Horário: ${luaForaDeCurso[dataISO].split('–')[0]})` : '';
     const mensagem = `Mudança de fase lunar hoje: ${lua.fase} em ${lua.signo}${horario}!`;
     
-    const horaAlerta = config.horaDiaria || '08:00';
-    agendarAlertaParaHoje(hoje, horaAlerta, '🌙 Alerta Lunar', mensagem, 'planner', hoje);
-  }
+    agendarAlertaParaData(dataISO, '08:00', '🌙 Alerta Lunar', mensagem);
+  });
   
-  // Verificar Sabás HOJE
-  if (config.notificarSabas === 'sim' && sabas2026[hoje]) {
-    const sabá = sabas2026[hoje];
-    const mensagem = `Hoje é ${sabá.nome}: ${sabá.significado}`;
-    const horaAlerta = config.horaSabas || '09:00';
+  // Agendar notificações para Sabás com antecedência configurável
+  if (config.notificarSabas === 'sim') {
+    const antecedenciaDias = parseInt(config.antecedenciaSabas);
+    const horaSabas = config.horaSabas || '09:00';
     
-    agendarAlertaParaHoje(hoje, horaAlerta, `🔥 ${sabá.nome}`, mensagem, 'planner', hoje);
+    Object.keys(sabas2026).forEach(dataSabá => {
+      const sabá = sabas2026[dataSabá];
+      
+      // Agendar notificação no próprio dia do Sabá
+      const mensagemDia = `Hoje é ${sabá.nome}: ${sabá.significado}`;
+      agendarAlertaParaData(dataSabá, horaSabas, `🔥 ${sabá.nome}`, mensagemDia);
+      
+      // Agendar notificação com antecedência
+      if (antecedenciaDias > 0) {
+        const dataAntecedencia = new Date(dataSabá);
+        dataAntecedencia.setDate(dataAntecedencia.getDate() - antecedenciaDias);
+        const dataAntecedenciaISO = dataAntecedencia.toISOString().split('T')[0];
+        
+        const mensagemAntecedencia = `Em ${antecedenciaDias} dia(s) será ${sabá.nome}. Prepare-se!`;
+        agendarAlertaParaData(dataAntecedenciaISO, horaSabas, `🔥 ${sabá.nome} em breve`, mensagemAntecedencia);
+      }
+    });
   }
   
-  // Verificar Lua fora de curso HOJE
-  if (luaForaDeCurso[hoje]) {
-    const horario = luaForaDeCurso[hoje];
+  // Agendar notificações para Lua fora de curso
+  Object.keys(luaForaDeCurso).forEach(dataISO => {
+    const horario = luaForaDeCurso[dataISO];
     const mensagem = `Lua fora de curso hoje das ${horario}. Evite decisões importantes neste período.`;
-    const horaAlerta = horario.split('–')[0];
-    
-    agendarAlertaParaHoje(hoje, horaAlerta, '⏳ Alerta Lunar', mensagem, 'planner', hoje);
-  }
+    agendarAlertaParaData(dataISO, horario.split('–')[0], '⏳ Alerta Lunar', mensagem);
+  });
   
-  // Agendar notificação diária para amanhã
+  // Agendar notificações diárias
   agendarNotificacaoDiaria(config);
 }
 
-function agendarAlertaParaHoje(dataISO, hora, titulo, mensagem, destino, dataDestino) {
+function agendarAlertaParaData(dataISO, hora, titulo, mensagem) {
   const hoje = new Date().toISOString().split('T')[0];
+  const dataAlerta = new Date(dataISO + 'T' + hora);
   
-  // Só agenda se for hoje
-  if (dataISO !== hoje) {
+  // Verificar se a data já passou
+  if (dataAlerta < new Date()) {
+    console.log(`Data ${dataISO} já passou, ignorando agendamento.`);
     return;
   }
   
-  const agora = new Date();
-  const dataAlerta = new Date(`${hoje}T${hora}`);
-  
-  // Se a hora já passou hoje, agendar para amanhã
-  if (dataAlerta < agora) {
-    dataAlerta.setDate(dataAlerta.getDate() + 1);
-  }
-  
-  const tempoRestante = dataAlerta.getTime() - agora.getTime();
+  const tempoRestante = dataAlerta.getTime() - Date.now();
   
   if (tempoRestante > 0) {
-    const timeoutId = setTimeout(() => {
-      enviarAlerta(titulo, mensagem, destino, dataDestino);
+    setTimeout(() => {
+      enviarAlerta(titulo, mensagem);
     }, tempoRestante);
     
-    notificacoesAgendadas.push(timeoutId);
-    console.log(`Alerta agendado para hoje às ${hora}: ${titulo}`);
+    console.log(`Alerta agendado para ${dataISO} às ${hora}: ${titulo}`);
   }
 }
 
-function enviarAlerta(titulo, mensagem, destino, dataDestino) {
+function enviarAlerta(titulo, mensagem) {
   if (Notification.permission !== 'granted') return;
   
   const corpo = `Atenção: ${mensagem}`;
-  const data = {
-    type: 'alerta',
-    destino: destino,
-    data: dataDestino,
-    titulo: titulo,
-    mensagem: mensagem
-  };
   
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(reg => {
@@ -1439,27 +1423,26 @@ function enviarAlerta(titulo, mensagem, destino, dataDestino) {
         body: corpo,
         icon: 'icon-192.png',
         tag: 'alerta-' + Date.now(),
-        data: data,
         requireInteraction: true
       });
     }).catch(err => {
       console.error('Erro:', err);
       new Notification(titulo, {
         body: corpo,
-        icon: 'icon-192.png',
-        data: data
+        icon: 'icon-192.png'
       });
     });
   } else {
     new Notification(titulo, {
       body: corpo,
-      icon: 'icon-192.png',
-      data: data
+      icon: 'icon-192.png'
     });
   }
 }
 
 function agendarNotificacaoDiaria(config) {
+  console.log('Agendando notificação diária...');
+  
   // Agendar para amanhã no horário configurado
   const amanha = new Date();
   amanha.setDate(amanha.getDate() + 1);
@@ -1470,13 +1453,11 @@ function agendarNotificacaoDiaria(config) {
   const tempoRestante = amanha.getTime() - Date.now();
   
   if (tempoRestante > 0) {
-    const timeoutId = setTimeout(() => {
+    setTimeout(() => {
       enviarNotificacaoDiaria();
       // Reagendar para o próximo dia
       agendarNotificacaoDiaria(config);
     }, tempoRestante);
-    
-    notificacoesAgendadas.push(timeoutId);
   }
 }
 
@@ -1498,46 +1479,32 @@ function enviarNotificacaoDiaria() {
     corpo = `Atenção: Hoje é ${sabaHoje.nome}: ${sabaHoje.significado}`;
   }
   
-  const data = {
-    type: 'lembrete',
-    destino: 'planner',
-    data: hoje,
-    titulo: '🌙 Lembrete Diário do Grimório'
-  };
-  
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification('🌙 Lembrete Diário do Grimório', {
         body: corpo,
         icon: 'icon-192.png',
-        tag: 'lembrete-diario-' + Date.now(),
-        data: data
+        tag: 'lembrete-diario-' + Date.now()
       });
     }).catch(err => {
       console.error('Erro:', err);
       new Notification('🌙 Lembrete Diário do Grimório', {
         body: corpo,
-        icon: 'icon-192.png',
-        data: data
+        icon: 'icon-192.png'
       });
     });
   } else {
     new Notification('🌙 Lembrete Diário do Grimório', {
       body: corpo,
-      icon: 'icon-192.png',
-      data: data
+      icon: 'icon-192.png'
     });
   }
 }
 
 function agendarLembretesNotas() {
   const notasComNotificacao = load('notasComNotificacao') || {};
-  const hoje = new Date().toISOString().split('T')[0];
   
   Object.keys(notasComNotificacao).forEach(dataISO => {
-    // Só agenda lembretes para hoje
-    if (dataISO !== hoje) return;
-    
     const notificacoes = notasComNotificacao[dataISO];
     
     notificacoes.forEach((notificacao, index) => {
@@ -1550,109 +1517,84 @@ function agendarLembretesNotas() {
       const tempoRestante = dataNotificacao.getTime() - Date.now();
       
       if (tempoRestante > 0) {
-        const timeoutId = setTimeout(() => {
-          enviarLembreteNota(texto, horaNota, dataISO);
+        setTimeout(() => {
+          enviarLembreteNota(texto, horaNota);
         }, tempoRestante);
         
-        notificacoesAgendadas.push(timeoutId);
-        console.log(`Lembrete agendado para hoje às ${horaNota} (${antecedencia} min antes)`);
+        console.log(`Lembrete agendado para ${dataISO} às ${horaNota} (${antecedencia} min antes)`);
       }
     });
   });
 }
 
-function enviarLembreteNota(textoNota, horaNota, dataISO) {
+function enviarLembreteNota(textoNota, horaNota) {
   if (Notification.permission !== 'granted') return;
   
   const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
-  const data = {
-    type: 'lembrete',
-    destino: 'planner',
-    data: dataISO,
-    hora: horaNota,
-    titulo: `📝 Lembrete de Nota - ${horaNota}`
-  };
   
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification(`📝 Lembrete de Nota - ${horaNota}`, {
         body: preview,
         icon: 'icon-192.png',
-        tag: `lembrete-nota-${Date.now()}`,
-        data: data
+        tag: `lembrete-nota-${Date.now()}`
       });
     });
   } else {
     new Notification(`📝 Lembrete de Nota - ${horaNota}`, {
       body: preview,
-      icon: 'icon-192.png',
-      data: data
+      icon: 'icon-192.png'
     });
   }
 }
 
-// ===== HANDLE NOTIFICATION CLICK =====
-function handleNotificationClick(notificationData) {
-  console.log('Notificação clicada:', notificationData);
-  
-  if (!notificationData) return;
-  
-  const { destino, data: dataDestino, type } = notificationData;
-  
-  // Fechar todas as telas primeiro
-  capa.style.display = 'none';
-  planner.style.display = 'none';
-  prospera.style.display = 'none';
-  
-  if (destino === 'planner') {
-    // Ir para o planner e abrir o dia correspondente
-    const p = load('perfil');
-    if (p) perfilEl.textContent = `${p.nome} · ${p.signo}`;
-    
-    // Configurar o mês correto
-    const dataObj = new Date(dataDestino);
-    mesAtual = dataObj.getMonth();
-    anoAtual = dataObj.getFullYear();
-    
-    criarPlanner();
-    planner.style.display = 'block';
-    
-    // Abrir modal do dia
-    const dia = dataObj.getDate();
-    setTimeout(() => {
-      abrirModal(dataDestino, dia);
-    }, 500);
-    
-  } else if (destino === 'prospera') {
-    // Ir para o livro da bruxa próspera
-    prospera.style.display = 'block';
-    
-    // Se houver dados financeiros específicos, pode rolar para a seção
-    if (notificationData.secao) {
-      setTimeout(() => {
-        const secao = document.getElementById(notificationData.secao);
-        if (secao) {
-          secao.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 500);
-    }
-  }
-}
-
-// Configurar listener para cliques em notificações (para navegadores sem Service Worker)
-if ('Notification' in window) {
-  Notification.requestPermission().then(permission => {
-    if (permission === 'granted') {
-      // Event listener para quando a notificação é clicada
-      window.addEventListener('notificationclick', function(event) {
-        event.notification.close();
-        
-        if (event.notification.data) {
-          handleNotificationClick(event.notification.data);
+// ===== TESTE DE NOTIFICAÇÕES =====
+function adicionarBotaoTeste() {
+  setTimeout(() => {
+    const capaDiv = document.getElementById('capa');
+    if (capaDiv && !document.getElementById('btnTesteNotificacao')) {
+      const btnTeste = document.createElement('button');
+      btnTeste.id = 'btnTesteNotificacao';
+      btnTeste.className = 'secondary';
+      btnTeste.innerHTML = '🔔 Testar Notificação';
+      btnTeste.style.marginTop = '10px';
+      btnTeste.style.marginLeft = '10px';
+      
+      btnTeste.addEventListener('click', () => {
+        if (Notification.permission === 'granted') {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification('🔔 Teste de Notificação', {
+                body: 'Esta é uma notificação de teste do Grimório!',
+                icon: 'icon-192.png',
+                tag: 'teste'
+              });
+              alert('✅ Notificação de teste enviada!');
+            });
+          } else {
+            new Notification('🔔 Teste de Notificação', {
+              body: 'Esta é uma notificação de teste do Grimório!',
+              icon: 'icon-192.png'
+            });
+            alert('✅ Notificação de teste enviada!');
+          }
+        } else if (Notification.permission === 'default') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              alert('✅ Permissão concedida! Clique novamente para testar.');
+            }
+          });
+        } else {
+          alert('❌ Permissão para notificações foi negada.');
         }
       });
+      
+      const btnAlterarNome = document.getElementById('btnAlterarNome');
+      if (btnAlterarNome && btnAlterarNome.parentNode) {
+        btnAlterarNome.parentNode.appendChild(btnTeste);
+      }
     }
-  });
+  }, 1000);
 }
 
 // ===== DADOS DAS PLANILHAS =====
@@ -1761,7 +1703,7 @@ const energiaSignoLunar = {
     'Lua Nova': 'Foco total na renovação da vida íntima, lar e família.',
     'Lua Crescente': 'Intensificação das emoções, proteção de quem se ama e fortalecimento de vínculos.',
     'Lua Cheia': 'Transbordamento emocional e sensibilidade máxima; colheita ligada ao acolhimento.',
-    'Lua Minguante': 'Convite para olhar para dentro, perdoar o passado e buscar paz com a própria história.'
+    'Lua Minguante': 'Convite para olhar para dentro, perdoar o pasto e buscar paz com a própria história.'
   },
   'Leão': {
     'Lua Nova': 'Novos começos ligados à autoexpressão, criatividade e prazer.',
@@ -2360,6 +2302,11 @@ addLinha('sustento');
 addLinha('abundancia', 'ganho');
 addLinha('florescimento');
 addLinha('centelha');
+
+// Adicionar botão de teste após carregar
+window.addEventListener('load', () => {
+  setTimeout(adicionarBotaoTeste, 1500);
+});
 </script>
 </body>
 </html>
