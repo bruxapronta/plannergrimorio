@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -30,7 +29,6 @@
       --color-digital-lavender: #b5a8ff; /* Cor do ano 2026 */
       --color-transformative-teal: #2a7a7a; /* Verde-azulado transformativo */
       --color-mystic-purple: #7e57c2;     /* Roxo místico */
-
       --color-sunset-amber: #ff8a50;      /* Âmbar do pôr do sol */
       
       /* Tipografia */
@@ -65,7 +63,6 @@
       min-height: 100vh;
       line-height: var(--line-height-body);
       letter-spacing: var(--letter-spacing-wide);
-
     }
 
     body::before {
@@ -101,7 +98,6 @@
       width: 90%;
       max-width: 420px;
       border: 1px solid rgba(0,0,0,0.1);
-
       text-align: center;
       box-sizing: border-box;
       box-shadow: var(--shadow-deep);
@@ -138,7 +134,6 @@
       font-weight: 600;
       line-height: var(--line-height-heading);
       letter-spacing: var(--letter-spacing-tight);
-
       margin-top: 0;
     }
 
@@ -175,7 +170,6 @@
     label {
       display: block;
       margin-top: 16px;
-
       margin-bottom: 8px;
       font-weight: 500;
       color: var(--color-text-secondary);
@@ -213,7 +207,6 @@
       transform: translateY(0);
     }
 
-
     button.secondary {
       background: transparent;
       border: 2px solid var(--color-transformative-teal);
@@ -249,7 +242,6 @@
     #capa, #planner, #prospera {
       display: none;
       padding: 24px;
-
       box-sizing: border-box;
       width: 100%;
       max-width: 1200px;
@@ -286,7 +278,6 @@
     }
 
     .dias-semana div {
-
       text-align: center;
       font-weight: 600;
       padding: 12px 0;
@@ -323,7 +314,6 @@
 
     .top-nav {
       display: flex;
-
       gap: 12px;
       justify-content: center;
       margin-bottom: 20px;
@@ -360,7 +350,6 @@
       width: 100%;
       box-sizing: border-box;
     }
-
 
     .texto {
       color: var(--color-text-secondary);
@@ -504,7 +493,6 @@
     .sentimentos-section label {
       display: block;
       margin-bottom: 12px;
-
       color: var(--color-transformative-teal);
       font-weight: 600;
       font-size: 1rem;
@@ -577,7 +565,6 @@
       border-left: 4px solid var(--color-mystic-purple);
       position: relative;
       border: 1px solid rgba(0,0,0,0.05);
-
     }
 
     .btn-apagar-sentimento {
@@ -614,7 +601,6 @@
       margin-bottom: 12px;
       font-size: 1.25rem;
       font-family: var(--font-heading);
-
     }
 
     .oraculo-text {
@@ -651,7 +637,6 @@
 
     .notificacoes-section input[type="time"],
     .notificacoes-section input[type="number"] {
-
       width: 100%;
       margin-bottom: 12px;
     }
@@ -688,7 +673,6 @@
     /* MEDIA QUERIES - RESPONSIVIDADE */
     @media (min-width: 768px) {
       main {
-
         grid-template-columns: 1.5fr 1fr;
         margin: 32px auto;
       }
@@ -726,7 +710,6 @@
       }
     }
 
-
     @media (max-width: 480px) {
       body::before {
         font-size: 80px;
@@ -762,7 +745,6 @@
         padding: 12px;
       }
       
-
       .btn-apagar-nota, .btn-apagar-sentimento {
         top: 8px;
         right: 8px;
@@ -799,7 +781,6 @@
     button {
       color: white;
       background-color: var(--color-transformative-teal);
-
     }
     
     button:hover {
@@ -835,7 +816,6 @@
   <div id="installContainer">
     <h2>✨ Instalar Grimório Ritualístico ✨</h2>
     <p>Instale o aplicativo para uma experiência completa, com notificações lunares e acesso offline.</p>
-
     <button id="btnInstalarPWA">📲 Instalar Agora</button>
     <button id="btnPularInstalacao" class="secondary">🌐 Usar na Web</button>
     <p style="font-size:0.875rem;margin-top:20px;opacity:0.8;">
@@ -863,7 +843,6 @@
       <option value="">Selecione seu ano pessoal</option>
       <option>1</option><option>2</option><option>3</option><option>4</option>
       <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
-
     </select>
     <label>Data de nascimento (para numerologia)</label>
     <input id="dataNascimento" type="date">
@@ -892,3 +871,1495 @@
     <button id="btnConfigNotificacoes" class="secondary">🔔 Configurar Notificações</button>
   </div>
 </div>
+
+<!-- PLANNER -->
+<div id="planner">
+  <div class="top-nav"><button id="voltarCapa" class="secondary">⟵ Capa</button></div>
+  <h2 id="perfil"></h2>
+  <div class="legenda">
+    <span>🌑🌒🌕🌘 Lunação</span>
+    <span>🔥 Sabá</span>
+    <span>⏳ Lua fora de curso</span>
+  </div>
+  <div id="mesTitulo"></div>
+  <div style="display:flex;justify-content:space-between;margin:16px 0">
+    <button id="mesAnterior">◀</button>
+    <button id="mesProximo">▶</button>
+  </div>
+  <div class="grid dias-semana"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- MODAL ATUALIZADO -->
+<div id="modal" style="display:none">
+  <div>
+    <h3 id="modalTitulo" style="color:var(--color-transformative-teal);margin-bottom:20px;"></h3>
+    
+    <!-- ORÁCULO -->
+    <div class="oraculo-section">
+      <div class="oraculo-title">🌙 Oráculo do Dia</div>
+      <div id="oraculo" class="oraculo-text"></div>
+    </div>
+    
+    <!-- SEÇÃO DE NOTAS SALVAS -->
+    <div id="notasSalvas"></div>
+    
+    <!-- SEÇÃO DE SENTIMENTOS SALVOS -->
+    <div id="sentimentosSalvos" style="margin-top:20px;"></div>
+    
+    <!-- FORMULÁRIO PARA NOVA NOTA -->
+    <div style="margin-top:24px;padding-top:20px;border-top:2px dashed var(--color-transformative-teal);">
+      <h4 style="color:var(--color-transformative-teal);margin-bottom:16px;">➕ Nova Nota</h4>
+      <input type="time" id="notaHora" style="margin-bottom:16px;" />
+      <textarea id="notaTexto" placeholder="Escreva sua nota aqui..." style="height:100px;width:100%;box-sizing:border-box;margin-bottom:20px;"></textarea>
+      
+      <!-- SEÇÃO DE NOTIFICAÇÕES PARA A NOTA -->
+      <div class="notificacoes-section">
+        <label for="notificarNota">🔔 Receber lembrete desta nota?</label>
+        <select id="notificarNota">
+          <option value="nao">Não receber notificação</option>
+          <option value="sim">Sim, receber notificação</option>
+        </select>
+        
+        <div id="configNotificacao" style="display:none;">
+          <label for="tempoAntecedencia">Tempo de antecedência:</label>
+          <select id="tempoAntecedencia">
+            <option value="5">5 minutos antes</option>
+            <option value="15">15 minutos antes</option>
+            <option value="30">30 minutos antes</option>
+            <option value="60">1 hora antes</option>
+            <option value="120">2 horas antes</option>
+            <option value="1440">1 dia antes</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- CAMPO: IMPRESSÕES E SENTIMENTOS -->
+      <div class="sentimentos-section">
+        <label for="sentimentos">💖 Impressões e Sentimentos</label>
+        <textarea id="sentimentos" placeholder="Como você está se sentindo? Quais foram suas impressões deste dia? Escreva livremente..."></textarea>
+      </div>
+      
+      <div style="display:flex;gap:12px;margin-top:20px;">
+        <button id="btnSalvarNota">💾 Salvar Nota</button>
+        <button id="btnFechar" class="secondary">✖ Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIGURAÇÃO DE NOTIFICAÇÕES -->
+<div id="modalNotificacoes" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:2000; padding:20px;">
+  <div style="background:var(--color-bone-white); padding:24px; border-radius:var(--border-radius-lg); width:100%; max-width:500px; box-sizing:border-box; max-height:90vh; overflow-y:auto;">
+    <h3 style="color:var(--color-transformative-teal);margin-bottom:20px;">🔔 Configurar Notificações</h3>
+    
+    <div class="notificacoes-section">
+      <label for="notificacoesAtivas">📢 Ativar notificações?</label>
+      <select id="notificacoesAtivas">
+        <option value="sim">Sim, receber notificações</option>
+        <option value="nao">Não receber notificações</option>
+      </select>
+      
+      <label for="horaNotificacaoDiaria">⏰ Hora para notificação diária:</label>
+      <input type="time" id="horaNotificacaoDiaria" value="08:00">
+      
+      <label for="notificarSabas">🔥 Notificar sobre Sabás?</label>
+      <select id="notificarSabas">
+        <option value="sim">Sim, notificar sobre Sabás</option>
+        <option value="nao">Não notificar sobre Sabás</option>
+      </select>
+      
+      <label for="antecedenciaSabas">📅 Antecedência para Sabás:</label>
+      <select id="antecedenciaSabas">
+        <option value="1">1 dia antes</option>
+        <option value="2">2 dias antes</option>
+        <option value="3">3 dias antes</option>
+        <option value="7">1 semana antes</option>
+      </select>
+      
+      <label for="horaNotificacaoSabas">⏰ Hora para notificação de Sabás:</label>
+      <input type="time" id="horaNotificacaoSabas" value="09:00">
+    </div>
+    
+    <div style="display:flex;gap:12px;margin-top:20px;">
+      <button id="btnSalvarConfigNotificacoes">💾 Salvar Configurações</button>
+      <button id="btnFecharNotificacoes" class="secondary">✖ Fechar</button>
+    </div>
+    
+    <p style="font-size:0.875rem;margin-top:15px;opacity:0.8;">
+      As notificações funcionam melhor com o aplicativo instalado.
+    </p>
+  </div>
+</div>
+
+<!-- BRUXA PRÓSPERA -->
+<div id="prospera">
+  <div class="top-nav"><button id="voltarCapa2" class="secondary">⟵ Capa</button></div>
+ <h1>📖 Livro da Bruxa Próspera</h1>
+
+<main>
+
+  <section class="livro">
+
+    <h2>✦ Fonte de Abundância</h2>
+    <div class="texto">Registre todos os ganhos que chegam até você através do seu trabalho, trocas, serviços ou vendas.</div>
+    <div class="caixa">
+      <table class="tabela">
+        <thead><tr><th>Origem do ganho</th><th>Valor</th><th></th></tr></thead>
+        <tbody id="abundancia"></tbody>
+      </table>
+      <button onclick="addLinha('abundancia','ganho')">+ adicionar ganho</button>
+      <div class="total-secao">Total Abundância: R$ <span id="total-abundancia">0</span></div>
+    </div>
+
+    <h2 style="margin-top:34px">✦ Fluidez</h2>
+    <div class="texto">Aqui você observa para onde sua energia financeira escoa — como você gasta, sustenta e nutre sua vida.</div>
+
+    <h3>A) Sustento</h3><div class="texto">Despesas essenciais para sua sobrevivência material: moradia, contas, transporte, alimentação.</div>
+    <div class="caixa">
+      <table class="tabela">
+        <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+        <tbody id="sustento"></tbody>
+      </table>
+      <button onclick="addLinha('sustento')">+ adicionar gasto</button>
+    </div>
+<br> </br>
+    <h3>B) Florescimento</h3><div class="texto">Gastos que ampliam prazer, aprendizado, descanso, cultura e bem-estar.</div>
+    <div class="caixa">
+      <table class="tabela">
+        <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+        <tbody id="florescimento"></tbody>
+      </table>
+      <button onclick="addLinha('florescimento')">+ adicionar gasto</button>
+    </div>
+<br> </br>
+    <h3>C) Centelha Energética</h3><div class="texto">Gastos inesperados ou emergenciais que exigem energia imediata.</div>
+    <div class="caixa">
+      <table class="tabela">
+        <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+        <tbody id="centelha"></tbody>
+      </table>
+      <button onclick="addLinha('centelha')">+ adicionar gasto</button>
+    </div>
+
+    <h2 style="margin-top:34px">✦ Expansão</h2>
+    <div class="texto">Reservas voltadas a investimentos futuros, sonhos, avanços e projetos de longo prazo.</div>
+    <div class="caixa">
+      <label>Sementes de Prosperidade</label>
+      <input placeholder="Valor reservado">
+      <label>Sonho ou intenção</label>
+      <input placeholder="Liberdade, descanso, projeto...">
+    </div>
+
+        <div id="totais">
+        <div class="total-secao">Total Sustento: R$ <span id="total-sustento">0</span></div>
+        <div class="total-secao">Total Florescimento: R$ <span id="total-florescimento">0</span></div>
+        <div class="total-secao">Total Centelha: R$ <span id="total-centelha">0</span></div>
+        <div class="saldo">Saldo Energético do Mês: R$ <span id="saldo">0</span></div>
+      </div>
+
+  </section>
+
+  <aside class="lateral">
+    <section class="lunar">
+      <h3>🌙 A Lua Observa Teu Ouro</h3>
+      <p><strong>Lua Nova:</strong> planeje, defina metas, evite impulsos.</p>
+      <p><strong>Lua Crescente:</strong> organize, negocie, expanda.</p>
+      <p><strong>Lua Cheia:</strong> agradeça, observe excessos.</p>
+      <p><strong>Lua Minguante:</strong> corte gastos e libere padrões.</p>
+      <div class="grafico" id="grafico">📊 Gráfico Ritual: Fluidez x Lua<br>(ativação simbólica)</div>
+    </section>
+  </aside>
+
+</main>
+
+<script>
+// ===== VARIÁVEIS GLOBAIS =====
+let deferredPrompt = null;
+let notificacoesAgendadas = [];
+
+// ===== ELEMENTOS =====
+const installOverlay = document.getElementById('installOverlay');
+const formOverlay = document.getElementById('formOverlay');
+const btnInstalarPWA = document.getElementById('btnInstalarPWA');
+const btnPularInstalacao = document.getElementById('btnPularInstalacao');
+const btnInstalarAgora = document.getElementById('btnInstalarAgora');
+const btnAlterarNome = document.getElementById('btnAlterarNome');
+const btnConfigNotificacoes = document.getElementById('btnConfigNotificacoes');
+const modalNotificacoes = document.getElementById('modalNotificacoes');
+const btnFecharNotificacoes = document.getElementById('btnFecharNotificacoes');
+const btnSalvarConfigNotificacoes = document.getElementById('btnSalvarConfigNotificacoes');
+const capa = document.getElementById('capa');
+const planner = document.getElementById('planner');
+const prospera = document.getElementById('prospera');
+const grid = document.getElementById('grid');
+const mesTitulo = document.getElementById('mesTitulo');
+const perfilEl = document.getElementById('perfil');
+const nomeCapa = document.getElementById('nomeCapa');
+const modal = document.getElementById('modal');
+const oraculo = document.getElementById('oraculo');
+const notasSalvas = document.getElementById('notasSalvas');
+const sentimentosSalvos = document.getElementById('sentimentosSalvos');
+
+let mesAtual = new Date().getMonth();
+let anoAtual = 2026;
+let diaAtual = null;
+
+// ===== FUNÇÕES DE ARMAZENAMENTO =====
+function save(k, v) {
+  localStorage.setItem(k, JSON.stringify(v));
+}
+
+function load(k) {
+  const v = localStorage.getItem(k);
+  return v ? JSON.parse(v) : null;
+}
+
+// ===== FLUXO DE INSTALAÇÃO =====
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  if (btnInstalarAgora) {
+    btnInstalarAgora.style.display = 'block';
+  }
+  
+  const hasVisited = localStorage.getItem('hasVisited');
+  if (!hasVisited) {
+    installOverlay.style.display = 'flex';
+    formOverlay.style.display = 'none';
+  }
+});
+
+btnInstalarPWA.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  const choiceResult = await deferredPrompt.userChoice;
+  
+  if (choiceResult.outcome === 'accepted') {
+    console.log('Usuário aceitou instalar o PWA');
+  }
+  
+  deferredPrompt = null;
+  installOverlay.style.display = 'none';
+  formOverlay.style.display = 'flex';
+  localStorage.setItem('hasVisited', 'true');
+});
+
+btnPularInstalacao.addEventListener('click', () => {
+  installOverlay.style.display = 'none';
+  formOverlay.style.display = 'flex';
+  localStorage.setItem('hasVisited', 'true');
+});
+
+btnInstalarAgora.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  const choiceResult = await deferredPrompt.userChoice;
+  
+  if (choiceResult.outcome === 'accepted') {
+    btnInstalarAgora.style.display = 'none';
+  }
+});
+
+// ===== CONFIGURAÇÃO DE NOTIFICAÇÕES =====
+btnConfigNotificacoes.addEventListener('click', () => {
+  const config = load('configNotificacoes') || {
+    ativas: 'sim',
+    horaDiaria: '08:00',
+    notificarSabas: 'sim',
+    antecedenciaSabas: '1',
+    horaSabas: '09:00'
+  };
+  
+  document.getElementById('notificacoesAtivas').value = config.ativas;
+  document.getElementById('horaNotificacaoDiaria').value = config.horaDiaria;
+  document.getElementById('notificarSabas').value = config.notificarSabas;
+  document.getElementById('antecedenciaSabas').value = config.antecedenciaSabas;
+  document.getElementById('horaNotificacaoSabas').value = config.horaSabas;
+  
+  modalNotificacoes.style.display = 'flex';
+});
+
+btnFecharNotificacoes.addEventListener('click', () => {
+  modalNotificacoes.style.display = 'none';
+});
+
+btnSalvarConfigNotificacoes.addEventListener('click', () => {
+  const config = {
+    ativas: document.getElementById('notificacoesAtivas').value,
+    horaDiaria: document.getElementById('horaNotificacaoDiaria').value,
+    notificarSabas: document.getElementById('notificarSabas').value,
+    antecedenciaSabas: document.getElementById('antecedenciaSabas').value,
+    horaSabas: document.getElementById('horaNotificacaoSabas').value
+  };
+  
+  save('configNotificacoes', config);
+  agendarNotificacoes();
+  modalNotificacoes.style.display = 'none';
+  alert('Configurações de notificações salvas!');
+});
+
+// ===== FORMULÁRIO =====
+document.getElementById('salvar').onclick = () => {
+  const nome = document.getElementById('nome').value.trim();
+  const signo = document.getElementById('signo').value;
+  const ano = document.getElementById('anoPessoal').value;
+  const dataNascimento = document.getElementById('dataNascimento').value;
+  const ciclo = document.getElementById('ciclo').value;
+
+  if (!nome) {
+    alert('Por favor, digite seu nome mágico!');
+    return;
+  }
+
+  if (!signo) {
+    alert('Por favor, selecione seu signo!');
+    return;
+  }
+
+  const perfil = {
+    nome: nome,
+    signo: signo,
+    ano: ano || '',
+    dataNascimento: dataNascimento || '',
+    ciclo: ciclo || ''
+  };
+
+  save('perfil', perfil);
+  solicitarPermissaoNotificacao();
+  nomeCapa.textContent = `Salve, ${perfil.nome}`;
+  formOverlay.style.display = 'none';
+  capa.style.display = 'block';
+  localStorage.setItem('formPreenchido', 'true');
+  
+  const configNotificacoes = load('configNotificacoes');
+  if (!configNotificacoes) {
+    save('configNotificacoes', {
+      ativas: 'sim',
+      horaDiaria: '08:00',
+      notificarSabas: 'sim',
+      antecedenciaSabas: '1',
+      horaSabas: '09:00'
+    });
+  }
+};
+
+btnAlterarNome.addEventListener('click', () => {
+  const perfilAtual = load('perfil') || {};
+  document.getElementById('nome').value = perfilAtual.nome || '';
+  document.getElementById('signo').value = perfilAtual.signo || '';
+  document.getElementById('anoPessoal').value = perfilAtual.ano || '';
+  document.getElementById('dataNascimento').value = perfilAtual.dataNascimento || '';
+  document.getElementById('ciclo').value = perfilAtual.ciclo || '';
+  capa.style.display = 'none';
+  formOverlay.style.display = 'flex';
+});
+
+// ===== VERIFICAÇÃO INICIAL =====
+window.addEventListener('load', () => {
+  const perfilSalvo = load('perfil');
+  
+  if (perfilSalvo && perfilSalvo.nome) {
+    formOverlay.style.display = 'none';
+    capa.style.display = 'block';
+    nomeCapa.textContent = `Salve, ${perfilSalvo.nome} ✨`;
+  } else {
+    const hasVisited = localStorage.getItem('hasVisited');
+    if (!hasVisited && deferredPrompt) {
+      installOverlay.style.display = 'flex';
+      formOverlay.style.display = 'none';
+    }
+  }
+  
+  // Registrar Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(registration => {
+        console.log('Service Worker registrado:', registration.scope);
+        
+        // Configurar listener para cliques em notificações
+        navigator.serviceWorker.addEventListener('message', event => {
+          if (event.data && event.data.action === 'notificationClick') {
+            const data = event.data.data;
+            handleNotificationClick(data);
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Erro no Service Worker:', err);
+      });
+  }
+  
+  // Agendar notificações após carregar
+  setTimeout(() => {
+    agendarNotificacoes();
+  }, 2000);
+});
+
+// ===== FUNÇÕES DE NOTIFICAÇÃO =====
+function solicitarPermissaoNotificacao() {
+  if (!('Notification' in window)) {
+    console.log('Este navegador não suporta notificações.');
+    return;
+  }
+  
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        console.log('Permissão para notificações concedida.');
+        setTimeout(() => agendarNotificacoes(), 1000);
+      }
+    });
+  }
+}
+
+function agendarNotificacoes() {
+  console.log('Agendando notificações...');
+  
+  // Cancelar notificações anteriores
+  cancelarTodasNotificacoes();
+  
+  const config = load('configNotificacoes');
+  if (!config || config.ativas === 'nao') {
+    console.log('Notificações desativadas.');
+    return;
+  }
+  
+  if (Notification.permission !== 'granted') {
+    console.log('Permissão não concedida.');
+    return;
+  }
+  
+  // Agendar notificações de ALERTAS (eventos fixos) APENAS PARA HOJE
+  agendarAlertasParaHoje(config);
+  
+  // Agendar notificações de LEMBRETES (notas da usuária)
+  agendarLembretesNotas();
+}
+
+function cancelarTodasNotificacoes() {
+  // Limpar timeouts anteriores
+  notificacoesAgendadas.forEach(timeoutId => clearTimeout(timeoutId));
+  notificacoesAgendadas = [];
+  
+  // Limpar notificações do Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.getNotifications().then(notifications => {
+        notifications.forEach(notification => {
+          notification.close();
+        });
+      });
+    });
+  }
+}
+
+function agendarAlertasParaHoje(config) {
+  console.log('Agendando ALERTAS para HOJE...');
+  const hoje = new Date().toISOString().split('T')[0];
+  
+  // Verificar fases lunares HOJE
+  if (lunacoes2026[hoje]) {
+    const lua = lunacoes2026[hoje];
+    const horario = luaForaDeCurso[hoje] ? ` (Horário: ${luaForaDeCurso[hoje].split('–')[0]})` : '';
+    const mensagem = `Mudança de fase lunar hoje: ${lua.fase} em ${lua.signo}${horario}!`;
+    
+    const horaAlerta = config.horaDiaria || '08:00';
+    agendarAlertaParaHoje(hoje, horaAlerta, '🌙 Alerta Lunar', mensagem, 'planner', hoje);
+  }
+  
+  // Verificar Sabás HOJE
+  if (config.notificarSabas === 'sim' && sabas2026[hoje]) {
+    const sabá = sabas2026[hoje];
+    const mensagem = `Hoje é ${sabá.nome}: ${sabá.significado}`;
+    const horaAlerta = config.horaSabas || '09:00';
+    
+    agendarAlertaParaHoje(hoje, horaAlerta, `🔥 ${sabá.nome}`, mensagem, 'planner', hoje);
+  }
+  
+  // Verificar Lua fora de curso HOJE
+  if (luaForaDeCurso[hoje]) {
+    const horario = luaForaDeCurso[hoje];
+    const mensagem = `Lua fora de curso hoje das ${horario}. Evite decisões importantes neste período.`;
+    const horaAlerta = horario.split('–')[0];
+    
+    agendarAlertaParaHoje(hoje, horaAlerta, '⏳ Alerta Lunar', mensagem, 'planner', hoje);
+  }
+  
+  // Agendar notificação diária para amanhã
+  agendarNotificacaoDiaria(config);
+}
+
+function agendarAlertaParaHoje(dataISO, hora, titulo, mensagem, destino, dataDestino) {
+  const hoje = new Date().toISOString().split('T')[0];
+  
+  // Só agenda se for hoje
+  if (dataISO !== hoje) {
+    return;
+  }
+  
+  const agora = new Date();
+  const dataAlerta = new Date(`${hoje}T${hora}`);
+  
+  // Se a hora já passou hoje, agendar para amanhã
+  if (dataAlerta < agora) {
+    dataAlerta.setDate(dataAlerta.getDate() + 1);
+  }
+  
+  const tempoRestante = dataAlerta.getTime() - agora.getTime();
+  
+  if (tempoRestante > 0) {
+    const timeoutId = setTimeout(() => {
+      enviarAlerta(titulo, mensagem, destino, dataDestino);
+    }, tempoRestante);
+    
+    notificacoesAgendadas.push(timeoutId);
+    console.log(`Alerta agendado para hoje às ${hora}: ${titulo}`);
+  }
+}
+
+function enviarAlerta(titulo, mensagem, destino, dataDestino) {
+  if (Notification.permission !== 'granted') return;
+  
+  const corpo = `Atenção: ${mensagem}`;
+  const data = {
+    type: 'alerta',
+    destino: destino,
+    data: dataDestino,
+    titulo: titulo,
+    mensagem: mensagem
+  };
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(titulo, {
+        body: corpo,
+        icon: 'icon-192.png',
+        tag: 'alerta-' + Date.now(),
+        data: data,
+        requireInteraction: true
+      });
+    }).catch(err => {
+      console.error('Erro:', err);
+      new Notification(titulo, {
+        body: corpo,
+        icon: 'icon-192.png',
+        data: data
+      });
+    });
+  } else {
+    new Notification(titulo, {
+      body: corpo,
+      icon: 'icon-192.png',
+      data: data
+    });
+  }
+}
+
+function agendarNotificacaoDiaria(config) {
+  // Agendar para amanhã no horário configurado
+  const amanha = new Date();
+  amanha.setDate(amanha.getDate() + 1);
+  amanha.setHours(parseInt(config.horaDiaria.split(':')[0]));
+  amanha.setMinutes(parseInt(config.horaDiaria.split(':')[1]));
+  amanha.setSeconds(0);
+  
+  const tempoRestante = amanha.getTime() - Date.now();
+  
+  if (tempoRestante > 0) {
+    const timeoutId = setTimeout(() => {
+      enviarNotificacaoDiaria();
+      // Reagendar para o próximo dia
+      agendarNotificacaoDiaria(config);
+    }, tempoRestante);
+    
+    notificacoesAgendadas.push(timeoutId);
+  }
+}
+
+function enviarNotificacaoDiaria() {
+  if (Notification.permission !== 'granted') return;
+  
+  const hoje = new Date().toISOString().split('T')[0];
+  const notas = load('notas') || {};
+  const temNotas = Array.isArray(notas[hoje]) && notas[hoje].length > 0;
+  
+  let corpo = 'Lembre-se de registrar seus pensamentos e sentimentos hoje. ✨';
+  
+  if (temNotas) {
+    corpo = 'Você tem notas registradas para hoje. Reveja-as para reflexão. 📖';
+  }
+  
+  const sabaHoje = sabas2026[hoje];
+  if (sabaHoje) {
+    corpo = `Atenção: Hoje é ${sabaHoje.nome}: ${sabaHoje.significado}`;
+  }
+  
+  const data = {
+    type: 'lembrete',
+    destino: 'planner',
+    data: hoje,
+    titulo: '🌙 Lembrete Diário do Grimório'
+  };
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification('🌙 Lembrete Diário do Grimório', {
+        body: corpo,
+        icon: 'icon-192.png',
+        tag: 'lembrete-diario-' + Date.now(),
+        data: data
+      });
+    }).catch(err => {
+      console.error('Erro:', err);
+      new Notification('🌙 Lembrete Diário do Grimório', {
+        body: corpo,
+        icon: 'icon-192.png',
+        data: data
+      });
+    });
+  } else {
+    new Notification('🌙 Lembrete Diário do Grimório', {
+      body: corpo,
+      icon: 'icon-192.png',
+      data: data
+    });
+  }
+}
+
+function agendarLembretesNotas() {
+  const notasComNotificacao = load('notasComNotificacao') || {};
+  const hoje = new Date().toISOString().split('T')[0];
+  
+  Object.keys(notasComNotificacao).forEach(dataISO => {
+    // Só agenda lembretes para hoje
+    if (dataISO !== hoje) return;
+    
+    const notificacoes = notasComNotificacao[dataISO];
+    
+    notificacoes.forEach((notificacao, index) => {
+      const { horaNota, antecedencia, texto } = notificacao;
+      
+      // Calcular data e hora da notificação
+      const dataNotificacao = new Date(dataISO + 'T' + horaNota);
+      dataNotificacao.setMinutes(dataNotificacao.getMinutes() - antecedencia);
+      
+      const tempoRestante = dataNotificacao.getTime() - Date.now();
+      
+      if (tempoRestante > 0) {
+        const timeoutId = setTimeout(() => {
+          enviarLembreteNota(texto, horaNota, dataISO);
+        }, tempoRestante);
+        
+        notificacoesAgendadas.push(timeoutId);
+        console.log(`Lembrete agendado para hoje às ${horaNota} (${antecedencia} min antes)`);
+      }
+    });
+  });
+}
+
+function enviarLembreteNota(textoNota, horaNota, dataISO) {
+  if (Notification.permission !== 'granted') return;
+  
+  const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
+  const data = {
+    type: 'lembrete',
+    destino: 'planner',
+    data: dataISO,
+    hora: horaNota,
+    titulo: `📝 Lembrete de Nota - ${horaNota}`
+  };
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(`📝 Lembrete de Nota - ${horaNota}`, {
+        body: preview,
+        icon: 'icon-192.png',
+        tag: `lembrete-nota-${Date.now()}`,
+        data: data
+      });
+    });
+  } else {
+    new Notification(`📝 Lembrete de Nota - ${horaNota}`, {
+      body: preview,
+      icon: 'icon-192.png',
+      data: data
+    });
+  }
+}
+
+// ===== HANDLE NOTIFICATION CLICK =====
+function handleNotificationClick(notificationData) {
+  console.log('Notificação clicada:', notificationData);
+  
+  if (!notificationData) return;
+  
+  const { destino, data: dataDestino, type } = notificationData;
+  
+  // Fechar todas as telas primeiro
+  capa.style.display = 'none';
+  planner.style.display = 'none';
+  prospera.style.display = 'none';
+  
+  if (destino === 'planner') {
+    // Ir para o planner e abrir o dia correspondente
+    const p = load('perfil');
+    if (p) perfilEl.textContent = `${p.nome} · ${p.signo}`;
+    
+    // Configurar o mês correto
+    const dataObj = new Date(dataDestino);
+    mesAtual = dataObj.getMonth();
+    anoAtual = dataObj.getFullYear();
+    
+    criarPlanner();
+    planner.style.display = 'block';
+    
+    // Abrir modal do dia
+    const dia = dataObj.getDate();
+    setTimeout(() => {
+      abrirModal(dataDestino, dia);
+    }, 500);
+    
+  } else if (destino === 'prospera') {
+    // Ir para o livro da bruxa próspera
+    prospera.style.display = 'block';
+    
+    // Se houver dados financeiros específicos, pode rolar para a seção
+    if (notificationData.secao) {
+      setTimeout(() => {
+        const secao = document.getElementById(notificationData.secao);
+        if (secao) {
+          secao.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
+    }
+  }
+}
+
+// Configurar listener para cliques em notificações (para navegadores sem Service Worker)
+if ('Notification' in window) {
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      // Event listener para quando a notificação é clicada
+      window.addEventListener('notificationclick', function(event) {
+        event.notification.close();
+        
+        if (event.notification.data) {
+          handleNotificationClick(event.notification.data);
+        }
+      });
+    }
+  });
+}
+
+// ===== DADOS DAS PLANILHAS =====
+const sabas2026 = {
+  '2026-02-01': {
+    nome: 'Lughnasadh',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Verão/Fogo',
+    significado: 'Primeira colheita',
+    rituais: 'Assar pães caseiros e bolos de grãos, expressar gratidão pela fartura, agradecer pelos frutos já colhidos, ritual de colheita e prosperidade'
+  },
+  '2026-03-20': {
+    nome: 'Mabon',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Outono/Água',
+    significado: 'Equilíbrio e colheita completa',
+    rituais: 'Oferendas de maçãs e frutas da estação, compartilhamento de banquetes, agradecimento pela colheita, preparação para o recolhimento do inverno, rituais de equilíbrio e gratidão'
+  },
+  '2026-05-01': {
+    nome: 'Samhain',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Outono/Terra',
+    significado: 'Ano Novo Pagão, Festival dos Mortos',
+    rituais: 'Honrar ancestrais e entes queridos falecidos, limpeza de altares e espaços sagrados, queima de pedidos ou banimentos, conexão com o mundo espiritual, divinação e introspecção'
+  },
+  '2026-06-21': {
+    nome: 'Yule',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Inverno/Fogo',
+    significado: 'Solstício de Inverno, Renascimento',
+    rituais: 'Acendimento da "tora de Yule" ou velas, decoração de árvores com símbolos de vida eterna, rituais para atrair a luz de volta, celebração do renascimento do sol, troca de presentes simbólicos'
+  },
+  '2026-08-01': {
+    nome: 'Imbolc',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Inverno/Água',
+    significado: 'Purificação e proteção',
+    rituais: 'Acender muitas velas (fogo da inspiração), dedicação à deusa Brígida, limpezas energéticas na casa, rituais de purificação e proteção, preparação para o retorno da luz'
+  },
+  '2026-09-22': {
+    nome: 'Ostara',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Primavera/Ar',
+    significado: 'Equinócio de Primavera, Fertilidade',
+    rituais: 'Plantio de sementes físicas ou projetos, decoração de ovos (símbolo de potencial), rituais de fertilidade e renovação, celebração do despertar da vida, equilíbrio entre luz e escuridão'
+  },
+  '2026-10-31': {
+    nome: 'Beltane',
+    tipo: 'Sabá Maior',
+    estacaoElemento: 'Primavera/Fogo',
+    significado: 'União, paixão e fertilidade máxima',
+    rituais: 'Dançar ao redor do "mastro de maio" (Maypole), acender fogueiras de proteção, celebrar o amor e a beleza da natureza, rituais de união e fertilidade, coroas de flores e decorações naturais'
+  },
+  '2026-12-21': {
+    nome: 'Litha',
+    tipo: 'Sabá Menor',
+    estacaoElemento: 'Verão/Fogo',
+    significado: 'Solstício de Verão, Poder Solar',
+    rituais: 'Rituais ao ar livre para absorver energia solar, colheita de ervas mágicas no auge do poder, celebração da vitalidade com música e dança, fogueiras e celebrações comunitárias, honrar o ápice da luz'
+  }
+};
+
+const energiasLunares = {
+  'Lua Nova': {
+    energiaPrincipal: 'Introspecção, recomeço, potencial latente',
+    acoesPositivas: 'Plantar novas intenções e iniciar projetos, fazer planos e definir metas, meditar e se conectar consigo mesmo, rituais de manifestação',
+    evitar: 'Ações impulsivas sem planejamento, tomar decisões importantes sem reflexão, forçar resultados imediatos'
+  },
+  'Lua Crescente': {
+    energiaPrincipal: 'Crescimento, movimento, construção',
+    acoesPositivas: 'Desenvolver projetos iniciados na Lua Nova, fazer reuniões e networking, começar hábitos novos, investir em relacionamentos, estudar e aprender',
+    evitar: 'Abandonar compromissos no meio do caminho, dispersar energia em muitas direções, desistir diante de obstáculos'
+  },
+  'Lua Cheia': {
+    energiaPrincipal: 'Iluminação, culminação, revelação',
+    acoesPositivas: 'Colher resultados e celebrar conquistas, ter clareza sobre situações, expressar emoções de forma saudável, finalizar projetos, rituais de gratidão',
+    evitar: 'Decisões impulsivas baseadas em emoções intensas, confrontos desnecessários, ignorar o que está sendo revelado'
+  },
+  'Lua Minguante': {
+    energiaPrincipal: 'Desapego, encerramento, limpeza',
+    acoesPositivas: 'Liberar o que não serve mais, encerrar ciclos e relações tóxicas, fazer limpeza física e energética, descansar e se recolher, práticas de desapego',
+    evitar: 'Iniciar novos projetos ou relacionamentos, forçar ação quando o corpo pede descanso, ignorar sinais de que algo precisa terminar'
+  }
+};
+
+const energiaSignoLunar = {
+  'Áries': {
+    'Lua Nova': 'Momento de máxima coragem para iniciar projetos pessoais e retomar o protagonismo.',
+    'Lua Crescente': 'Impulso para agir rápido e superar obstáculos com determinação.',
+    'Lua Cheia': 'Auge da autoconfiança; os desejos individuais entram em conflito ou equilíbrio com as necessidades dos outros.',
+    'Lua Minguante': 'Necessidade de controlar a impaciência e revisar impulsos agressivos antes de encerrar o ciclo.'
+  },
+  'Touro': {
+    'Lua Nova': 'Plantio focado em estabilidade financeira, conforto e segurança material.',
+    'Lua Crescente': 'Período de nutrição e paciência; foco em fazer as ideias "ganharem corpo" e raízes.',
+    'Lua Cheia': 'Colheita de resultados concretos; momento de valorizar o prazer e o que foi construído.',
+    'Lua Minguante': 'Hora de praticar o desapego material e emocional para evitar acúmulos desnecessários.'
+  },
+  'Gêmeos': {
+    'Lua Nova': 'Início de novos estudos, contatos e circulação de ideias.',
+    'Lua Crescente': 'Fase de muita comunicação, trocas intelectuais e busca por informações.',
+    'Lua Cheia': 'Clareza mental e revelações; pensamentos que estavam nublados tornam-se objetivos.',
+    'Lua Minguante': 'Momento de silenciar a mente, filtrar o excesso de informação e concluir conversas pendentes.'
+  },
+  'Câncer': {
+    'Lua Nova': 'Foco total na renovação da vida íntima, lar e família.',
+    'Lua Crescente': 'Intensificação das emoções, proteção de quem se ama e fortalecimento de vínculos.',
+    'Lua Cheia': 'Transbordamento emocional e sensibilidade máxima; colheita ligada ao acolhimento.',
+    'Lua Minguante': 'Convite para olhar para dentro, perdoar o passado e buscar paz com a própria história.'
+  },
+  'Leão': {
+    'Lua Nova': 'Novos começos ligados à autoexpressão, criatividade e prazer.',
+    'Lua Crescente': 'Desenvolvimento do carisma e esforço para ser notado em projetos autorais.',
+    'Lua Cheia': 'Celebração da identidade; momento de brilho público e reconhecimento.',
+    'Lua Minguante': 'Reflexão sobre o excesso de ego e recolhimento para restaurar a energia vital.'
+  },
+  'Virgem': {
+    'Lua Nova': 'Planejamento de rotinas saudáveis e organização meticulosa de tarefas.',
+    'Lua Crescente': 'Trabalho detalhista e ajustes práticos para garantir que os planos funcionem.',
+    'Lua Cheia': 'Resultados visíveis na saúde e no trabalho; clareza sobre o que precisa de melhoria técnica.',
+    'Lua Minguante': 'Faxina física e mental; momento de eliminar métodos ou hábitos que não servem mais.'
+  },
+  'Libra': {
+    'Lua Nova': 'Intenções voltadas para parcerias, acordos e harmonia estética.',
+    'Lua Crescente': 'Esforço para equilibrar relações e mediação de conflitos em andamento.',
+    'Lua Cheia': 'Auge dos relacionamentos; situações sociais ou românticas chegam ao ponto crítico ou de ápice.',
+    'Lua Minguante': 'Avaliação da justiça nas trocas e finalização de compromissos que não têm reciprocidade.'
+  },
+  'Escorpião': {
+    'Lua Nova': 'Mergulho profundo em transformações internas e novos investimentos emocionais ou financeiros.',
+    'Lua Crescente': 'Fase de regeneração e persistência emocional intensa diante de crises.',
+    'Lua Cheia': 'Revelações de segredos ou emoções ocultas; momento de purgação e intensidade sexual.',
+    'Lua Minguante': 'Desapego de traumas e limpeza de energias tóxicas acumuladas.'
+  },
+  'Sagitário': {
+    'Lua Nova': 'Novos horizontes, viagens ou estudos superiores; busca por novos sentidos de vida.',
+    'Lua Crescente': 'Expansão de ideias e otimismo para seguir em frente com grandes planos.',
+    'Lua Cheia': 'Culminação de aventuras ou processos acadêmicos; celebração da liberdade conquistada.',
+    'Lua Minguante': 'Reflexão sobre a verdade e revisão de crenças antes de iniciar uma nova busca.'
+  },
+  'Capricórnio': {
+    'Lua Nova': 'Metas de longo prazo, carreira e construção de autoridade.',
+    'Lua Crescente': 'Disciplina rígida e superação de obstáculos estruturais para subir na vida.',
+    'Lua Cheia': 'Reconhecimento profissional e social; colheita do esforço e da perseverança.',
+    'Lua Minguante': 'Revisão de responsabilidades e encerramento de cargos ou projetos que já cumpriram seu tempo.'
+  },
+  'Aquário': {
+    'Lua Nova': 'Ideias inovadoras, projetos coletivos e foco em causas sociais ou tecnológicas.',
+    'Lua Crescente': 'Movimentação em grupos e colaboração para ver mudanças acontecerem.',
+    'Lua Cheia': 'Resultados de movimentos sociais ou amizades; clareza sobre o papel do indivíduo no coletivo.',
+    'Lua Minguante': 'Avaliação da própria liberdade e distanciamento de círculos sociais que limitam a autenticidade.'
+  },
+  'Peixes': {
+    'Lua Nova': 'Início de ciclos espirituais, artísticos ou de cura emocional profunda.',
+    'Lua Crescente': 'Sensibilidade aguçada e desenvolvimento da intuição para guiar as ações.',
+    'Lua Cheia': 'Auge da imaginação e conexão com o divino; sonhos que se tornam nítidos ou se realizam.',
+    'Lua Minguante': 'Entrega, dissolução de ilusões e preparação espiritual para o renascimento.'
+  }
+};
+
+const energiaNumerologia = {
+  1: { potencial: 'Início, liderança, independência', risco: 'Egoísmo, impulsividade' },
+  2: { potencial: 'Cooperação, diplomacia, sensibilidade', risco: 'Indecisão, dependência emocional' },
+  3: { potencial: 'Criatividade, expressão, alegria', risco: 'Superficialidade, dispersão' },
+  4: { potencial: 'Estabilidade, organização, trabalho', risco: 'Rigidez, resistência à mudança' },
+  5: { potencial: 'Liberdade, mudança, aventura', risco: 'Inconstância, irresponsabilidade' },
+  6: { potencial: 'Harmonia, responsabilidade, cuidado', risco: 'Perfeccionismo, controle excessivo' },
+  7: { potencial: 'Introspecção, sabedoria, espiritualidade', risco: 'Isolamento, ceticismo excessivo' },
+  8: { potencial: 'Poder, realização material, abundância', risco: 'Materialismo, ambição desmedida' },
+  9: { potencial: 'Compaixão, completude, humanitarismo', risco: 'Mártir, apego ao passado' }
+};
+
+const cicloMenstrualFaseLunar = {
+  'Lua Nova': {
+    'menstruacao': 'Energia de recolhimento profundo. Momento ideal para descansar e ouvir seu corpo.',
+    'pre_ovulacao': 'Sensação de renascimento e novas possibilidades. Energia criativa em ascensão.',
+    'ovulacao': 'Intuição aguçada e conexão com seus desejos mais profundos.',
+    'pre_menstrual': 'Reflexão sobre o que precisa ser liberado para o próximo ciclo.'
+  },
+  'Lua Crescente': {
+    'menstruacao': 'Força vital retornando gradualmente. Bom momento para planejamentos suaves.',
+    'pre_ovulacao': 'Energia construtiva em alta. Ideal para colocar planos em ação.',
+    'ovulacao': 'Poder de manifestação no auge. Momento fértil em todos os sentidos.',
+    'pre_menstrual': 'Consolidação de aprendizados do ciclo.'
+  },
+  'Lua Cheia': {
+    'menstruacao': 'Emoções intensas à flor da pele. Permita-se sentir sem julgamentos.',
+    'pre_ovulacao': 'Clareza sobre seus desejos e intenções.',
+    'ovulacao': 'Poder feminino em evidência. Celebre sua sensualidade e força.',
+    'pre_menstrual': 'Revelações emocionais podem surgir com mais intensidade.'
+  },
+  'Lua Minguante': {
+    'menstruacao': 'Liberação física e emocional. Deixe ir o que não serve mais.',
+    'pre_ovulacao': 'Preparação interna para novas fases.',
+    'ovulacao': 'Intuição profundamente conectada com ciclos maiores.',
+    'pre_menstrual': 'Processamento emocional necessário antes do novo início.'
+  }
+};
+
+const lunacoes2026 = {
+  '2026-01-03': { fase: 'Lua Cheia', signo: 'Câncer', icone: '🌕' },
+  '2026-01-10': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' },
+  '2026-01-18': { fase: 'Lua Nova', signo: 'Capricórnio', icone: '🌑' },
+  '2026-01-26': { fase: 'Lua Crescente', signo: 'Touro', icone: '🌒' },
+  '2026-02-01': { fase: 'Lua Cheia', signo: 'Leão', icone: '🌕' },
+  '2026-02-09': { fase: 'Lua Minguante', signo: 'Escorpião', icone: '🌘' },
+  '2026-02-17': { fase: 'Lua Nova', signo: 'Aquário', icone: '🌑' },
+  '2026-02-24': { fase: 'Lua Crescente', signo: 'Gêmeos', icone: '🌒' },
+  '2026-03-03': { fase: 'Lua Cheia', signo: 'Virgem', icone: '🌕' },
+  '2026-03-11': { fase: 'Lua Minguante', signo: 'Sagitário', icone: '🌘' },
+  '2026-03-18': { fase: 'Lua Nova', signo: 'Peixes', icone: '🌑' },
+  '2026-03-25': { fase: 'Lua Crescente', signo: 'Câncer', icone: '🌒' },
+  '2026-04-01': { fase: 'Lua Cheia', signo: 'Libra', icone: '🌕' },
+  '2026-04-10': { fase: 'Lua Minguante', signo: 'Capricórnio', icone: '🌘' },
+  '2026-04-17': { fase: 'Lua Nova', signo: 'Áries', icone: '🌑' },
+  '2026-04-23': { fase: 'Lua Crescente', signo: 'Leão', icone: '🌒' },
+  '2026-05-01': { fase: 'Lua Cheia', signo: 'Escorpião', icone: '🌕' },
+  '2026-05-09': { fase: 'Lua Minguante', signo: 'Aquário', icone: '🌘' },
+  '2026-05-16': { fase: 'Lua Nova', signo: 'Touro', icone: '🌑' },
+  '2026-05-23': { fase: 'Lua Crescente', signo: 'Virgem', icone: '🌒' },
+  '2026-05-31': { fase: 'Lua Cheia', signo: 'Sagitário', icone: '🌕' },
+  '2026-06-08': { fase: 'Lua Minguante', signo: 'Peixes', icone: '🌘' },
+  '2026-06-14': { fase: 'Lua Nova', signo: 'Gêmeos', icone: '🌑' },
+  '2026-06-21': { fase: 'Lua Crescente', signo: 'Virgem', icone: '🌒' },
+  '2026-06-29': { fase: 'Lua Cheia', signo: 'Capricórnio', icone: '🌕' },
+  '2026-07-07': { fase: 'Lua Minguante', signo: 'Áries', icone: '🌘' },
+  '2026-07-14': { fase: 'Lua Nova', signo: 'Câncer', icone: '🌑' },
+  '2026-07-21': { fase: 'Lua Crescente', signo: 'Escorpião', icone: '🌒' },
+  '2026-07-29': { fase: 'Lua Cheia', signo: 'Aquário', icone: '🌕' },
+  '2026-08-05': { fase: 'Lua Minguante', signo: 'Touro', icone: '🌘' },
+  '2026-08-12': { fase: 'Lua Nova', signo: 'Leão', icone: '🌑' },
+  '2026-08-19': { fase: 'Lua Crescente', signo: 'Escorpião', icone: '🌒' },
+  '2026-08-28': { fase: 'Lua Cheia', signo: 'Peixes', icone: '🌕' },
+  '2026-09-04': { fase: 'Lua Minguante', signo: 'Gêmeos', icone: '🌘' },
+  '2026-09-11': { fase: 'Lua Nova', signo: 'Virgem', icone: '🌑' },
+  '2026-09-18': { fase: 'Lua Crescente', signo: 'Sagitário', icone: '🌒' },
+  '2026-09-26': { fase: 'Lua Cheia', signo: 'Áries', icone: '🌕' },
+  '2026-10-03': { fase: 'Lua Minguante', signo: 'Câncer', icone: '🌘' },
+  '2026-10-10': { fase: 'Lua Nova', signo: 'Libra', icone: '🌑' },
+  '2026-10-18': { fase: 'Lua Crescente', signo: 'Aquário', icone: '🌒' },
+  '2026-10-26': { fase: 'Lua Cheia', signo: 'Touro', icone: '🌕' },
+  '2026-11-01': { fase: 'Lua Minguante', signo: 'Leão', icone: '🌘' },
+  '2026-11-09': { fase: 'Lua Nova', signo: 'Escorpião', icone: '🌑' },
+  '2026-11-17': { fase: 'Lua Crescente', signo: 'Peixes', icone: '🌒' },
+  '2026-11-24': { fase: 'Lua Cheia', signo: 'Gêmeos', icone: '🌕' },
+  '2026-12-01': { fase: 'Lua Minguante', signo: 'Virgem', icone: '🌘' },
+  '2026-12-08': { fase: 'Lua Nova', signo: 'Sagitário', icone: '🌑' },
+  '2026-12-17': { fase: 'Lua Crescente', signo: 'Peixes', icone: '🌒' },
+  '2026-12-23': { fase: 'Lua Cheia', signo: 'Gêmeos', icone: '🌕' },
+  '2026-12-30': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' }
+};
+
+const luaForaDeCurso = {
+  '2026-01-02': '09:23–10:09',
+  '2026-02-05': '14:10–15:02',
+  '2026-03-07': '22:40–23:30',
+  '2026-04-11': '06:15–07:01',
+  '2026-05-04': '18:50–19:44',
+  '2026-06-09': '03:12–04:00',
+  '2026-07-12': '11:30–12:18',
+  '2026-08-06': '20:05–21:00',
+  '2026-09-10': '08:44–09:33',
+  '2026-10-08': '16:10–17:02',
+  '2026-11-09': '01:22–02:10',
+  '2026-12-07': '13:40–14:28'
+};
+
+// ===== FUNÇÕES AUXILIARES =====
+function calcularNumeroEnergia(dataISO) {
+  const perfil = load('perfil') || {};
+  const dataNascimento = perfil.dataNascimento;
+  
+  if (!dataNascimento) return null;
+  
+  try {
+    const partes = dataNascimento.split('-');
+    const dia = parseInt(partes[2]);
+    const mes = parseInt(partes[1]);
+    const anoAtual = 2026;
+    
+    let soma = dia + mes + anoAtual;
+    
+    while (soma > 9) {
+      soma = soma.toString().split('').reduce((acc, num) => acc + parseInt(num), 0);
+    }
+    
+    return soma;
+  } catch (e) {
+    console.error('Erro ao calcular numerologia:', e);
+    return null;
+  }
+}
+
+function determinarFaseCiclo(dataISO) {
+  const perfil = load('perfil') || {};
+  const ciclo = perfil.ciclo;
+  
+  if (!ciclo) return null;
+  
+  try {
+    const dataCiclo = new Date(ciclo);
+    const dataAtual = new Date(dataISO);
+    
+    const diffTime = dataAtual - dataCiclo;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const cicloDia = diffDays % 28;
+    
+    if (cicloDia >= 0 && cicloDia <= 7) return 'menstruacao';
+    if (cicloDia >= 8 && cicloDia <= 14) return 'pre_ovulacao';
+    if (cicloDia >= 15 && cicloDia <= 21) return 'ovulacao';
+    return 'pre_menstrual';
+    
+  } catch (e) {
+    console.error('Erro ao determinar fase do ciclo:', e);
+    return null;
+  }
+}
+
+function avaliarDia(dataISO) {
+  const perfil = load('perfil') || {};
+  const lua = lunacoes2026[dataISO];
+  const saba = sabas2026[dataISO];
+  
+  let oraculoHTML = '';
+  
+  if (saba) {
+    oraculoHTML += `<strong>🔥 Hoje é dia do Sabá ${saba.nome} (${saba.tipo}).</strong><br>`;
+    oraculoHTML += `Dia de celebrar ${saba.estacaoElemento.toLowerCase()}.<br><br>`;
+  }
+  
+  if (lua) {
+    const energiaFase = energiasLunares[lua.fase] || {};
+    const energiaSigno = energiaSignoLunar[lua.signo] || {};
+    
+    oraculoHTML += `<strong>🌙 Lua em ${lua.signo}:</strong><br>`;
+    oraculoHTML += `Dia de ${energiaFase.energiaPrincipal || 'energia lunar'}. `;
+    oraculoHTML += `Momento para ${energiaSigno[lua.fase] || 'alinhar-se com a energia do signo'}.<br><br>`;
+  } else {
+    oraculoHTML += `<strong>🌙 Lua em trânsito:</strong><br>`;
+    oraculoHTML += `Continuidade do ciclo lunar em andamento.<br><br>`;
+  }
+  
+  oraculoHTML += `<strong>⚡ Energia do dia:</strong><br>`;
+  
+  const numeroEnergia = calcularNumeroEnergia(dataISO);
+  if (numeroEnergia && energiaNumerologia[numeroEnergia]) {
+    const energiaNum = energiaNumerologia[numeroEnergia];
+    oraculoHTML += `${energiaNum.potencial}. `;
+    oraculoHTML += `Atenção para ${energiaNum.risco.toLowerCase()}.<br>`;
+  }
+  
+  const faseCiclo = determinarFaseCiclo(dataISO);
+  if (lua && faseCiclo && cicloMenstrualFaseLunar[lua.fase] && cicloMenstrualFaseLunar[lua.fase][faseCiclo]) {
+    oraculoHTML += `Você poderá se sentir ${cicloMenstrualFaseLunar[lua.fase][faseCiclo].toLowerCase()}<br><br>`;
+  } else if (lua && !perfil.ciclo) {
+    const energiaFase = energiasLunares[lua.fase] || {};
+    oraculoHTML += `Dia para focar em ${energiaFase.acoesPositivas ? energiaFase.acoesPositivas.split(',')[0] : 'harmonia interna'}.<br><br>`;
+  } else {
+    oraculoHTML += `Atenção às suas necessidades internas hoje.<br><br>`;
+  }
+  
+  oraculoHTML += `<strong>✨ Ritual sugerido:</strong><br>`;
+  if (saba) {
+    oraculoHTML += `Dia de ${saba.rituais.split(',')[0]} e `;
+  }
+  
+  if (lua) {
+    if (lua.fase === 'Lua Cheia') {
+      oraculoHTML += 'ritual de gratidão, escrita consciente e celebração simbólica.';
+    } else if (lua.fase === 'Lua Nova') {
+      oraculoHTML += 'plantio de intenções, silêncio ritual e visualização.';
+    } else if (lua.fase === 'Lua Crescente') {
+      oraculoHTML += 'ações progressivas, fortalecimento de hábitos e foco.';
+    } else if (lua.fase === 'Lua Minguante') {
+      oraculoHTML += 'limpeza energética, desapego e descanso consciente.';
+    } else {
+      oraculoHTML += 'prática simples de autocuidado e observação.';
+    }
+  } else {
+    oraculoHTML += 'prática simples de autocuidado e observação.';
+  }
+  
+  return oraculoHTML;
+}
+
+// ===== FUNÇÕES DO PLANNER =====
+function criarPlanner() {
+  grid.innerHTML = '';
+  const total = new Date(anoAtual, mesAtual + 1, 0).getDate();
+  const inicio = new Date(anoAtual, mesAtual, 1).getDay();
+  mesTitulo.textContent = new Date(anoAtual, mesAtual).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+
+  for (let i = 0; i < inicio; i++) {
+    const v = document.createElement('div');
+    v.style.visibility = 'hidden';
+    grid.appendChild(v);
+  }
+
+  const notas = load('notas') || {};
+  const sentimentos = load('sentimentos') || {};
+
+  for (let d = 1; d <= total; d++) {
+    const dataISO = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const el = document.createElement('div');
+    el.className = 'dia';
+
+    let icones = '';
+    if (lunacoes2026[dataISO]) icones += lunacoes2026[dataISO].icone;
+    if (sabas2026[dataISO]) icones += '🔥';
+    if (luaForaDeCurso[dataISO]) icones += '⏳';
+
+    el.innerHTML = `<strong>${d}</strong>` + (icones ? `<div class="iconesTopo">${icones}</div>` : '');
+
+    if ((Array.isArray(notas[dataISO]) && notas[dataISO].length) || sentimentos[dataISO]) {
+      el.innerHTML += `<span class="estrela">✶</span>`;
+      
+      const p = document.createElement('div');
+      p.className = 'preview';
+      
+      if (Array.isArray(notas[dataISO]) && notas[dataISO].length) {
+        p.textContent = notas[dataISO][notas[dataISO].length - 1].texto.substring(0, 40) + '...';
+      } else if (sentimentos[dataISO]) {
+        p.textContent = '💖 ' + sentimentos[dataISO].substring(0, 40) + '...';
+      }
+      
+      el.appendChild(p);
+    }
+
+    el.addEventListener('click', () => abrirModal(dataISO, d));
+    grid.appendChild(el);
+  }
+}
+
+// ===== FUNÇÃO ABRIR MODAL =====
+function abrirModal(dataISO, dia) {
+  diaAtual = dataISO;
+  document.getElementById('modalTitulo').textContent = `Dia ${dia}`;
+  
+  oraculo.innerHTML = avaliarDia(dataISO);
+  
+  notasSalvas.innerHTML = '';
+  sentimentosSalvos.innerHTML = '';
+  
+  const notas = load('notas') || {};
+  if (Array.isArray(notas[dataISO])) {
+    notas[dataISO].forEach((n, index) => {
+      const div = document.createElement('div');
+      div.className = 'nota-item';
+      div.innerHTML = `
+        <div class="nota-hora">${n.hora || 'Sem horário'}</div>
+        <div class="nota-texto">${n.texto}</div>
+        <button class="btn-apagar-nota" data-index="${index}" title="Apagar esta nota">🗑️</button>
+      `;
+      notasSalvas.appendChild(div);
+    });
+    
+    document.querySelectorAll('.btn-apagar-nota').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const index = parseInt(this.getAttribute('data-index'));
+        apagarNota(index);
+      });
+    });
+  }
+  
+  const sentimentos = load('sentimentos') || {};
+  if (sentimentos[dataISO]) {
+    const div = document.createElement('div');
+    div.className = 'sentimento-item';
+    div.innerHTML = `
+      <div style="color:var(--color-mystic-purple);font-weight:bold;font-size:0.875rem;">💖 Impressões e Sentimentos</div>
+      <div style="color:var(--color-text-primary);font-size:0.9375rem;margin-top:8px;">${sentimentos[dataISO]}</div>
+      <button class="btn-apagar-sentimento" title="Apagar sentimentos">🗑️</button>
+    `;
+    sentimentosSalvos.appendChild(div);
+    
+    document.querySelector('.btn-apagar-sentimento').addEventListener('click', function(e) {
+      e.stopPropagation();
+      apagarSentimento();
+    });
+  }
+  
+  const sentimentosField = document.getElementById('sentimentos');
+  if (sentimentos[dataISO]) {
+    sentimentosField.value = sentimentos[dataISO];
+  } else {
+    sentimentosField.value = '';
+  }
+  
+  document.getElementById('notaHora').value = '';
+  document.getElementById('notaTexto').value = '';
+  
+  const notificarNotaSelect = document.getElementById('notificarNota');
+  const configNotificacaoDiv = document.getElementById('configNotificacao');
+  
+  notificarNotaSelect.value = 'nao';
+  configNotificacaoDiv.style.display = 'none';
+  
+  notificarNotaSelect.addEventListener('change', function() {
+    if (this.value === 'sim') {
+      configNotificacaoDiv.style.display = 'block';
+    } else {
+      configNotificacaoDiv.style.display = 'none';
+    }
+  });
+  
+  modal.style.display = 'flex';
+}
+
+function apagarNota(index) {
+  if (!confirm('Tem certeza que deseja apagar esta nota?')) {
+    return;
+  }
+  
+  const notas = load('notas') || {};
+  
+  if (Array.isArray(notas[diaAtual]) && notas[diaAtual][index]) {
+    notas[diaAtual].splice(index, 1);
+    
+    if (notas[diaAtual].length === 0) {
+      delete notas[diaAtual];
+    }
+    
+    save('notas', notas);
+    abrirModal(diaAtual, diaAtual.split('-')[2]);
+    criarPlanner();
+  }
+}
+
+function apagarSentimento() {
+  if (!confirm('Tem certeza que deseja apagar suas impressões e sentimentos deste dia?')) {
+    return;
+  }
+  
+  const sentimentos = load('sentimentos') || {};
+  
+  if (sentimentos[diaAtual]) {
+    delete sentimentos[diaAtual];
+    save('sentimentos', sentimentos);
+    abrirModal(diaAtual, diaAtual.split('-')[2]);
+    criarPlanner();
+  }
+}
+
+function salvarNota() {
+  const notaTexto = document.getElementById('notaTexto').value.trim();
+  const sentimentosTexto = document.getElementById('sentimentos').value.trim();
+  const notaHora = document.getElementById('notaHora').value;
+  const notificarNota = document.getElementById('notificarNota').value;
+  const tempoAntecedencia = parseInt(document.getElementById('tempoAntecedencia').value);
+  
+  if (notaTexto) {
+    const notas = load('notas') || {};
+    if (!Array.isArray(notas[diaAtual])) notas[diaAtual] = [];
+    notas[diaAtual].push({ hora: notaHora, texto: notaTexto });
+    save('notas', notas);
+    
+    if (notificarNota === 'sim' && notaHora) {
+      agendarNotificacaoNota(diaAtual, notaHora, tempoAntecedencia, notaTexto);
+    }
+  }
+  
+  if (sentimentosTexto) {
+    const sentimentos = load('sentimentos') || {};
+    sentimentos[diaAtual] = sentimentosTexto;
+    save('sentimentos', sentimentos);
+  }
+  
+  if (!notaTexto && !sentimentosTexto) {
+    alert('Por favor, escreva uma nota ou seus sentimentos!');
+    return;
+  }
+  
+  fecharModal();
+  criarPlanner();
+}
+
+function agendarNotificacaoNota(dataISO, horaNota, antecedenciaMinutos, textoNota) {
+  const notasComNotificacao = load('notasComNotificacao') || {};
+  
+  if (!Array.isArray(notasComNotificacao[dataISO])) {
+    notasComNotificacao[dataISO] = [];
+  }
+  
+  notasComNotificacao[dataISO].push({
+    horaNota: horaNota,
+    antecedencia: antecedenciaMinutos,
+    texto: textoNota
+  });
+  
+  save('notasComNotificacao', notasComNotificacao);
+  
+  // Reagendar todos os lembretes
+  agendarLembretesNotas();
+}
+
+function fecharModal() {
+  modal.style.display = 'none';
+  document.getElementById('notaTexto').value = '';
+  document.getElementById('notaHora').value = '';
+  document.getElementById('sentimentos').value = '';
+}
+
+// ===== FUNÇÕES DO LIVRO DA BRUXA PRÓSPERA =====
+function recalcular() {
+  const categorias = ['sustento', 'florescimento', 'centelha', 'abundancia'];
+  let somaTotal = 0;
+
+  categorias.forEach(cat => {
+    let soma = 0;
+    document.querySelectorAll(`#${cat} input[type="number"]`).forEach(i => {
+      soma += Number(i.value) || 0;
+    });
+    if (document.getElementById(`total-${cat}`)) {
+      document.getElementById(`total-${cat}`).textContent = soma.toFixed(2);
+    }
+    somaTotal += soma;
+  });
+
+  const totalAbundancia = Number(document.getElementById('total-abundancia').textContent) || 0;
+  document.getElementById('saldo').textContent = (totalAbundancia - somaTotal).toFixed(2);
+}
+
+function addLinha(id, tipo) {
+  const tbody = document.getElementById(id);
+  if (!tbody) return;
+
+  const tr = document.createElement('tr');
+
+  const tdDesc = document.createElement('td');
+  const inputDesc = document.createElement('input');
+  inputDesc.placeholder = tipo === 'ganho' ? 'Descreva o ganho' : 'Descreva o gasto';
+  tdDesc.appendChild(inputDesc);
+
+  const tdValor = document.createElement('td');
+  const inputValor = document.createElement('input');
+  inputValor.type = 'number';
+  inputValor.placeholder = '0.00';
+  inputValor.oninput = recalcular;
+  tdValor.appendChild(inputValor);
+
+  const tdAcao = document.createElement('td');
+  const btnRemover = document.createElement('button');
+  btnRemover.textContent = '✖';
+  btnRemover.className = 'remover';
+  btnRemover.onclick = () => tr.remove();
+  tdAcao.appendChild(btnRemover);
+
+  tr.appendChild(tdDesc);
+  tr.appendChild(tdValor);
+  tr.appendChild(tdAcao);
+
+  tbody.appendChild(tr);
+}
+
+// ===== NAVEGAÇÃO =====
+document.getElementById('irPlanner').onclick = () => {
+  capa.style.display = 'none';
+  planner.style.display = 'block';
+  const p = load('perfil');
+  if (p) perfilEl.textContent = `${p.nome} · ${p.signo}`;
+  criarPlanner();
+};
+
+document.getElementById('irProspera').onclick = () => {
+  capa.style.display = 'none';
+  prospera.style.display = 'block';
+};
+
+document.getElementById('voltarCapa').onclick = () => {
+  planner.style.display = 'none';
+  capa.style.display = 'block';
+};
+
+document.getElementById('voltarCapa2').onclick = () => {
+  prospera.style.display = 'none';
+  capa.style.display = 'block';
+};
+
+document.getElementById('mesAnterior').onclick = () => {
+  mesAtual--;
+  if (mesAtual < 0) {
+    mesAtual = 11;
+    anoAtual--;
+  }
+  criarPlanner();
+};
+
+document.getElementById('mesProximo').onclick = () => {
+  mesAtual++;
+  if (mesAtual > 11) {
+    mesAtual = 0;
+    anoAtual++;
+  }
+  criarPlanner();
+};
+
+// ===== EVENTOS DO MODAL =====
+document.getElementById('btnFechar').onclick = fecharModal;
+document.getElementById('btnSalvarNota').onclick = salvarNota;
+
+// ===== INICIALIZAÇÃO =====
+addLinha('sustento');
+addLinha('abundancia', 'ganho');
+addLinha('florescimento');
+addLinha('centelha');
+</script>
+</body>
+</html>
