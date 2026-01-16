@@ -843,7 +843,7 @@
     <select id="hemisferio">
       <option value="">Selecione seu hemisfério</option>
       <option value="norte">🌎 Hemisfério Norte</option>
-      <option value="sul">🌍 Hemisfério Sul</option>
+      <option value="sul">🌍 Hemisfério Sul (Brasil)</option>
       <option value="outro">🌐 Outro/Indiferente</option>
     </select>
     
@@ -1192,9 +1192,9 @@ btnConfigNotificacoes.addEventListener('click', () => {
     ativas: 'sim',
     horaDiaria: '08:00',
     notificarSabas: 'sim',
-    antecedenciaSabas: '1440', // 1 dia em minutos
+    antecedenciaSabas: '1440',
     horaSabas: '09:00',
-    antecedenciaLua: '0' // No momento exato
+    antecedenciaLua: '0'
   };
   
   document.getElementById('notificacoesAtivas').value = config.ativas;
@@ -1211,7 +1211,32 @@ btnFecharNotificacoes.addEventListener('click', () => {
   modalNotificacoes.style.display = 'none';
 });
 
-// ===== FUNÇÕES DE NOTIFICAÇÃO CORRIGIDAS =====
+// ===== FUNÇÕES DE DATA/HORA CORRIGIDAS =====
+
+// Função para criar Date com fuso horário brasileiro (BRT/BRST)
+function criarDataBrasil(ano, mes, dia, hora = 0, minuto = 0) {
+  // Cria data no fuso UTC
+  const dataUTC = new Date(Date.UTC(ano, mes, dia, hora, minuto, 0));
+  
+  // Ajusta para fuso brasileiro (-3 horas para BRT, -2 para BRST)
+  // Para simplificar, vamos usar -3 (BRT - Brasília Time)
+  const offsetBrasil = -3 * 60; // -3 horas em minutos
+  const dataBrasil = new Date(dataUTC.getTime() + offsetBrasil * 60000);
+  
+  return dataBrasil;
+}
+
+// Função para formatar data/hora
+function formatarDataHora(data) {
+  return data.toLocaleString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
+}
+
+// ===== FUNÇÕES DE NOTIFICAÇÃO TOTALMENTE CORRIGIDAS =====
+
 function solicitarPermissaoNotificacao() {
   if (!('Notification' in window)) {
     console.log('Este navegador não suporta notificações.');
@@ -1228,9 +1253,18 @@ function solicitarPermissaoNotificacao() {
   }
 }
 
-// ===== FUNÇÃO PRINCIPAL DE AGENDAMENTO CORRIGIDA =====
+// ===== SISTEMA DE AGENDAMENTO CORRIGIDO =====
+
+let scheduledTimeouts = [];
+
+function limparAgendamentosAnteriores() {
+  console.log('🧹 Limpando agendamentos anteriores...');
+  scheduledTimeouts.forEach(timeout => clearTimeout(timeout));
+  scheduledTimeouts = [];
+}
+
 function agendarNotificacoes() {
-  console.log('🔔 Agendando notificações...');
+  console.log('🔔 INICIANDO AGENDAMENTO DE NOTIFICAÇÕES');
   
   const config = load('configNotificacoes');
   if (!config || config.ativas === 'nao') {
@@ -1243,56 +1277,43 @@ function agendarNotificacoes() {
     return;
   }
   
-  // Limpar notificações antigas primeiro
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(reg => {
-      reg.getNotifications().then(notifications => {
-        notifications.forEach(notification => notification.close());
-      });
-    });
-  }
+  // Limpar tudo primeiro
+  limparAgendamentosAnteriores();
   
-  // Cancelar timeouts anteriores
-  if (window.notificationTimeouts) {
-    window.notificationTimeouts.forEach(timeout => clearTimeout(timeout));
-    window.notificationTimeouts = [];
-  } else {
-    window.notificationTimeouts = [];
-  }
+  // Obter data atual no fuso brasileiro
+  const agora = new Date();
+  console.log('📅 Data atual:', formatarDataHora(agora));
   
   // Agendar notificação diária
   if (config.horaDiaria) {
     agendarNotificacaoDiaria(config);
   }
   
-  // Agendar notificações de Sabás CORRIGIDO
+  // Agendar notificações de Sabás
   if (config.notificarSabas === 'sim') {
     agendarNotificacoesSabas(config);
   }
   
-  // Agendar notificações de fases lunares CORRIGIDO
+  // Agendar notificações de fases lunares
   agendarNotificacoesLunares(config);
   
   // Agendar notificações de notas
   agendarNotificacoesNotas();
   
-  console.log('✅ Todas as notificações foram agendadas');
+  console.log('✅ Agendamento concluído. Timeouts agendados:', scheduledTimeouts.length);
 }
 
-// ===== FUNÇÕES DE AGENDAMENTO ESPECÍFICAS =====
+// ===== FUNÇÃO PARA AGENDAR NOTIFICAÇÃO DIÁRIA =====
 
 function agendarNotificacaoDiaria(config) {
   console.log('📅 Agendando notificação diária...');
   
   const [hora, minuto] = config.horaDiaria.split(':').map(Number);
   const agora = new Date();
-  const hojeNotificacao = new Date(
-    agora.getFullYear(),
-    agora.getMonth(),
-    agora.getDate(),
-    hora,
-    minuto
-  );
+  
+  // Criar data para notificação de hoje
+  const hojeNotificacao = new Date(agora);
+  hojeNotificacao.setHours(hora, minuto, 0, 0);
   
   // Se já passou da hora hoje, agenda para amanhã
   if (agora >= hojeNotificacao) {
@@ -1301,14 +1322,17 @@ function agendarNotificacaoDiaria(config) {
   
   const diferencaMs = hojeNotificacao - agora;
   
+  console.log(`⏰ Notificação diária agendada para: ${formatarDataHora(hojeNotificacao)}`);
+  console.log(`   Daqui: ${Math.round(diferencaMs/1000)} segundos`);
+  
   const timeoutId = setTimeout(() => {
+    console.log('🔔 Disparando notificação diária...');
     enviarNotificacaoDiaria();
     // Reagendar para o próximo dia
     agendarNotificacaoDiaria(config);
   }, diferencaMs);
   
-  window.notificationTimeouts.push(timeoutId);
-  console.log(`⏰ Notificação diária agendada para daqui ${Math.round(diferencaMs/1000)} segundos`);
+  scheduledTimeouts.push(timeoutId);
 }
 
 function enviarNotificacaoDiaria() {
@@ -1324,11 +1348,13 @@ function enviarNotificacaoDiaria() {
     corpo = '📖 Você tem notas registradas para hoje. Reveja-as para reflexão.';
   }
   
+  // Verificar Sabá de hoje
   const sabasHoje = getSabasParaData(hoje);
   if (sabasHoje.length > 0) {
     corpo += `\n\n🔥 ALERTA: Hoje é ${sabasHoje.map(s => s.nome).join(' e ')}!`;
   }
   
+  // Verificar fase lunar de hoje
   const luaHoje = getFaseLunarParaData(hoje);
   if (luaHoje) {
     corpo += `\n\n🌙 ALERTA: ${luaHoje.fase} em ${luaHoje.signo} hoje.`;
@@ -1337,122 +1363,390 @@ function enviarNotificacaoDiaria() {
   enviarNotificacao('🌙 Grimório Ritualístico - Diário', corpo, 'diario');
 }
 
-// ===== FUNÇÕES CORRIGIDAS PARA SABÁS =====
+// ===== SISTEMA DE SABÁS CORRIGIDO =====
+
+// Sabás com DATAS E HORAS COMPLETAS (fuso brasileiro)
+const sabasHemisferioNorte = {
+  'imbolc': { 
+    nome: 'Imbolc', 
+    dataHora: criarDataBrasil(2026, 1, 1, 8, 0), // 01/02/2026 08:00 BRT
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Inverno/Água', 
+    significado: 'Purificação e proteção' 
+  },
+  'ostara': { 
+    nome: 'Ostara', 
+    dataHora: criarDataBrasil(2026, 2, 20, 8, 0), // 20/03/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Primavera/Ar', 
+    significado: 'Equinócio de Primavera, Fertilidade' 
+  },
+  'beltane': { 
+    nome: 'Beltane', 
+    dataHora: criarDataBrasil(2026, 4, 1, 8, 0), // 01/05/2026 08:00 BRT
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Primavera/Fogo', 
+    significado: 'União, paixão e fertilidade máxima' 
+  },
+  'litha': { 
+    nome: 'Litha', 
+    dataHora: criarDataBrasil(2026, 5, 21, 8, 0), // 21/06/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Verão/Fogo', 
+    significado: 'Solstício de Verão, Poder Solar' 
+  },
+  'lughnasadh': { 
+    nome: 'Lughnasadh', 
+    dataHora: criarDataBrasil(2026, 7, 1, 8, 0), // 01/08/2026 08:00 BRT
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Verão/Fogo', 
+    significado: 'Primeira colheita' 
+  },
+  'mabon': { 
+    nome: 'Mabon', 
+    dataHora: criarDataBrasil(2026, 8, 22, 8, 0), // 22/09/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Outono/Água', 
+    significado: 'Equilíbrio e colheita completa' 
+  },
+  'samhain': { 
+    nome: 'Samhain', 
+    dataHora: criarDataBrasil(2026, 9, 31, 8, 0), // 31/10/2026 08:00 BRT
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Outono/Terra', 
+    significado: 'Ano Novo Pagão, Festival dos Mortos' 
+  },
+  'yule': { 
+    nome: 'Yule', 
+    dataHora: criarDataBrasil(2026, 11, 21, 8, 0), // 21/12/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Inverno/Fogo', 
+    significado: 'Solstício de Inverno, Renascimento' 
+  }
+};
+
+// Sabás para Hemisfério Sul (Brasil) - datas invertidas 6 meses
+const sabasHemisférioSul = {
+  'imbolc': { 
+    nome: 'Imbolc', 
+    dataHora: criarDataBrasil(2026, 7, 1, 8, 0), // 01/08/2026 08:00 BRT (6 meses depois)
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Inverno/Água', 
+    significado: 'Purificação e proteção' 
+  },
+  'ostara': { 
+    nome: 'Ostara', 
+    dataHora: criarDataBrasil(2026, 8, 22, 8, 0), // 22/09/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Primavera/Ar', 
+    significado: 'Equinócio de Primavera, Fertilidade' 
+  },
+  'beltane': { 
+    nome: 'Beltane', 
+    dataHora: criarDataBrasil(2026, 10, 1, 8, 0), // 01/11/2026 08:00 BRT
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Primavera/Fogo', 
+    significado: 'União, paixão e fertilidade máxima' 
+  },
+  'litha': { 
+    nome: 'Litha', 
+    dataHora: criarDataBrasil(2026, 11, 21, 8, 0), // 21/12/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Verão/Fogo', 
+    significado: 'Solstício de Verão, Poder Solar' 
+  },
+  'lughnasadh': { 
+    nome: 'Lughnasadh', 
+    dataHora: criarDataBrasil(2026, 1, 1, 8, 0), // 01/02/2026 08:00 BRT (o próximo!)
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Verão/Fogo', 
+    significado: 'Primeira colheita' 
+  },
+  'mabon': { 
+    nome: 'Mabon', 
+    dataHora: criarDataBrasil(2026, 2, 20, 8, 0), // 20/03/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Outono/Água', 
+    significado: 'Equilíbrio e colheita completa' 
+  },
+  'samhain': { 
+    nome: 'Samhain', 
+    dataHora: criarDataBrasil(2026, 4, 1, 8, 0), // 01/05/2026 08:00 BRT
+    tipo: 'Sabá Maior', 
+    estacaoElemento: 'Outono/Terra', 
+    significado: 'Ano Novo Pagão, Festival dos Mortos' 
+  },
+  'yule': { 
+    nome: 'Yule', 
+    dataHora: criarDataBrasil(2026, 5, 21, 8, 0), // 21/06/2026 08:00 BRT
+    tipo: 'Sabá Menor', 
+    estacaoElemento: 'Inverno/Fogo', 
+    significado: 'Solstício de Inverno, Renascimento' 
+  }
+};
 
 function getSabasParaData(dataISO) {
   const perfil = load('perfil') || {};
-  const hemisferio = perfil.hemisferio || 'norte';
+  const hemisferio = perfil.hemisferio || 'sul'; // Padrão: Hemisfério Sul (Brasil)
   
-  // Se não tem hemisfério definido, usa padrão (norte)
-  if (!hemisferio || hemisferio === 'outro') {
-    return Object.values(sabasHemisferioNorte).filter(s => s.data === dataISO);
-  }
+  const sabas = hemisferio === 'sul' ? sabasHemisférioSul : sabasHemisferioNorte;
+  const sabasDoDia = [];
   
-  if (hemisferio === 'sul') {
-    return Object.values(sabasHemisférioSul).filter(s => s.data === dataISO);
-  }
+  Object.values(sabas).forEach(saba => {
+    const dataSabáISO = saba.dataHora.toISOString().split('T')[0];
+    if (dataSabáISO === dataISO) {
+      sabasDoDia.push(saba);
+    }
+  });
   
-  return Object.values(sabasHemisferioNorte).filter(s => s.data === dataISO);
+  return sabasDoDia;
 }
 
 function agendarNotificacoesSabas(config) {
-  console.log('🔥 Agendando notificações de Sabás...');
+  console.log('🔥 AGENDANDO NOTIFICAÇÕES DE SABÁS');
   
   const perfil = load('perfil') || {};
-  const hemisferio = perfil.hemisferio || 'norte';
+  const hemisferio = perfil.hemisferio || 'sul';
   const sabas = hemisferio === 'sul' ? sabasHemisférioSul : sabasHemisferioNorte;
   
-  const antecedenciaMinutos = parseInt(config.antecedenciaSabas) || 1440; // padrão 1 dia
-  const [hora, minuto] = (config.horaSabas || '09:00').split(':').map(Number);
+  const antecedenciaMinutos = parseInt(config.antecedenciaSabas) || 1440;
+  const [horaNotificacao, minutoNotificacao] = (config.horaSabas || '09:00').split(':').map(Number);
+  
+  const agora = new Date();
+  console.log(`📅 Data atual: ${formatarDataHora(agora)}`);
+  console.log(`🌍 Hemisfério: ${hemisferio}`);
+  console.log(`⏱️ Antecedência: ${antecedenciaMinutos} minutos (${antecedenciaMinutos/1440} dias)`);
   
   Object.values(sabas).forEach(saba => {
-    // Calcular data da notificação
-    const dataSabá = new Date(saba.data + 'T00:00:00');
-    const dataNotificacao = new Date(dataSabá);
+    // Data/hora real do Sabá
+    const dataHoraSabá = new Date(saba.dataHora);
     
-    // Aplicar antecedência
+    // Calcular data da notificação (aplicar antecedência)
+    const dataNotificacao = new Date(dataHoraSabá);
     dataNotificacao.setMinutes(dataNotificacao.getMinutes() - antecedenciaMinutos);
     
-    // Definir hora específica
-    dataNotificacao.setHours(hora, minuto, 0, 0);
+    // Definir hora específica para notificação
+    dataNotificacao.setHours(horaNotificacao, minutoNotificacao, 0, 0);
     
-    const agora = new Date();
+    console.log(`\n📊 ${saba.nome}:`);
+    console.log(`   Data/hora do Sabá: ${formatarDataHora(dataHoraSabá)}`);
+    console.log(`   Data notificação: ${formatarDataHora(dataNotificacao)}`);
+    
     const diferencaMs = dataNotificacao - agora;
     
-    // Se a data já passou, não agendar
-    if (diferencaMs <= 0) {
-      console.log(`⚠️ Sabá ${saba.nome} já passou ou está em andamento`);
-      return;
+    // Só agendar se for no futuro
+    if (diferencaMs > 0) {
+      console.log(`   ⏰ Agendado para daqui: ${Math.round(diferencaMs/1000)} segundos`);
+      
+      const timeoutId = setTimeout(() => {
+        let titulo, mensagem;
+        
+        if (antecedenciaMinutos === 0) {
+          titulo = `🔥 ALERTA: ${saba.nome} HOJE!`;
+          mensagem = `Hoje é ${saba.nome} (${saba.tipo}).\n${saba.significado}\n\nEstacao: ${saba.estacaoElemento}`;
+        } else {
+          const diasAntecedencia = Math.floor(antecedenciaMinutos / 1440);
+          const horasAntecedencia = Math.floor((antecedenciaMinutos % 1440) / 60);
+          
+          let antecedenciaTexto = '';
+          if (diasAntecedencia > 0) {
+            antecedenciaTexto += `${diasAntecedencia} ${diasAntecedencia === 1 ? 'dia' : 'dias'}`;
+          }
+          if (horasAntecedencia > 0) {
+            if (antecedenciaTexto) antecedenciaTexto += ' e ';
+            antecedenciaTexto += `${horasAntecedencia} ${horasAntecedencia === 1 ? 'hora' : 'horas'}`;
+          }
+          
+          titulo = `🔥 ALERTA: ${saba.nome} em ${antecedenciaTexto}`;
+          mensagem = `Em ${antecedenciaTexto} será ${saba.nome} (${saba.tipo}).\n${saba.significado}\n\nPrepare-se para celebrar!`;
+        }
+        
+        enviarNotificacao(titulo, mensagem, `saba-${saba.nome}-${dataHoraSabá.getTime()}`);
+      }, diferencaMs);
+      
+      scheduledTimeouts.push(timeoutId);
+    } else {
+      console.log(`   ⏳ Já passou ou está em andamento`);
     }
-    
-    const timeoutId = setTimeout(() => {
-      let titulo, mensagem;
-      
-      if (antecedenciaMinutos === 0) {
-        titulo = `🔥 ALERTA: ${saba.nome} HOJE!`;
-        mensagem = `Hoje é ${saba.nome} (${saba.tipo}). ${saba.significado}`;
-      } else {
-        const dias = Math.floor(antecedenciaMinutos / 1440);
-        titulo = `🔥 ALERTA: ${saba.nome} em ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
-        mensagem = `Em ${dias} ${dias === 1 ? 'dia' : 'dias'} será ${saba.nome}. ${saba.significado}`;
-      }
-      
-      enviarNotificacao(titulo, mensagem, `saba-${saba.nome}`);
-    }, diferencaMs);
-    
-    window.notificationTimeouts.push(timeoutId);
-    console.log(`🔥 Sabá ${saba.nome} agendado para ${dataNotificacao.toLocaleString()}`);
   });
 }
 
-// ===== FUNÇÕES CORRIGIDAS PARA FASES LUNARES =====
+// ===== SISTEMA DE FASES LUNARES CORRIGIDO =====
+
+// Fases lunares com DATAS E HORAS COMPLETAS
+const lunacoes2026ComHora = {
+  '2026-01-03T03:00:00': { fase: 'Lua Cheia', signo: 'Câncer', icone: '🌕' },
+  '2026-01-10T15:00:00': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' },
+  '2026-01-18T10:00:00': { fase: 'Lua Nova', signo: 'Capricórnio', icone: '🌑' },
+  '2026-01-26T08:00:00': { fase: 'Lua Crescente', signo: 'Touro', icone: '🌒' },
+  '2026-02-01T18:00:00': { fase: 'Lua Cheia', signo: 'Leão', icone: '🌕' },
+  '2026-02-09T06:00:00': { fase: 'Lua Minguante', signo: 'Escorpião', icone: '🌘' },
+  '2026-02-17T03:00:00': { fase: 'Lua Nova', signo: 'Aquário', icone: '🌑' },
+  '2026-02-24T20:00:00': { fase: 'Lua Crescente', signo: 'Gêmeos', icone: '🌒' },
+  '2026-03-03T08:00:00': { fase: 'Lua Cheia', signo: 'Virgem', icone: '🌕' },
+  '2026-03-11T21:00:00': { fase: 'Lua Minguante', signo: 'Sagitário', icone: '🌘' },
+  '2026-03-18T19:00:00': { fase: 'Lua Nova', signo: 'Peixes', icone: '🌑' },
+  '2026-03-25T09:00:00': { fase: 'Lua Crescente', signo: 'Câncer', icone: '🌒' },
+  '2026-04-01T21:00:00': { fase: 'Lua Cheia', signo: 'Libra', icone: '🌕' },
+  '2026-04-10T12:00:00': { fase: 'Lua Minguante', signo: 'Capricórnio', icone: '🌘' },
+  '2026-04-17T10:00:00': { fase: 'Lua Nova', signo: 'Áries', icone: '🌑' },
+  '2026-04-23T22:00:00': { fase: 'Lua Crescente', signo: 'Leão', icone: '🌒' },
+  '2026-05-01T10:00:00': { fase: 'Lua Cheia', signo: 'Escorpião', icone: '🌕' },
+  '2026-05-09T02:00:00': { fase: 'Lua Minguante', signo: 'Aquário', icone: '🌘' },
+  '2026-05-16T00:00:00': { fase: 'Lua Nova', signo: 'Touro', icone: '🌑' },
+  '2026-05-23T11:00:00': { fase: 'Lua Crescente', signo: 'Virgem', icone: '🌒' },
+  '2026-05-31T22:00:00': { fase: 'Lua Cheia', signo: 'Sagitário', icone: '🌕' },
+  '2026-06-08T14:00:00': { fase: 'Lua Minguante', signo: 'Peixes', icone: '🌘' },
+  '2026-06-14T12:00:00': { fase: 'Lua Nova', signo: 'Gêmeos', icone: '🌑' },
+  '2026-06-21T22:00:00': { fase: 'Lua Crescente', signo: 'Virgem', icone: '🌒' },
+  '2026-06-29T10:00:00': { fase: 'Lua Cheia', signo: 'Capricórnio', icone: '🌕' },
+  '2026-07-07T01:00:00': { fase: 'Lua Minguante', signo: 'Áries', icone: '🌘' },
+  '2026-07-14T00:00:00': { fase: 'Lua Nova', signo: 'Câncer', icone: '🌑' },
+  '2026-07-21T08:00:00': { fase: 'Lua Crescente', signo: 'Escorpião', icone: '🌒' },
+  '2026-07-29T21:00:00': { fase: 'Lua Cheia', signo: 'Aquário', icone: '🌕' },
+  '2026-08-05T12:00:00': { fase: 'Lua Minguante', signo: 'Touro', icone: '🌘' },
+  '2026-08-12T11:00:00': { fase: 'Lua Nova', signo: 'Leão', icone: '🌑' },
+  '2026-08-19T19:00:00': { fase: 'Lua Crescente', signo: 'Escorpião', icone: '🌒' },
+  '2026-08-28T08:00:00': { fase: 'Lua Cheia', signo: 'Peixes', icone: '🌕' },
+  '2026-09-04T23:00:00': { fase: 'Lua Minguante', signo: 'Gêmeos', icone: '🌘' },
+  '2026-09-11T22:00:00': { fase: 'Lua Nova', signo: 'Virgem', icone: '🌑' },
+  '2026-09-18T06:00:00': { fase: 'Lua Crescente', signo: 'Sagitário', icone: '🌒' },
+  '2026-09-26T19:00:00': { fase: 'Lua Cheia', signo: 'Áries', icone: '🌕' },
+  '2026-10-03T10:00:00': { fase: 'Lua Minguante', signo: 'Câncer', icone: '🌘' },
+  '2026-10-10T09:00:00': { fase: 'Lua Nova', signo: 'Libra', icone: '🌑' },
+  '2026-10-18T16:00:00': { fase: 'Lua Crescente', signo: 'Aquário', icone: '🌒' },
+  '2026-10-26T06:00:00': { fase: 'Lua Cheia', signo: 'Touro', icone: '🌕' },
+  '2026-11-01T21:00:00': { fase: 'Lua Minguante', signo: 'Leão', icone: '🌘' },
+  '2026-11-09T20:00:00': { fase: 'Lua Nova', signo: 'Escorpião', icone: '🌑' },
+  '2026-11-17T03:00:00': { fase: 'Lua Crescente', signo: 'Peixes', icone: '🌒' },
+  '2026-11-24T17:00:00': { fase: 'Lua Cheia', signo: 'Gêmeos', icone: '🌕' },
+  '2026-12-01T08:00:00': { fase: 'Lua Minguante', signo: 'Virgem', icone: '🌘' },
+  '2026-12-08T07:00:00': { fase: 'Lua Nova', signo: 'Sagitário', icone: '🌑' },
+  '2026-12-17T14:00:00': { fase: 'Lua Crescente', signo: 'Peixes', icone: '🌒' },
+  '2026-12-23T04:00:00': { fase: 'Lua Cheia', signo: 'Gêmeos', icone: '🌕' },
+  '2026-12-30T19:00:00': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' }
+};
 
 function getFaseLunarParaData(dataISO) {
-  return lunacoes2026[dataISO];
+  // Encontrar fase lunar para esta data (apenas pelo dia)
+  const dataChave = Object.keys(lunacoes2026ComHora).find(chave => 
+    chave.startsWith(dataISO)
+  );
+  
+  if (dataChave) {
+    return lunacoes2026ComHora[dataChave];
+  }
+  return null;
 }
 
 function agendarNotificacoesLunares(config) {
-  console.log('🌙 Agendando notificações lunares...');
+  console.log('🌙 AGENDANDO NOTIFICAÇÕES DE FASES LUNARES');
   
   const antecedenciaMinutos = parseInt(config.antecedenciaLua) || 0;
   const agora = new Date();
   
-  Object.entries(lunacoes2026).forEach(([dataISO, lua]) => {
-    // Data exata da fase lunar
-    const dataFase = new Date(dataISO + 'T00:00:00');
+  console.log(`⏱️ Antecedência: ${antecedenciaMinutos} minutos`);
+  
+  Object.entries(lunacoes2026ComHora).forEach(([dataHoraISO, lua]) => {
+    // Data/hora real da fase lunar
+    const dataHoraFase = new Date(dataHoraISO);
     
-    // Calcular hora da notificação (8h da manhã por padrão)
-    const dataNotificacao = new Date(dataFase);
-    dataNotificacao.setHours(8, 0, 0, 0);
-    
-    // Aplicar antecedência
+    // Calcular data da notificação (aplicar antecedência)
+    const dataNotificacao = new Date(dataHoraFase);
     dataNotificacao.setMinutes(dataNotificacao.getMinutes() - antecedenciaMinutos);
+    
+    console.log(`\n📊 ${lua.fase}:`);
+    console.log(`   Data/hora da fase: ${formatarDataHora(dataHoraFase)}`);
+    console.log(`   Data notificação: ${formatarDataHora(dataNotificacao)}`);
     
     const diferencaMs = dataNotificacao - agora;
     
-    // Se já passou, não agendar
-    if (diferencaMs <= 0) {
-      return;
+    // Só agendar se for no futuro
+    if (diferencaMs > 0) {
+      console.log(`   ⏰ Agendado para daqui: ${Math.round(diferencaMs/1000)} segundos`);
+      
+      const timeoutId = setTimeout(() => {
+        let titulo, mensagem;
+        
+        if (antecedenciaMinutos === 0) {
+          titulo = `🌙 ALERTA: ${lua.fase} em ${lua.signo}`;
+          mensagem = `Agora é ${lua.fase.toLowerCase()} em ${lua.signo}.\n\nAproveite essa energia cósmica!`;
+        } else {
+          const horasAntecedencia = Math.floor(antecedenciaMinutos / 60);
+          const minutosAntecedencia = antecedenciaMinutos % 60;
+          
+          let antecedenciaTexto = '';
+          if (horasAntecedencia > 0) {
+            antecedenciaTexto += `${horasAntecedencia} ${horasAntecedencia === 1 ? 'hora' : 'horas'}`;
+          }
+          if (minutosAntecedencia > 0) {
+            if (antecedenciaTexto) antecedenciaTexto += ' e ';
+            antecedenciaTexto += `${minutosAntecedencia} ${minutosAntecedencia === 1 ? 'minuto' : 'minutos'}`;
+          }
+          
+          titulo = `🌙 ALERTA: ${lua.fase} em ${antecedenciaTexto}`;
+          mensagem = `Em ${antecedenciaTexto} será ${lua.fase.toLowerCase()} em ${lua.signo}.\n\nPrepare-se para essa mudança energética!`;
+        }
+        
+        enviarNotificacao(titulo, mensagem, `lua-${lua.fase}-${dataHoraFase.getTime()}`);
+      }, diferencaMs);
+      
+      scheduledTimeouts.push(timeoutId);
+    } else {
+      console.log(`   ⏳ Já passou ou está em andamento`);
     }
-    
-    const timeoutId = setTimeout(() => {
-      let titulo, mensagem;
-      
-      if (antecedenciaMinutos === 0) {
-        titulo = `🌙 ALERTA: ${lua.fase} em ${lua.signo}`;
-        mensagem = `Hoje temos ${lua.fase.toLowerCase()} em ${lua.signo}. Aproveite essa energia!`;
-      } else {
-        const horas = Math.floor(antecedenciaMinutos / 60);
-        titulo = `🌙 ALERTA: ${lua.fase} em ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
-        mensagem = `Em ${horas} ${horas === 1 ? 'hora' : 'horas'} será ${lua.fase.toLowerCase()} em ${lua.signo}. Prepare-se!`;
-      }
-      
-      enviarNotificacao(titulo, mensagem, `lua-${lua.fase}-${dataISO}`);
-    }, diferencaMs);
-    
-    window.notificationTimeouts.push(timeoutId);
-    console.log(`🌙 Fase lunar ${lua.fase} agendada para ${dataNotificacao.toLocaleString()}`);
   });
+}
+
+// ===== FUNÇÃO DE ENVIO DE NOTIFICAÇÃO =====
+
+function enviarNotificacao(titulo, mensagem, tag = '') {
+  if (Notification.permission !== 'granted') {
+    console.warn('❌ Permissão de notificação não concedida');
+    return;
+  }
+  
+  console.log(`📤 Enviando notificação: ${titulo}`);
+  
+  const options = {
+    body: mensagem,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png',
+    tag: tag || `notif-${Date.now()}`,
+    timestamp: Date.now(),
+    vibrate: [200, 100, 200],
+    requireInteraction: true
+  };
+  
+  // Tentar via Service Worker primeiro
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready
+      .then(reg => {
+        return reg.showNotification(titulo, options);
+      })
+      .then(() => {
+        console.log('✅ Notificação enviada via Service Worker');
+      })
+      .catch(err => {
+        console.error('❌ Erro no Service Worker:', err);
+        fallbackNotification(titulo, options);
+      });
+  } else {
+    fallbackNotification(titulo, options);
+  }
+}
+
+function fallbackNotification(titulo, options) {
+  try {
+    const notification = new Notification(titulo, options);
+    notification.onclick = function() {
+      window.focus();
+      this.close();
+    };
+    console.log('✅ Notificação enviada (fallback)');
+  } catch (err) {
+    console.error('❌ Erro ao criar notificação:', err);
+  }
 }
 
 // ===== FUNÇÕES PARA NOTIFICAÇÕES DE NOTAS =====
@@ -1493,69 +1787,19 @@ function agendarNotificacoesNotas() {
         save('notasComNotificacao', notasComNotificacao);
       }, diferencaMs);
       
-      window.notificationTimeouts.push(timeoutId);
+      scheduledTimeouts.push(timeoutId);
     });
   });
-}
-
-// ===== FUNÇÕES DE ENVIO DE NOTIFICAÇÕES =====
-
-function enviarNotificacao(titulo, mensagem, tag = '') {
-  if (Notification.permission !== 'granted') {
-    console.warn('❌ Permissão de notificação não concedida');
-    return;
-  }
-  
-  console.log(`📤 Enviando notificação: ${titulo}`);
-  
-  const options = {
-    body: mensagem,
-    icon: 'icon-192.png',
-    badge: 'icon-192.png',
-    tag: tag || `notif-${Date.now()}`,
-    timestamp: Date.now(),
-    vibrate: [200, 100, 200]
-  };
-  
-  // Tentar via Service Worker primeiro
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.ready
-      .then(reg => {
-        return reg.showNotification(titulo, options);
-      })
-      .then(() => {
-        console.log('✅ Notificação enviada via Service Worker');
-      })
-      .catch(err => {
-        console.error('❌ Erro no Service Worker:', err);
-        fallbackNotification(titulo, options);
-      });
-  } else {
-    fallbackNotification(titulo, options);
-  }
-}
-
-function fallbackNotification(titulo, options) {
-  try {
-    const notification = new Notification(titulo, options);
-    notification.onclick = function() {
-      window.focus();
-      this.close();
-    };
-    console.log('✅ Notificação enviada (fallback)');
-  } catch (err) {
-    console.error('❌ Erro ao criar notificação:', err);
-  }
 }
 
 function enviarNotificacaoNota(textoNota, horaNota) {
   const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
   const titulo = `📝 LEMBRETE: ${horaNota}`;
   
-  enviarNotificacao(titulo, preview, `lembrete-${horaNota}`);
+  enviarNotificacao(titulo, preview, `lembrete-${horaNota}-${Date.now()}`);
 }
 
-// ===== BOTÃO SALVAR CONFIGURAÇÕES ATUALIZADO =====
+// ===== BOTÃO SALVAR CONFIGURAÇÕES =====
 btnSalvarConfigNotificacoes.addEventListener('click', async () => {
   try {
     const config = {
@@ -1739,31 +1983,7 @@ window.addEventListener('load', () => {
   }, 2000);
 });
 
-// ===== DADOS DAS PLANILHAS - ATUALIZADOS =====
-
-// Sabás para Hemisfério Norte (datas tradicionais)
-const sabasHemisferioNorte = {
-  'imbolc': { nome: 'Imbolc', data: '2026-02-01', tipo: 'Sabá Maior', estacaoElemento: 'Inverno/Água', significado: 'Purificação e proteção' },
-  'ostara': { nome: 'Ostara', data: '2026-03-20', tipo: 'Sabá Menor', estacaoElemento: 'Primavera/Ar', significado: 'Equinócio de Primavera, Fertilidade' },
-  'beltane': { nome: 'Beltane', data: '2026-05-01', tipo: 'Sabá Maior', estacaoElemento: 'Primavera/Fogo', significado: 'União, paixão e fertilidade máxima' },
-  'litha': { nome: 'Litha', data: '2026-06-21', tipo: 'Sabá Menor', estacaoElemento: 'Verão/Fogo', significado: 'Solstício de Verão, Poder Solar' },
-  'lughnasadh': { nome: 'Lughnasadh', data: '2026-08-01', tipo: 'Sabá Maior', estacaoElemento: 'Verão/Fogo', significado: 'Primeira colheita' },
-  'mabon': { nome: 'Mabon', data: '2026-09-22', tipo: 'Sabá Menor', estacaoElemento: 'Outono/Água', significado: 'Equilíbrio e colheita completa' },
-  'samhain': { nome: 'Samhain', data: '2026-10-31', tipo: 'Sabá Maior', estacaoElemento: 'Outono/Terra', significado: 'Ano Novo Pagão, Festival dos Mortos' },
-  'yule': { nome: 'Yule', data: '2026-12-21', tipo: 'Sabá Menor', estacaoElemento: 'Inverno/Fogo', significado: 'Solstício de Inverno, Renascimento' }
-};
-
-// Sabás para Hemisfério Sul (datas invertidas - 6 meses de diferença)
-const sabasHemisférioSul = {
-  'imbolc': { nome: 'Imbolc', data: '2026-08-01', tipo: 'Sabá Maior', estacaoElemento: 'Inverno/Água', significado: 'Purificação e proteção' },
-  'ostara': { nome: 'Ostara', data: '2026-09-22', tipo: 'Sabá Menor', estacaoElemento: 'Primavera/Ar', significado: 'Equinócio de Primavera, Fertilidade' },
-  'beltane': { nome: 'Beltane', data: '2026-11-01', tipo: 'Sabá Maior', estacaoElemento: 'Primavera/Fogo', significado: 'União, paixão e fertilidade máxima' },
-  'litha': { nome: 'Litha', data: '2026-12-21', tipo: 'Sabá Menor', estacaoElemento: 'Verão/Fogo', significado: 'Solstício de Verão, Poder Solar' },
-  'lughnasadh': { nome: 'Lughnasadh', data: '2026-02-01', tipo: 'Sabá Maior', estacaoElemento: 'Verão/Fogo', significado: 'Primeira colheita' },
-  'mabon': { nome: 'Mabon', data: '2026-03-20', tipo: 'Sabá Menor', estacaoElemento: 'Outono/Água', significado: 'Equilíbrio e colheita completa' },
-  'samhain': { nome: 'Samhain', data: '2026-05-01', tipo: 'Sabá Maior', estacaoElemento: 'Outono/Terra', significado: 'Ano Novo Pagão, Festival dos Mortos' },
-  'yule': { nome: 'Yule', data: '2026-06-21', tipo: 'Sabá Menor', estacaoElemento: 'Inverno/Fogo', significado: 'Solstício de Inverno, Renascimento' }
-};
+// ===== DADOS RESTANTES (mantidos para outras funcionalidades) =====
 
 const energiasLunares = {
   'Lua Nova': {
@@ -1884,7 +2104,7 @@ const cicloMenstrualFaseLunar = {
   },
   'Lua Crescente': {
     'menstruacao': 'Força vital retornando gradualmente. Bom momento para planejamentos suaves.',
-    'pre_ovulacao': 'Energia construtiva em alta. Ideal para colar planos em ação.',
+    'pre_ovulacao': 'Energia construtiva em alta. Ideal para colocar planos em ação.',
     'ovulacao': 'Poder de manifestação no auge. Momento fértil em todos os sentidos.',
     'pre_menstrual': 'Consolidação de aprendizados do ciclo.'
   },
@@ -1902,7 +2122,7 @@ const cicloMenstrualFaseLunar = {
   }
 };
 
-// Datas exatas das fases lunares em 2026
+// Versão simplificada para exibição no planner
 const lunacoes2026 = {
   '2026-01-03': { fase: 'Lua Cheia', signo: 'Câncer', icone: '🌕' },
   '2026-01-10': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' },
@@ -2025,7 +2245,7 @@ function determinarFaseCiclo(dataISO) {
 
 function avaliarDia(dataISO) {
   const perfil = load('perfil') || {};
-  const lua = lunacoes2026[dataISO];
+  const lua = getFaseLunarParaData(dataISO);
   const sabasHoje = getSabasParaData(dataISO);
   
   let oraculoHTML = '';
@@ -2465,7 +2685,7 @@ setTimeout(() => {
     btnTeste.onclick = () => {
       enviarNotificacao(
         '🔔 Teste de Notificação',
-        'Esta é uma notificação de teste do Grimório Ritualístico!',
+        'Esta é uma notificação de teste do Grimório Ritualístico!\n\nData atual: ' + formatarDataHora(new Date()),
         'teste-' + Date.now()
       );
     };
