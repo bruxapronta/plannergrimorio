@@ -1204,41 +1204,73 @@ function solicitarPermissaoNotificacao() {
 }
 
 function agendarNotificacoes() {
-  console.log('Agendando notificações...');
-  
+  console.log('Agendando notificações corretamente...');
+
   const config = load('configNotificacoes');
-  if (!config || config.ativas === 'nao') {
-    console.log('Notificações desativadas.');
-    return;
-  }
-  
-  if (Notification.permission !== 'granted') {
-    console.log('Permissão não concedida.');
-    return;
-  }
-  
-  // Limpar notificações antigas primeiro
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(reg => {
-      reg.getNotifications().then(notifications => {
-        notifications.forEach(notification => notification.close());
-      });
-    });
-  }
-  
-  // Agendar notificação diária
-  agendarNotificacaoDiaria(config);
-  
-  // Agendar notificações de Sabás CORRIGIDO - só nas datas específicas
-  if (config.notificarSabas === 'sim') {
-    agendarNotificacoesSabas(config);
-  }
-  
-  // Agendar notificações de fases lunares
-  agendarNotificacoesLunares();
-  
-  // Agendar notificações de notas
-  agendarNotificacoesNotas();
+  if (!config) return;
+
+  const agora = new Date();
+
+  // =====================
+  // 🔥 SABÁS
+  // =====================
+  Object.entries(sabas2026).forEach(([dataISO, saba]) => {
+    const dataEvento = new Date(`${dataISO}T00:00:00`);
+    const antecedencia = parseInt(config.antecedenciaSabas);
+
+    const dataNotificacao = new Date(dataEvento);
+    dataNotificacao.setDate(dataEvento.getDate() - antecedencia);
+
+    const [hora, minuto] = config.horaSabas.split(':').map(Number);
+    dataNotificacao.setHours(hora, minuto, 0, 0);
+
+    if (dataNotificacao > agora) {
+      setTimeout(() => {
+        enviarNotificacao(
+          `🔥 Sabá se aproxima: ${saba.nome}`,
+          `Faltam ${antecedencia} dias para ${saba.nome}.`
+        );
+      }, dataNotificacao - agora);
+    }
+
+    if (dataEvento > agora) {
+      setTimeout(() => {
+        enviarNotificacao(
+          `🔥 Hoje é ${saba.nome}`,
+          `Celebração do sabá ${saba.nome}.`
+        );
+      }, dataEvento - agora);
+    }
+  });
+
+  // =====================
+  // 🌙 LUAÇÕES
+  // =====================
+  Object.entries(lunacoes2026).forEach(([dataISO, lua]) => {
+    const dataEvento = new Date(`${dataISO}T${lua.hora || '09:00'}:00`);
+
+    // 🔔 24h antes
+    const alerta24h = new Date(dataEvento.getTime() - 24 * 60 * 60 * 1000);
+
+    if (alerta24h > agora) {
+      setTimeout(() => {
+        enviarNotificacao(
+          `🌙 Amanhã: ${lua.fase}`,
+          `Prepare-se para a ${lua.fase} em ${lua.signo}.`
+        );
+      }, alerta24h - agora);
+    }
+
+    // 🔔 No momento exato
+    if (dataEvento > agora) {
+      setTimeout(() => {
+        enviarNotificacao(
+          `🌙 Lua em transição`,
+          `${lua.fase} em ${lua.signo} agora.`
+        );
+      }, dataEvento - agora);
+    }
+  });
 }
 
 function agendarNotificacaoDiaria(config) {
