@@ -15,17 +15,17 @@ self.addEventListener('activate', () => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
+  const urlDestino = self.registration.scope;
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
       for (const client of clientList) {
-        if (client.url.includes('index.html') && 'focus' in client) {
+        if (client.url.startsWith(urlDestino) && 'focus' in client) {
           return client.focus();
         }
       }
 
-      if (clients.openWindow) {
-        return clients.openWindow('/index.html');
-      }
+      return clients.openWindow(urlDestino);
     })
   );
 });
