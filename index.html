@@ -2637,30 +2637,6 @@ addLinha('abundancia', 'ganho');
 addLinha('florescimento');
 addLinha('centelha');
 
-// ===== BOTÃO DE TESTE TEMPORÁRIO =====
-setTimeout(() => {
-  if (document.getElementById('capa') && !document.getElementById('btnTesteNota')) {
-    const btnTeste = document.createElement('button');
-    btnTeste.id = 'btnTesteNota';
-    btnTeste.innerHTML = '🔔 Testar Notificação de Nota';
-    btnTeste.style.margin = '10px';
-    btnTeste.onclick = () => {
-      enviarNotificacaoNota(
-        'Esta é uma nota de teste do planner ritualístico!',
-        '14:30',
-        'teste-' + Date.now()
-      );
-    };
-    
-    const capaDiv = document.getElementById('capa');
-    if (capaDiv) {
-      const primeiroBotao = capaDiv.querySelector('button');
-      if (primeiroBotao) {
-        primeiroBotao.parentNode.insertBefore(btnTeste, primeiroBotao.nextSibling);
-      }
-    }
-  }
-}, 2000);
 </script>
 </body>
 </html>
