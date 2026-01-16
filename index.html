@@ -838,16 +838,28 @@
       <option>Libra</option><option>Escorpião</option><option>Sagitário</option>
       <option>Capricórnio</option><option>Aquário</option><option>Peixes</option>
     </select>
+    
+    <label>Hemisfério/Localização</label>
+    <select id="hemisferio">
+      <option value="">Selecione seu hemisfério</option>
+      <option value="norte">🌎 Hemisfério Norte</option>
+      <option value="sul">🌍 Hemisfério Sul</option>
+      <option value="outro">🌐 Outro/Indiferente</option>
+    </select>
+    
     <label>Ano pessoal (opcional)</label>
     <select id="anoPessoal">
       <option value="">Selecione seu ano pessoal</option>
       <option>1</option><option>2</option><option>3</option><option>4</option>
       <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
     </select>
+    
     <label>Data de nascimento (para numerologia)</label>
     <input id="dataNascimento" type="date">
+    
     <label>Próximo ciclo menstrual (opcional)</label>
     <input id="ciclo" type="date">
+    
     <button id="salvar">✨ Entrar no Grimório</button>
     <p style="font-size:0.875rem;margin-top:15px;opacity:0.8;">
       Seus dados são armazenados apenas no seu dispositivo.
@@ -960,6 +972,16 @@
         <option value="nao">Não receber notificações</option>
       </select>
       
+      <label for="antecedenciaLua">🌙 Antecedência para Fases Lunares:</label>
+      <select id="antecedenciaLua">
+        <option value="0">No momento exato</option>
+        <option value="60">1 hora antes</option>
+        <option value="180">3 horas antes</option>
+        <option value="360">6 horas antes</option>
+        <option value="720">12 horas antes</option>
+        <option value="1440">24 horas antes</option>
+      </select>
+      
       <label for="horaNotificacaoDiaria">⏰ Hora para notificação diária:</label>
       <input type="time" id="horaNotificacaoDiaria" value="08:00">
       
@@ -971,10 +993,11 @@
       
       <label for="antecedenciaSabas">📅 Antecedência para Sabás:</label>
       <select id="antecedenciaSabas">
-        <option value="1">1 dia antes</option>
-        <option value="2">2 dias antes</option>
-        <option value="3">3 dias antes</option>
-        <option value="7">1 semana antes</option>
+        <option value="0">No dia exato</option>
+        <option value="1440">1 dia antes</option>
+        <option value="2880">2 dias antes</option>
+        <option value="4320">3 dias antes</option>
+        <option value="10080">1 semana antes</option>
       </select>
       
       <label for="horaNotificacaoSabas">⏰ Hora para notificação de Sabás:</label>
@@ -1169,8 +1192,9 @@ btnConfigNotificacoes.addEventListener('click', () => {
     ativas: 'sim',
     horaDiaria: '08:00',
     notificarSabas: 'sim',
-    antecedenciaSabas: '1',
-    horaSabas: '09:00'
+    antecedenciaSabas: '1440', // 1 dia em minutos
+    horaSabas: '09:00',
+    antecedenciaLua: '0' // No momento exato
   };
   
   document.getElementById('notificacoesAtivas').value = config.ativas;
@@ -1178,6 +1202,7 @@ btnConfigNotificacoes.addEventListener('click', () => {
   document.getElementById('notificarSabas').value = config.notificarSabas;
   document.getElementById('antecedenciaSabas').value = config.antecedenciaSabas;
   document.getElementById('horaNotificacaoSabas').value = config.horaSabas;
+  document.getElementById('antecedenciaLua').value = config.antecedenciaLua || '0';
   
   modalNotificacoes.style.display = 'flex';
 });
@@ -1203,8 +1228,9 @@ function solicitarPermissaoNotificacao() {
   }
 }
 
+// ===== FUNÇÃO PRINCIPAL DE AGENDAMENTO CORRIGIDA =====
 function agendarNotificacoes() {
-  console.log('Agendando notificações...');
+  console.log('🔔 Agendando notificações...');
   
   const config = load('configNotificacoes');
   if (!config || config.ativas === 'nao') {
@@ -1226,25 +1252,38 @@ function agendarNotificacoes() {
     });
   }
   
-  // Agendar notificação diária
-  agendarNotificacaoDiaria(config);
+  // Cancelar timeouts anteriores
+  if (window.notificationTimeouts) {
+    window.notificationTimeouts.forEach(timeout => clearTimeout(timeout));
+    window.notificationTimeouts = [];
+  } else {
+    window.notificationTimeouts = [];
+  }
   
-  // Agendar notificações de Sabás CORRIGIDO - só nas datas específicas
+  // Agendar notificação diária
+  if (config.horaDiaria) {
+    agendarNotificacaoDiaria(config);
+  }
+  
+  // Agendar notificações de Sabás CORRIGIDO
   if (config.notificarSabas === 'sim') {
     agendarNotificacoesSabas(config);
   }
   
-  // Agendar notificações de fases lunares
-  agendarNotificacoesLunares();
+  // Agendar notificações de fases lunares CORRIGIDO
+  agendarNotificacoesLunares(config);
   
   // Agendar notificações de notas
   agendarNotificacoesNotas();
+  
+  console.log('✅ Todas as notificações foram agendadas');
 }
 
+// ===== FUNÇÕES DE AGENDAMENTO ESPECÍFICAS =====
+
 function agendarNotificacaoDiaria(config) {
-  console.log('Agendando notificação diária...');
+  console.log('📅 Agendando notificação diária...');
   
-  // Usar hora configurada pelo usuário
   const [hora, minuto] = config.horaDiaria.split(':').map(Number);
   const agora = new Date();
   const hojeNotificacao = new Date(
@@ -1262,11 +1301,14 @@ function agendarNotificacaoDiaria(config) {
   
   const diferencaMs = hojeNotificacao - agora;
   
-  setTimeout(() => {
+  const timeoutId = setTimeout(() => {
     enviarNotificacaoDiaria();
     // Reagendar para o próximo dia
     agendarNotificacaoDiaria(config);
   }, diferencaMs);
+  
+  window.notificationTimeouts.push(timeoutId);
+  console.log(`⏰ Notificação diária agendada para daqui ${Math.round(diferencaMs/1000)} segundos`);
 }
 
 function enviarNotificacaoDiaria() {
@@ -1282,337 +1324,142 @@ function enviarNotificacaoDiaria() {
     corpo = '📖 Você tem notas registradas para hoje. Reveja-as para reflexão.';
   }
   
-  const sabaHoje = sabas2026[hoje];
-  if (sabaHoje) {
-    corpo += `\n\n🔥 ALERTA: Hoje é ${sabaHoje.nome}: ${sabaHoje.significado}`;
+  const sabasHoje = getSabasParaData(hoje);
+  if (sabasHoje.length > 0) {
+    corpo += `\n\n🔥 ALERTA: Hoje é ${sabasHoje.map(s => s.nome).join(' e ')}!`;
   }
   
-  const luaHoje = lunacoes2026[hoje];
+  const luaHoje = getFaseLunarParaData(hoje);
   if (luaHoje) {
     corpo += `\n\n🌙 ALERTA: ${luaHoje.fase} em ${luaHoje.signo} hoje.`;
   }
   
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(reg => {
-      reg.showNotification('🌙 Grimório Ritualístico - Diário', {
-        body: corpo,
-        icon: 'icon-192.png',
-        tag: 'diario-' + new Date().toISOString().split('T')[0]
-      });
-    }).catch(err => {
-      console.error('Erro:', err);
-      new Notification('🌙 Grimório Ritualístico - Diário', {
-        body: corpo,
-        icon: 'icon-192.png'
-      });
-    });
-  } else {
-    new Notification('🌙 Grimório Ritualístico - Diário', {
-      body: corpo,
-      icon: 'icon-192.png'
-    });
-  }
+  enviarNotificacao('🌙 Grimório Ritualístico - Diário', corpo, 'diario');
 }
 
-// FUNÇÃO CORRIGIDA - Sabás só nas datas específicas
+// ===== FUNÇÕES CORRIGIDAS PARA SABÁS =====
+
+function getSabasParaData(dataISO) {
+  const perfil = load('perfil') || {};
+  const hemisferio = perfil.hemisferio || 'norte';
+  
+  // Se não tem hemisfério definido, usa padrão (norte)
+  if (!hemisferio || hemisferio === 'outro') {
+    return Object.values(sabasHemisferioNorte).filter(s => s.data === dataISO);
+  }
+  
+  if (hemisferio === 'sul') {
+    return Object.values(sabasHemisférioSul).filter(s => s.data === dataISO);
+  }
+  
+  return Object.values(sabasHemisferioNorte).filter(s => s.data === dataISO);
+}
+
 function agendarNotificacoesSabas(config) {
-  console.log('Agendando notificações de Sabás...');
+  console.log('🔥 Agendando notificações de Sabás...');
   
-  const antecedencia = parseInt(config.antecedenciaSabas);
-  const hoje = new Date();
+  const perfil = load('perfil') || {};
+  const hemisferio = perfil.hemisferio || 'norte';
+  const sabas = hemisferio === 'sul' ? sabasHemisférioSul : sabasHemisferioNorte;
   
-  Object.keys(sabas2026).forEach(dataSabá => {
-    const dataSabáObj = new Date(dataSabá + 'T00:00:00');
-    const sabá = sabas2026[dataSabá];
+  const antecedenciaMinutos = parseInt(config.antecedenciaSabas) || 1440; // padrão 1 dia
+  const [hora, minuto] = (config.horaSabas || '09:00').split(':').map(Number);
+  
+  Object.values(sabas).forEach(saba => {
+    // Calcular data da notificação
+    const dataSabá = new Date(saba.data + 'T00:00:00');
+    const dataNotificacao = new Date(dataSabá);
     
-    // Calcular data da notificação (data do Sabá - antecedência)
-    const dataNotificacao = new Date(dataSabáObj);
-    dataNotificacao.setDate(dataNotificacao.getDate() - antecedencia);
+    // Aplicar antecedência
+    dataNotificacao.setMinutes(dataNotificacao.getMinutes() - antecedenciaMinutos);
     
-    // Se já passou da data de notificação, não agendar
-    if (dataNotificacao < hoje) {
-      return;
-    }
-    
-    // Agendar para a hora configurada
-    const [hora, minuto] = config.horaSabas.split(':').map(Number);
+    // Definir hora específica
     dataNotificacao.setHours(hora, minuto, 0, 0);
-    
-    // Se já passou da hora hoje, verificar se é hoje o Sabá
-    if (dataNotificacao < hoje) {
-      // Verificar se hoje é o dia do Sabá
-      if (dataSabáObj.toISOString().split('T')[0] === hoje.toISOString().split('T')[0]) {
-        // Notificar hoje mesmo
-        dataNotificacao.setTime(hoje.getTime() + 30000); // 30 segundos para teste
-      } else {
-        return; // Já passou a data de notificação
-      }
-    }
-    
-    const diferencaMs = dataNotificacao - hoje;
-    
-    setTimeout(() => {
-      enviarNotificacaoSabá(sabá, antecedencia);
-    }, diferencaMs);
-  });
-}
-
-function enviarNotificacaoSabá(sabá, antecedencia) {
-  if (Notification.permission !== 'granted') return;
-  
-  let mensagem = '';
-  let titulo = '';
-  
-  if (antecedencia === 0) {
-    titulo = `🔥 ALERTA: ${sabá.nome} HOJE!`;
-    mensagem = `Hoje é ${sabá.nome} (${sabá.tipo}). ${sabá.significado}`;
-  } else {
-    titulo = `🔥 ALERTA: ${sabá.nome} em ${antecedencia} dia(s)`;
-    mensagem = `Em ${antecedencia} dia(s) será ${sabá.nome}. ${sabá.significado}`;
-  }
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(reg => {
-      reg.showNotification(titulo, {
-        body: mensagem,
-        icon: 'icon-192.png',
-        tag: `saba-${sabá.nome}-${antecedencia}`
-      });
-    });
-  } else {
-    new Notification(titulo, {
-      body: mensagem,
-      icon: 'icon-192.png'
-    });
-  }
-}
-
-// NOVAS FUNÇÕES PARA NOTIFICAÇÕES LUNARES
-function agendarNotificacoesLunares() {
-  console.log('Agendando notificações lunares...');
-  
-  const hoje = new Date();
-  
-  Object.keys(lunacoes2026).forEach(dataLua => {
-    const dataLuaObj = new Date(dataLua + 'T00:00:00');
-    const lua = lunacoes2026[dataLua];
-    
-    // Notificar no próprio dia da fase lunar
-    if (dataLuaObj.toISOString().split('T')[0] === hoje.toISOString().split('T')[0]) {
-      // Agendar para 8:00 da manhã
-      const dataNotificacao = new Date(dataLuaObj);
-      dataNotificacao.setHours(8, 0, 0, 0);
-      
-      // Se já passou das 8h, notificar em 30 segundos (para teste)
-      if (dataNotificacao < hoje) {
-        dataNotificacao.setTime(hoje.getTime() + 30000);
-      }
-      
-      const diferencaMs = dataNotificacao - hoje;
-      
-      setTimeout(() => {
-        enviarNotificacaoLunar(lua);
-      }, diferencaMs);
-    }
-  });
-}
-
-function enviarNotificacaoLunar(lua) {
-  if (Notification.permission !== 'granted') return;
-  
-  const titulo = `🌙 ALERTA: ${lua.fase} em ${lua.signo}`;
-  const mensagem = `Hoje temos ${lua.fase.toLowerCase()} em ${lua.signo}. `;
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(reg => {
-      reg.showNotification(titulo, {
-        body: mensagem + 'Aproveite essa energia!',
-        icon: 'icon-192.png',
-        tag: `lua-${lua.fase}-${new Date().toISOString().split('T')[0]}`
-      });
-    });
-  } else {
-    new Notification(titulo, {
-      body: mensagem + 'Aproveite essa energia!',
-      icon: 'icon-192.png'
-    });
-  }
-}
-
-// FUNÇÃO NOVA - ADICIONADA
-function enviarNotificacaoNota(textoNota, horaNota, notificacaoId = '', dataISO = '') {
-  console.log('📝 Tentando enviar notificação de lembrete...');
-  
-  if (Notification.permission !== 'granted') {
-    console.warn('❌ Permissão de notificação não concedida');
-    return;
-  }
-  
-  const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
-  const titulo = `📝 LEMBRETE: ${horaNota}`;
-  
-  console.log(`📋 Detalhes: "${preview}" para ${horaNota}`);
-  
-  // Tentar via Service Worker primeiro
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    console.log('🚀 Usando Service Worker para notificação...');
-    
-    navigator.serviceWorker.ready
-      .then(reg => {
-        console.log('✅ Service Worker pronto');
-        
-        const options = {
-          body: preview,
-          icon: 'icon-192.png',
-          badge: 'icon-192.png',
-          tag: notificacaoId || `lembrete-${Date.now()}`,
-          timestamp: Date.now(),
-          vibrate: [200, 100, 200],
-          requireInteraction: true, // Mantém notificação visível
-          data: {
-            url: window.location.href,
-            type: 'lembrete',
-            dataISO: dataISO || new Date().toISOString().split('T')[0],
-            hora: horaNota
-          }
-        };
-        
-        return reg.showNotification(titulo, options);
-      })
-      .then(() => {
-        console.log('✅ Notificação de lembrete enviada via Service Worker!');
-      })
-      .catch(err => {
-        console.error('❌ Erro no Service Worker:', err);
-        // Fallback para API tradicional
-        fallbackNotification();
-      });
-  } else {
-    console.log('⚠️ Service Worker não disponível, usando fallback');
-    fallbackNotification();
-  }
-  
-  // Função de fallback
-  function fallbackNotification() {
-    try {
-      const notification = new Notification(titulo, {
-        body: preview,
-        icon: 'icon-192.png',
-        tag: notificacaoId || `lembrete-${Date.now()}`
-      });
-      
-      notification.onclick = function() {
-        window.focus();
-        this.close();
-      };
-      
-      console.log('✅ Notificação enviada (fallback)');
-    } catch (err) {
-      console.error('❌ Erro ao criar notificação:', err);
-      // Último recurso: alert
-      alert(`⏰ Lembrete: ${horaNota}\n${preview}`);
-    }
-  }
-}
-
-// FUNÇÃO ATUALIZADA PARA AGENDAR NOTIFICAÇÕES DE NOTAS
-function agendarNotificacaoNota(dataISO, horaNota, antecedenciaMinutos, textoNota) {
-  console.log('⏰ AGENDANDO NOTIFICAÇÃO DE NOTA');
-  console.log('📅 Data:', dataISO);
-  console.log('🕐 Hora:', horaNota);
-  console.log('⏱️ Antecedência:', antecedenciaMinutos, 'minutos');
-  console.log('📝 Texto:', textoNota.substring(0, 30) + '...');
-  
-  try {
-    // Validar dados
-    if (!horaNota || !textoNota) {
-      console.error('❌ Dados incompletos para agendar notificação');
-      return;
-    }
-    
-    // Parse da hora
-    const [horas, minutos] = horaNota.split(':').map(Number);
-    if (isNaN(horas) || isNaN(minutos)) {
-      console.error('❌ Formato de hora inválido:', horaNota);
-      return;
-    }
-    
-    // Calcular data/hora da notificação
-    const dataNota = new Date(dataISO + 'T00:00:00');
-    dataNota.setHours(horas, minutos, 0, 0);
-    
-    // Aplicar antecedência (em milissegundos)
-    const antecedenciaMs = antecedenciaMinutos * 60 * 1000;
-    const dataNotificacao = new Date(dataNota.getTime() - antecedenciaMs);
     
     const agora = new Date();
     const diferencaMs = dataNotificacao - agora;
     
-    console.log('📊 Cálculos:');
-    console.log('   Data da nota:', dataNota.toLocaleString());
-    console.log('   Data notificação:', dataNotificacao.toLocaleString());
-    console.log('   Agora:', agora.toLocaleString());
-    console.log('   Diferença (ms):', diferencaMs);
-    
-    // Salvar no localStorage para persistência
-    const notificacoesAgendadas = load('notificacoesAgendadas') || [];
-    const notificacaoId = `nota-${dataISO}-${horaNota}-${Date.now()}`;
-    
-    notificacoesAgendadas.push({
-      id: notificacaoId,
-      dataISO: dataISO,
-      horaNota: horaNota,
-      dataNotificacao: dataNotificacao.toISOString(),
-      texto: textoNota,
-      antecedencia: antecedenciaMinutos,
-      criadoEm: new Date().toISOString(),
-      status: 'agendado'
-    });
-    
-    save('notificacoesAgendadas', notificacoesAgendadas);
-    console.log('💾 Notificação salva no localStorage');
-    
-    // Agendar timeout apenas se for no futuro
-    if (diferencaMs > 0) {
-      console.log('⏰ Agendando timeout para', diferencaMs, 'ms');
-      
-      setTimeout(() => {
-        console.log('🔔 HORA DA NOTIFICAÇÃO!');
-        enviarNotificacaoNota(textoNota, horaNota, notificacaoId, dataISO);
-        
-        // Marcar como enviada
-        const notifs = load('notificacoesAgendadas') || [];
-        const index = notifs.findIndex(n => n.id === notificacaoId);
-        if (index !== -1) {
-          notifs[index].status = 'enviado';
-          notifs[index].enviadoEm = new Date().toISOString();
-          save('notificacoesAgendadas', notifs);
-        }
-      }, diferencaMs);
-      
-      // Para teste: também agendar uma notificação em 10 segundos
-      if (diferencaMs > 10000) { // Se a notificação real for mais de 10 segundos no futuro
-        console.log('🧪 Agendando notificação de teste em 10 segundos');
-        setTimeout(() => {
-          enviarNotificacaoNota("[TESTE] " + textoNota, horaNota, notificacaoId + "-teste", dataISO);
-        }, 10000);
-      }
-      
-    } else {
-      console.warn('⚠️ Data/hora já passou. Enviando imediatamente...');
-      enviarNotificacaoNota(textoNota, horaNota, notificacaoId, dataISO);
+    // Se a data já passou, não agendar
+    if (diferencaMs <= 0) {
+      console.log(`⚠️ Sabá ${saba.nome} já passou ou está em andamento`);
+      return;
     }
     
-  } catch (error) {
-    console.error('❌ ERRO ao agendar notificação:', error);
-    console.error('Stack:', error.stack);
-  }
+    const timeoutId = setTimeout(() => {
+      let titulo, mensagem;
+      
+      if (antecedenciaMinutos === 0) {
+        titulo = `🔥 ALERTA: ${saba.nome} HOJE!`;
+        mensagem = `Hoje é ${saba.nome} (${saba.tipo}). ${saba.significado}`;
+      } else {
+        const dias = Math.floor(antecedenciaMinutos / 1440);
+        titulo = `🔥 ALERTA: ${saba.nome} em ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+        mensagem = `Em ${dias} ${dias === 1 ? 'dia' : 'dias'} será ${saba.nome}. ${saba.significado}`;
+      }
+      
+      enviarNotificacao(titulo, mensagem, `saba-${saba.nome}`);
+    }, diferencaMs);
+    
+    window.notificationTimeouts.push(timeoutId);
+    console.log(`🔥 Sabá ${saba.nome} agendado para ${dataNotificacao.toLocaleString()}`);
+  });
 }
 
-// FUNÇÃO PARA AGENDAR NOTIFICAÇÕES DE NOTAS EXISTENTES
+// ===== FUNÇÕES CORRIGIDAS PARA FASES LUNARES =====
+
+function getFaseLunarParaData(dataISO) {
+  return lunacoes2026[dataISO];
+}
+
+function agendarNotificacoesLunares(config) {
+  console.log('🌙 Agendando notificações lunares...');
+  
+  const antecedenciaMinutos = parseInt(config.antecedenciaLua) || 0;
+  const agora = new Date();
+  
+  Object.entries(lunacoes2026).forEach(([dataISO, lua]) => {
+    // Data exata da fase lunar
+    const dataFase = new Date(dataISO + 'T00:00:00');
+    
+    // Calcular hora da notificação (8h da manhã por padrão)
+    const dataNotificacao = new Date(dataFase);
+    dataNotificacao.setHours(8, 0, 0, 0);
+    
+    // Aplicar antecedência
+    dataNotificacao.setMinutes(dataNotificacao.getMinutes() - antecedenciaMinutos);
+    
+    const diferencaMs = dataNotificacao - agora;
+    
+    // Se já passou, não agendar
+    if (diferencaMs <= 0) {
+      return;
+    }
+    
+    const timeoutId = setTimeout(() => {
+      let titulo, mensagem;
+      
+      if (antecedenciaMinutos === 0) {
+        titulo = `🌙 ALERTA: ${lua.fase} em ${lua.signo}`;
+        mensagem = `Hoje temos ${lua.fase.toLowerCase()} em ${lua.signo}. Aproveite essa energia!`;
+      } else {
+        const horas = Math.floor(antecedenciaMinutos / 60);
+        titulo = `🌙 ALERTA: ${lua.fase} em ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
+        mensagem = `Em ${horas} ${horas === 1 ? 'hora' : 'horas'} será ${lua.fase.toLowerCase()} em ${lua.signo}. Prepare-se!`;
+      }
+      
+      enviarNotificacao(titulo, mensagem, `lua-${lua.fase}-${dataISO}`);
+    }, diferencaMs);
+    
+    window.notificationTimeouts.push(timeoutId);
+    console.log(`🌙 Fase lunar ${lua.fase} agendada para ${dataNotificacao.toLocaleString()}`);
+  });
+}
+
+// ===== FUNÇÕES PARA NOTIFICAÇÕES DE NOTAS =====
+
 function agendarNotificacoesNotas() {
   const notasComNotificacao = load('notasComNotificacao') || {};
-  const hoje = new Date();
+  const agora = new Date();
   
   Object.keys(notasComNotificacao).forEach(dataISO => {
     const notificacoes = notasComNotificacao[dataISO];
@@ -1628,14 +1475,14 @@ function agendarNotificacoesNotas() {
       const dataNotificacao = new Date(dataNota.getTime() - (antecedencia * 60000));
       
       // Se já passou, não agendar
-      if (dataNotificacao < hoje) {
+      if (dataNotificacao < agora) {
         notasComNotificacao[dataISO].splice(index, 1);
         return;
       }
       
-      const diferencaMs = dataNotificacao - hoje;
+      const diferencaMs = dataNotificacao - agora;
       
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         enviarNotificacaoNota(texto, horaNota);
         
         // Remover da lista após enviar
@@ -1645,45 +1492,67 @@ function agendarNotificacoesNotas() {
         }
         save('notasComNotificacao', notasComNotificacao);
       }, diferencaMs);
+      
+      window.notificationTimeouts.push(timeoutId);
     });
   });
 }
 
-// FUNÇÃO PARA VERIFICAR NOTIFICAÇÕES PENDENTES
-function verificarNotificacoesPendentes() {
-  console.log('🔍 Verificando notificações pendentes...');
-  
-  const notificacoes = load('notificacoesAgendadas') || [];
-  const agora = new Date();
-  
-  notificacoes.forEach((notif, index) => {
-    if (notif.status === 'agendado') {
-      const dataNotif = new Date(notif.dataNotificacao);
-      
-      if (dataNotif <= agora) {
-        console.log('⏰ Notificação vencida, enviando agora:', notif.id);
-        enviarNotificacaoNota(notif.texto, notif.horaNota, notif.id, notif.dataISO);
-        
-        // Atualizar status
-        notificacoes[index].status = 'enviado';
-        notificacoes[index].enviadoEm = new Date().toISOString();
-      }
-    }
-  });
-  
-  save('notificacoesAgendadas', notificacoes);
-  
-  // Manter apenas notificações dos últimos 7 dias
-  const umaSemanaAtras = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const notificacoesFiltradas = notificacoes.filter(notif => {
-    const dataCriacao = new Date(notif.criadoEm);
-    return dataCriacao >= umaSemanaAtras;
-  });
-  
-  if (notificacoesFiltradas.length < notificacoes.length) {
-    save('notificacoesAgendadas', notificacoesFiltradas);
-    console.log('🧹 Notificações antigas limpas');
+// ===== FUNÇÕES DE ENVIO DE NOTIFICAÇÕES =====
+
+function enviarNotificacao(titulo, mensagem, tag = '') {
+  if (Notification.permission !== 'granted') {
+    console.warn('❌ Permissão de notificação não concedida');
+    return;
   }
+  
+  console.log(`📤 Enviando notificação: ${titulo}`);
+  
+  const options = {
+    body: mensagem,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png',
+    tag: tag || `notif-${Date.now()}`,
+    timestamp: Date.now(),
+    vibrate: [200, 100, 200]
+  };
+  
+  // Tentar via Service Worker primeiro
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready
+      .then(reg => {
+        return reg.showNotification(titulo, options);
+      })
+      .then(() => {
+        console.log('✅ Notificação enviada via Service Worker');
+      })
+      .catch(err => {
+        console.error('❌ Erro no Service Worker:', err);
+        fallbackNotification(titulo, options);
+      });
+  } else {
+    fallbackNotification(titulo, options);
+  }
+}
+
+function fallbackNotification(titulo, options) {
+  try {
+    const notification = new Notification(titulo, options);
+    notification.onclick = function() {
+      window.focus();
+      this.close();
+    };
+    console.log('✅ Notificação enviada (fallback)');
+  } catch (err) {
+    console.error('❌ Erro ao criar notificação:', err);
+  }
+}
+
+function enviarNotificacaoNota(textoNota, horaNota) {
+  const preview = textoNota.length > 50 ? textoNota.substring(0, 50) + '...' : textoNota;
+  const titulo = `📝 LEMBRETE: ${horaNota}`;
+  
+  enviarNotificacao(titulo, preview, `lembrete-${horaNota}`);
 }
 
 // ===== BOTÃO SALVAR CONFIGURAÇÕES ATUALIZADO =====
@@ -1694,10 +1563,11 @@ btnSalvarConfigNotificacoes.addEventListener('click', async () => {
       horaDiaria: document.getElementById('horaNotificacaoDiaria').value,
       notificarSabas: document.getElementById('notificarSabas').value,
       antecedenciaSabas: document.getElementById('antecedenciaSabas').value,
-      horaSabas: document.getElementById('horaNotificacaoSabas').value
+      horaSabas: document.getElementById('horaNotificacaoSabas').value,
+      antecedenciaLua: document.getElementById('antecedenciaLua').value
     };
     
-    console.log('Salvando configurações:', config);
+    console.log('💾 Salvando configurações:', config);
     save('configNotificacoes', config);
     
     // Solicitar permissão se ainda não tiver
@@ -1706,18 +1576,6 @@ btnSalvarConfigNotificacoes.addEventListener('click', async () => {
       if (permission !== 'granted') {
         alert('❌ Notificações não permitidas. Ative as permissões no navegador.');
         return;
-      }
-    }
-    
-    // Parar todas as notificações atuais
-    if ('serviceWorker' in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        const notifications = await registration.getNotifications();
-        notifications.forEach(notification => notification.close());
-        console.log('Notificações anteriores fechadas:', notifications.length);
-      } catch (swError) {
-        console.warn('Erro ao acessar Service Worker:', swError);
       }
     }
     
@@ -1770,10 +1628,11 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ===== FORMULÁRIO =====
+// ===== FORMULÁRIO ATUALIZADO COM HEMISFÉRIO =====
 document.getElementById('salvar').onclick = () => {
   const nome = document.getElementById('nome').value.trim();
   const signo = document.getElementById('signo').value;
+  const hemisferio = document.getElementById('hemisferio').value;
   const ano = document.getElementById('anoPessoal').value;
   const dataNascimento = document.getElementById('dataNascimento').value;
   const ciclo = document.getElementById('ciclo').value;
@@ -1788,9 +1647,15 @@ document.getElementById('salvar').onclick = () => {
     return;
   }
 
+  if (!hemisferio) {
+    alert('Por favor, selecione seu hemisfério!');
+    return;
+  }
+
   const perfil = {
     nome: nome,
     signo: signo,
+    hemisferio: hemisferio,
     ano: ano || '',
     dataNascimento: dataNascimento || '',
     ciclo: ciclo || ''
@@ -1809,16 +1674,21 @@ document.getElementById('salvar').onclick = () => {
       ativas: 'sim',
       horaDiaria: '08:00',
       notificarSabas: 'sim',
-      antecedenciaSabas: '1',
-      horaSabas: '09:00'
+      antecedenciaSabas: '1440',
+      horaSabas: '09:00',
+      antecedenciaLua: '0'
     });
   }
+  
+  // Agendar notificações com os novos dados
+  setTimeout(() => agendarNotificacoes(), 2000);
 };
 
 btnAlterarNome.addEventListener('click', () => {
   const perfilAtual = load('perfil') || {};
   document.getElementById('nome').value = perfilAtual.nome || '';
   document.getElementById('signo').value = perfilAtual.signo || '';
+  document.getElementById('hemisferio').value = perfilAtual.hemisferio || '';
   document.getElementById('anoPessoal').value = perfilAtual.ano || '';
   document.getElementById('dataNascimento').value = perfilAtual.dataNascimento || '';
   document.getElementById('ciclo').value = perfilAtual.ciclo || '';
@@ -1834,6 +1704,16 @@ window.addEventListener('load', () => {
     formOverlay.style.display = 'none';
     capa.style.display = 'block';
     nomeCapa.textContent = `Salve, ${perfilSalvo.nome} ✨`;
+    
+    // Verificar se tem hemisfério definido
+    if (!perfilSalvo.hemisferio) {
+      // Se não tem, pedir para atualizar
+      setTimeout(() => {
+        if (confirm('⚠️ Para notificações corretas de Sabás, precisamos saber seu hemisfério. Deseja atualizar seus dados?')) {
+          btnAlterarNome.click();
+        }
+      }, 3000);
+    }
   } else {
     const hasVisited = localStorage.getItem('hasVisited');
     if (!hasVisited && deferredPrompt) {
@@ -1846,10 +1726,10 @@ window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
-        console.log('Service Worker registrado:', registration.scope);
+        console.log('✅ Service Worker registrado:', registration.scope);
       })
       .catch(err => {
-        console.error('Erro no Service Worker:', err);
+        console.error('❌ Erro no Service Worker:', err);
       });
   }
   
@@ -1857,74 +1737,32 @@ window.addEventListener('load', () => {
   setTimeout(() => {
     agendarNotificacoes();
   }, 2000);
-  
-  // Verificar notificações pendentes ao carregar
-  setTimeout(() => {
-    verificarNotificacoesPendentes();
-    
-    // Verificar a cada minuto
-    setInterval(verificarNotificacoesPendentes, 60000);
-  }, 3000);
 });
 
-// ===== DADOS DAS PLANILHAS =====
-const sabas2026 = {
-  '2026-02-01': {
-    nome: 'Lughnasadh',
-    tipo: 'Sabá Maior',
-    estacaoElemento: 'Verão/Fogo',
-    significado: 'Primeira colheita',
-    rituais: 'Assar pães caseiros e bolos de grãos, expressar gratidão pela fartura, agradecer pelos frutos já colhidos, ritual de colheita e prosperidade'
-  },
-  '2026-03-20': {
-    nome: 'Mabon',
-    tipo: 'Sabá Menor',
-    estacaoElemento: 'Outono/Água',
-    significado: 'Equilíbrio e colheita completa',
-    rituais: 'Oferendas de maçãs e frutas da estação, compartilhamento de banquetes, agradecimento pela colheita, preparação para o recolhimento do inverno, rituais de equilíbrio e gratidão'
-  },
-  '2026-05-01': {
-    nome: 'Samhain',
-    tipo: 'Sabá Maior',
-    estacaoElemento: 'Outono/Terra',
-    significado: 'Ano Novo Pagão, Festival dos Mortos',
-    rituais: 'Honrar ancestrais e entes queridos falecidos, limpeza de altares e espaços sagrados, queima de pedidos ou banimentos, conexão com o mundo espiritual, divinação e introspecção'
-  },
-  '2026-06-21': {
-    nome: 'Yule',
-    tipo: 'Sabá Menor',
-    estacaoElemento: 'Inverno/Fogo',
-    significado: 'Solstício de Inverno, Renascimento',
-    rituais: 'Acendimento da "tora de Yule" ou velas, decoração de árvores com símbolos de vida eterna, rituais para atrair a luz de volta, celebração do renascimento do sol, troca de presentes simbólicos'
-  },
-  '2026-08-01': {
-    nome: 'Imbolc',
-    tipo: 'Sabá Maior',
-    estacaoElemento: 'Inverno/Água',
-    significado: 'Purificação e proteção',
-    rituais: 'Acender muitas velas (fogo da inspiração), dedicação à deusa Brígida, limpezas energéticas na casa, rituais de purificação e proteção, preparação para o retorno da luz'
-  },
-  '2026-09-22': {
-    nome: 'Ostara',
-    tipo: 'Sabá Menor',
-    estacaoElemento: 'Primavera/Ar',
-    significado: 'Equinócio de Primavera, Fertilidade',
-    rituais: 'Plantio de sementes físicas ou projetos, decoração de ovos (símbolo de potencial), rituais de fertilidade e renovação, celebração do despertar da vida, equilíbrio entre luz e escuridão'
-  },
-  '2026-10-31': {
-    nome: 'Beltane',
-    tipo: 'Sabá Maior',
-    estacaoElemento: 'Primavera/Fogo',
-    significado: 'União, paixão e fertilidade máxima',
-    rituais: 'Dançar ao redor do "mastro de maio" (Maypole), acender fogueiras de proteção, celebrar o amor e a beleza da natureza, rituais de união e fertilidade, coroas de flores e decorações naturais'
-  },
-  '2026-12-21': {
-    nome: 'Litha',
-    tipo: 'Sabá Menor',
-    estacaoElemento: 'Verão/Fogo',
-    significado: 'Solstício de Verão, Poder Solar',
-    rituais: 'Rituais ao ar livre para absorver energia solar, colheita de ervas mágicas no auge do poder, celebração da vitalidade com música e dança, fogueiras e celebrações comunitárias, honrar o ápice da luz'
-  }
+// ===== DADOS DAS PLANILHAS - ATUALIZADOS =====
+
+// Sabás para Hemisfério Norte (datas tradicionais)
+const sabasHemisferioNorte = {
+  'imbolc': { nome: 'Imbolc', data: '2026-02-01', tipo: 'Sabá Maior', estacaoElemento: 'Inverno/Água', significado: 'Purificação e proteção' },
+  'ostara': { nome: 'Ostara', data: '2026-03-20', tipo: 'Sabá Menor', estacaoElemento: 'Primavera/Ar', significado: 'Equinócio de Primavera, Fertilidade' },
+  'beltane': { nome: 'Beltane', data: '2026-05-01', tipo: 'Sabá Maior', estacaoElemento: 'Primavera/Fogo', significado: 'União, paixão e fertilidade máxima' },
+  'litha': { nome: 'Litha', data: '2026-06-21', tipo: 'Sabá Menor', estacaoElemento: 'Verão/Fogo', significado: 'Solstício de Verão, Poder Solar' },
+  'lughnasadh': { nome: 'Lughnasadh', data: '2026-08-01', tipo: 'Sabá Maior', estacaoElemento: 'Verão/Fogo', significado: 'Primeira colheita' },
+  'mabon': { nome: 'Mabon', data: '2026-09-22', tipo: 'Sabá Menor', estacaoElemento: 'Outono/Água', significado: 'Equilíbrio e colheita completa' },
+  'samhain': { nome: 'Samhain', data: '2026-10-31', tipo: 'Sabá Maior', estacaoElemento: 'Outono/Terra', significado: 'Ano Novo Pagão, Festival dos Mortos' },
+  'yule': { nome: 'Yule', data: '2026-12-21', tipo: 'Sabá Menor', estacaoElemento: 'Inverno/Fogo', significado: 'Solstício de Inverno, Renascimento' }
+};
+
+// Sabás para Hemisfério Sul (datas invertidas - 6 meses de diferença)
+const sabasHemisférioSul = {
+  'imbolc': { nome: 'Imbolc', data: '2026-08-01', tipo: 'Sabá Maior', estacaoElemento: 'Inverno/Água', significado: 'Purificação e proteção' },
+  'ostara': { nome: 'Ostara', data: '2026-09-22', tipo: 'Sabá Menor', estacaoElemento: 'Primavera/Ar', significado: 'Equinócio de Primavera, Fertilidade' },
+  'beltane': { nome: 'Beltane', data: '2026-11-01', tipo: 'Sabá Maior', estacaoElemento: 'Primavera/Fogo', significado: 'União, paixão e fertilidade máxima' },
+  'litha': { nome: 'Litha', data: '2026-12-21', tipo: 'Sabá Menor', estacaoElemento: 'Verão/Fogo', significado: 'Solstício de Verão, Poder Solar' },
+  'lughnasadh': { nome: 'Lughnasadh', data: '2026-02-01', tipo: 'Sabá Maior', estacaoElemento: 'Verão/Fogo', significado: 'Primeira colheita' },
+  'mabon': { nome: 'Mabon', data: '2026-03-20', tipo: 'Sabá Menor', estacaoElemento: 'Outono/Água', significado: 'Equilíbrio e colheita completa' },
+  'samhain': { nome: 'Samhain', data: '2026-05-01', tipo: 'Sabá Maior', estacaoElemento: 'Outono/Terra', significado: 'Ano Novo Pagão, Festival dos Mortos' },
+  'yule': { nome: 'Yule', data: '2026-06-21', tipo: 'Sabá Menor', estacaoElemento: 'Inverno/Fogo', significado: 'Solstício de Inverno, Renascimento' }
 };
 
 const energiasLunares = {
@@ -2046,7 +1884,7 @@ const cicloMenstrualFaseLunar = {
   },
   'Lua Crescente': {
     'menstruacao': 'Força vital retornando gradualmente. Bom momento para planejamentos suaves.',
-    'pre_ovulacao': 'Energia construtiva em alta. Ideal para colocar planos em ação.',
+    'pre_ovulacao': 'Energia construtiva em alta. Ideal para colar planos em ação.',
     'ovulacao': 'Poder de manifestação no auge. Momento fértil em todos os sentidos.',
     'pre_menstrual': 'Consolidação de aprendizados do ciclo.'
   },
@@ -2064,6 +1902,7 @@ const cicloMenstrualFaseLunar = {
   }
 };
 
+// Datas exatas das fases lunares em 2026
 const lunacoes2026 = {
   '2026-01-03': { fase: 'Lua Cheia', signo: 'Câncer', icone: '🌕' },
   '2026-01-10': { fase: 'Lua Minguante', signo: 'Libra', icone: '🌘' },
@@ -2187,13 +2026,15 @@ function determinarFaseCiclo(dataISO) {
 function avaliarDia(dataISO) {
   const perfil = load('perfil') || {};
   const lua = lunacoes2026[dataISO];
-  const saba = sabas2026[dataISO];
+  const sabasHoje = getSabasParaData(dataISO);
   
   let oraculoHTML = '';
   
-  if (saba) {
-    oraculoHTML += `<strong>🔥 Hoje é dia do Sabá ${saba.nome} (${saba.tipo}).</strong><br>`;
-    oraculoHTML += `Dia de celebrar ${saba.estacaoElemento.toLowerCase()}.<br><br>`;
+  if (sabasHoje.length > 0) {
+    sabasHoje.forEach(saba => {
+      oraculoHTML += `<strong>🔥 Hoje é dia do Sabá ${saba.nome} (${saba.tipo}).</strong><br>`;
+      oraculoHTML += `Dia de celebrar ${saba.estacaoElemento.toLowerCase()}.<br><br>`;
+    });
   }
   
   if (lua) {
@@ -2228,8 +2069,8 @@ function avaliarDia(dataISO) {
   }
   
   oraculoHTML += `<strong>✨ Ritual sugerido:</strong><br>`;
-  if (saba) {
-    oraculoHTML += `Dia de ${saba.rituais.split(',')[0]} e `;
+  if (sabasHoje.length > 0) {
+    oraculoHTML += `Dia de ${sabasHoje[0].nome.toLowerCase()} e `;
   }
   
   if (lua) {
@@ -2274,7 +2115,11 @@ function criarPlanner() {
 
     let icones = '';
     if (lunacoes2026[dataISO]) icones += lunacoes2026[dataISO].icone;
-    if (sabas2026[dataISO]) icones += '🔥';
+    
+    // Verificar Sabás corretos para o hemisfério
+    const sabasHoje = getSabasParaData(dataISO);
+    if (sabasHoje.length > 0) icones += '🔥';
+    
     if (luaForaDeCurso[dataISO]) icones += '⏳';
 
     el.innerHTML = `<strong>${d}</strong>` + (icones ? `<div class="iconesTopo">${icones}</div>` : '');
@@ -2410,7 +2255,7 @@ function apagarSentimento() {
   }
 }
 
-// ===== FUNÇÃO SALVAR NOTA ATUALIZADA =====
+// ===== FUNÇÃO SALVAR NOTA =====
 function salvarNota() {
   try {
     const notaTexto = document.getElementById('notaTexto').value.trim();
@@ -2473,28 +2318,30 @@ function salvarNota() {
     fecharModal();
     criarPlanner();
     
-    // Mostrar confirmação
-    setTimeout(() => {
-      if (Notification.permission === 'granted' && notificarNota === 'sim' && notaHora) {
-        // Enviar notificação de teste imediata para confirmar
-        setTimeout(() => {
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then(reg => {
-              reg.showNotification('📝 Nota Salva com Sucesso!', {
-                body: `Lembrete agendado para ${notaHora}`,
-                icon: 'icon-192.png',
-                tag: 'teste-nota-salva'
-              });
-            });
-          }
-        }, 1000);
-      }
-    }, 500);
-    
   } catch (error) {
     console.error('Erro ao salvar nota:', error);
     alert('❌ Erro ao salvar: ' + error.message);
   }
+}
+
+function agendarNotificacaoNota(dataISO, horaNota, antecedenciaMinutos, textoNota) {
+  const notasComNotificacao = load('notasComNotificacao') || {};
+  
+  if (!Array.isArray(notasComNotificacao[dataISO])) {
+    notasComNotificacao[dataISO] = [];
+  }
+  
+  notasComNotificacao[dataISO].push({
+    horaNota: horaNota,
+    antecedencia: antecedenciaMinutos,
+    texto: textoNota,
+    tipo: 'lembrete'
+  });
+  
+  save('notasComNotificacao', notasComNotificacao);
+  
+  // Reagendar notificações
+  agendarNotificacoesNotas();
 }
 
 function fecharModal() {
@@ -2608,17 +2455,17 @@ addLinha('abundancia', 'ganho');
 addLinha('florescimento');
 addLinha('centelha');
 
-// ===== BOTÃO DE TESTE TEMPORÁRIO =====
+// ===== BOTÃO DE TESTE =====
 setTimeout(() => {
-  if (document.getElementById('capa') && !document.getElementById('btnTesteNota')) {
+  if (document.getElementById('capa') && !document.getElementById('btnTesteNotificacao')) {
     const btnTeste = document.createElement('button');
-    btnTeste.id = 'btnTesteNota';
-    btnTeste.innerHTML = '🔔 Testar Notificação de Nota';
+    btnTeste.id = 'btnTesteNotificacao';
+    btnTeste.innerHTML = '🔔 Testar Notificação';
     btnTeste.style.margin = '10px';
     btnTeste.onclick = () => {
-      enviarNotificacaoNota(
-        'Esta é uma nota de teste do planner ritualístico!',
-        '14:30',
+      enviarNotificacao(
+        '🔔 Teste de Notificação',
+        'Esta é uma notificação de teste do Grimório Ritualístico!',
         'teste-' + Date.now()
       );
     };
