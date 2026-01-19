@@ -1315,98 +1315,6 @@ const sentimentosSalvos = document.getElementById('sentimentosSalvos');
 let mesAtual = new Date().getMonth();
 let anoAtual = 2026;
 let diaAtual = null;
-    // ===== SISTEMA DE AFIRMAÇÕES PERSONALIZADAS =====
-const afirmacoesBaseadasEnergia = {
-  'Lua Nova': {
-    'Áries': 'Hoje me lanço com coragem em novos começos que honram minha verdade.',
-    'Touro': 'Planto sementes de estabilidade que florescerão em segurança e beleza.',
-    'Gêmeos': 'Minha mente está aberta para novas ideias e conexões significativas.',
-    'Câncer': 'Crio um espaço sagrado para renovação emocional e familiar.',
-    'Leão': 'Expresso minha autenticidade criativa com orgulho e luz própria.',
-    'Virgem': 'Organizo minha vida com intenção para construir bases sólidas.',
-    'Libra': 'Busco harmonia em minhas relações e beleza em minhas escolhas.',
-    'Escorpião': 'Mergulho fundo para transformar e renascer mais forte.',
-    'Sagitário': 'Expando meus horizontes com otimismo e busca por verdade.',
-    'Capricórnio': 'Construo estruturas sólidas para meus sonhos mais elevados.',
-    'Aquário': 'Inovo e revoluciono com amor e visão coletiva.',
-    'Peixes': 'Conecto-me com minha espiritualidade e inspiração mais profunda.'
-  },
-  'Lua Crescente': {
-    'geral': 'Cultivo com paciência os projetos que começaram a brotar em mim.'
-  },
-  'Lua Cheia': {
-    'geral': 'Celebro com gratidão os frutos que hoje amadurecem em minha vida.'
-  },
-  'Lua Minguante': {
-    'geral': 'Libero com amor o que já cumpriu seu ciclo em minha jornada.'
-  }
-};
-
-const afirmacoesBaseadasNumero = {
-  1: 'Hoje lidero minha vida com coragem e autenticidade.',
-  2: 'Hoje colaboro com harmonia e sensibilidade.',
-  3: 'Hoje expresso minha criatividade com alegria e leveza.',
-  4: 'Hoje construo com estabilidade e dedicação.',
-  5: 'Hoje flui com liberdade e adaptabilidade.',
-  6: 'Hoje nutro com amor e responsabilidade.',
-  7: 'Hoje aprofundo minha sabedoria interior.',
-  8: 'Hoje manifesto abundância com poder pessoal.',
-  9: 'Hoje completo ciclos com compaixão e desapego.'
-};
-
-const afirmacoesBaseadasCiclo = {
-  'menstruacao': 'Honro minha intuição profunda neste tempo sagrado de recolhimento.',
-  'pre_ovulacao': 'Nutro os novos sonhos que despertam em minha primavera interna.',
-  'ovulacao': 'Brilho com minha força feminina e magnetismo natural.',
-  'pre_menstrual': 'Discerno com sabedoria o que realmente merece meu cuidado.'
-};
-
-// ===== FUNÇÃO PARA GERAR AFIRMAÇÃO PERSONALIZADA =====
-function gerarAfirmacaoPersonalizada(lua, numeroEnergia, faseCiclo) {
-  let afirmacoes = [];
-  
-  // 1. Afirmação baseada na Lua e Signo
-  if (lua) {
-    const afirmacaoLunar = afirmacoesBaseadasEnergia[lua.fase];
-    if (afirmacaoLunar) {
-      if (afirmacaoLunar[lua.signo]) {
-        afirmacoes.push(afirmacaoLunar[lua.signo]);
-      } else if (afirmacaoLunar['geral']) {
-        afirmacoes.push(afirmacaoLunar['geral']);
-      }
-    }
-  }
-  
-  // 2. Afirmação baseada no número do dia
-  if (numeroEnergia && afirmacoesBaseadasNumero[numeroEnergia]) {
-    afirmacoes.push(afirmacoesBaseadasNumero[numeroEnergia]);
-  }
-  
-  // 3. Afirmação baseada no ciclo menstrual
-  if (faseCiclo && afirmacoesBaseadasCiclo[faseCiclo]) {
-    afirmacoes.push(afirmacoesBaseadasCiclo[faseCiclo]);
-  }
-  
-  // 4. Se não houver afirmações específicas, usar uma geral
-  if (afirmacoes.length === 0) {
-    const afirmacoesGerais = [
-      'Hoje honro minha jornada única com presença e amor.',
-      'Flui com a sabedoria do meu corpo e coração.',
-      'Confio no meu caminho e nas sincronicidades do universo.',
-      'Cultivo paz interna independente das circunstâncias externas.',
-      'Reconheço minha força mesmo nos momentos de vulnerabilidade.',
-      'Permito-me ser exatamente como sou neste momento.',
-      'Conecto-me com a magia que habita em meu ser cotidiano.'
-    ];
-    const indiceAleatorio = Math.floor(Math.random() * afirmacoesGerais.length);
-    afirmacoes.push(afirmacoesGerais[indiceAleatorio]);
-  }
-  
-  // Escolher uma afirmação aleatória das disponíveis
-  const indiceAleatorio = Math.floor(Math.random() * afirmacoes.length);
-  return afirmacoes[indiceAleatorio];
-}
-
 
 // ===== FUNÇÕES DE ARMAZENAMENTO =====
 function save(k, v) {
@@ -2915,7 +2823,7 @@ function avaliarDia(dataISO) {
   const dataObj = new Date(dataISO);
   const partesData = dataISO.split('-');
   const diaNum = parseInt(partesData[2]);
-  const afirmacaoDoDia = gerarAfirmacaoPersonalizada(lua, numeroEnergia, faseCiclo);
+  
   // Calcular ano pessoal
   const numeroEnergia = calcularNumeroEnergia(dataISO);
   const energiaNum = numeroEnergia ? energiaNumerologia[numeroEnergia] : null;
@@ -3118,8 +3026,8 @@ function avaliarDia(dataISO) {
         </li>` : ''
       }
       <li style="margin-bottom: 8px;">
-  <strong>Afirmação pessoal</strong>: Repita: "${afirmacaoDoDia}"
-</li>`
+        <strong>Afirmação pessoal</strong>: Repita: "Hoje honro minha potência única e flui com sabedoria."
+      </li>
     </ol>
     
     <div style="margin-top: 16px; padding: 12px; background: white; border-radius: 8px; border-left: 4px solid var(--color-digital-lavender);">
